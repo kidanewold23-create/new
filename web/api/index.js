@@ -44,6 +44,21 @@ if (typeof globalThis !== "undefined") {
   globalThis.generateOneTimeTelegramInviteLink = generateOneTimeTelegramInviteLink;
 }
 
+function normalizePath(pathStr) {
+  if (!pathStr) return "/api";
+  let p = pathStr.trim();
+  if (p.startsWith("api/")) {
+    p = "/" + p;
+  }
+  if (!p.startsWith("/api")) {
+    p = p.startsWith("/") ? "/api" + p : "/api/" + p;
+  }
+  if (p.length > 4 && p.endsWith("/")) {
+    p = p.slice(0, -1);
+  }
+  return p;
+}
+
 export default async function handler(req, res) {
   const getHeader = (key) => {
     if (!req || !req.headers) return "";
@@ -111,7 +126,7 @@ export default async function handler(req, res) {
 
     const pathParam = url.searchParams.get("path");
     if (pathParam) {
-      pathname = pathParam.startsWith("/api") ? pathParam : (pathParam.startsWith("/") ? `/api${pathParam}` : `/api/${pathParam}`);
+      pathname = pathParam;
     } else if (pathname === "/api" || pathname === "/api/" || pathname === "/api/index" || pathname === "/api/index.js" || pathname === "/api/index.ts") {
       const xUrl = getHeader("x-url") || getHeader("x-rewrite-url") || getHeader("x-matched-path") || getHeader("x-forwarded-uri");
       if (xUrl) {
@@ -124,6 +139,7 @@ export default async function handler(req, res) {
       }
     }
 
+    pathname = normalizePath(pathname);
     const reqMethod = (req.method || "GET").toUpperCase();
 
     if (reqMethod === "OPTIONS") {
@@ -161,11 +177,6 @@ export default async function handler(req, res) {
 body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
 `;
       return sendRes(cssFallback, 200);
-    }
-
-    // Ignore non-API requests if routed to serverless function
-    if (!pathname.startsWith("/api")) {
-      return sendRes({ error: "Not Found" }, 404);
     }
 
     // 1. Auth & Admin Security API
