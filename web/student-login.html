@@ -504,7 +504,7 @@
 
             const contentType = reqRes.headers.get("content-type") || "";
             if (!contentType.includes("application/json")) {
-              throw new Error(`Server returned HTML instead of JSON. Ensure http://localhost:3000 is running.`);
+              throw new Error("Server returned HTML response instead of JSON API response.");
             }
 
             const reqData = await reqRes.json();

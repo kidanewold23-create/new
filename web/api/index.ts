@@ -280,6 +280,36 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     }
   }
 
+  if (pathname === "/api/student/telegram-auth/request-code" && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const result = await dbStore.requestStudentTelegramOtp(body.identifier);
+      return new Response(JSON.stringify(result), { status: result.success ? 200 : 400, headers });
+    } catch (err: any) {
+      return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers });
+    }
+  }
+
+  if (pathname === "/api/student/telegram-auth/verify-code" && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const result = await dbStore.verifyStudentTelegramOtp(body.identifier, body.code);
+      return new Response(JSON.stringify(result), { status: result.success ? 200 : 400, headers });
+    } catch (err: any) {
+      return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers });
+    }
+  }
+
+  if (pathname === "/api/student/telegram-auth/poll-status" && req.method === "GET") {
+    try {
+      const code = url.searchParams.get("code") || "";
+      const result = await dbStore.pollStudentTelegramOtp(code);
+      return new Response(JSON.stringify(result), { status: 200, headers });
+    } catch (err: any) {
+      return new Response(JSON.stringify({ verified: false, error: err.message }), { status: 500, headers });
+    }
+  }
+
   if (pathname === "/api/student/telegram-auth" && req.method === "POST") {
     try {
       const body = await req.json();
