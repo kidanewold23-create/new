@@ -51,11 +51,14 @@ export default async function handler(req: Request) {
   const pathParam = url.searchParams.get("path");
   if (pathParam) {
     pathname = pathParam.startsWith("/api") ? pathParam : (pathParam.startsWith("/") ? `/api${pathParam}` : `/api/${pathParam}`);
-  } else {
-    const xUrl = req.headers.get("x-url") || req.headers.get("x-rewrite-url");
+  } else if (pathname === "/api" || pathname === "/api/" || pathname === "/api/index" || pathname === "/api/index.js" || pathname === "/api/index.ts") {
+    const xUrl = req.headers.get("x-url") || req.headers.get("x-rewrite-url") || req.headers.get("x-matched-path") || req.headers.get("x-forwarded-uri");
     if (xUrl) {
       try {
-        pathname = new URL(xUrl, "http://localhost").pathname;
+        const parsed = new URL(xUrl, "http://localhost").pathname;
+        if (parsed && parsed !== "/" && parsed !== "/api/index.js" && parsed !== "/api/index.ts") {
+          pathname = parsed;
+        }
       } catch (_e) {}
     }
   }
