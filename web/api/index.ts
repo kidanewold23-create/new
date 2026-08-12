@@ -64,7 +64,7 @@ export default async function handler(req: Request) {
             status: 200,
             headers: {
               "Content-Type": "text/css; charset=utf-8",
-              "Cache-Control": "public, max-age=31536000, immutable"
+              "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0"
             }
           });
         }
@@ -88,7 +88,7 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       status: 200,
       headers: {
         "Content-Type": "text/css; charset=utf-8",
-        "Cache-Control": "public, max-age=31536000, immutable"
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0"
       }
     });
   }
