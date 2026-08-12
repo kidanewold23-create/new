@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Under Maintenance | Founders Academy</title>
+  <meta name="description" content="Founders Academy is currently undergoing scheduled system upgrades and maintenance.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #131728 0%, #0a0c18 100%);
+      padding: 24px;
+    }
+
+    .maintenance-card {
+      position: relative;
+      width: 100%;
+      max-width: 620px;
+      background: rgba(20, 24, 40, 0.75);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 24px;
+      padding: 48px 36px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .maintenance-glow {
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.2), transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+
+    .gear-icon-wrapper {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 24px auto;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-gold);
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+      animation: pulse-glow 3s infinite ease-in-out;
+    }
+
+    .gear-icon-wrapper i {
+      animation: spin-gear 12s linear infinite;
+    }
+
+    @keyframes spin-gear {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+      50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(245, 158, 11, 0.4); }
+    }
+
+    .est-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 24px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="maintenance-card">
+    <div class="maintenance-glow"></div>
+
+    <div class="gear-icon-wrapper">
+      <i data-lucide="wrench" style="width: 42px; height: 42px;"></i>
+    </div>
+
+    <span class="badge badge-gold" style="padding: 6px 14px; font-size: 0.85rem; margin-bottom: 14px; display: inline-flex; gap: 6px;">
+      <i data-lucide="shield-alert"></i> SCHEDULED MAINTENANCE
+    </span>
+
+    <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 12px 0;" id="maint-title-display">
+      System Under Scheduled Upgrades & Maintenance
+    </h1>
+
+    <p style="color: var(--text-dim); font-size: 1rem; line-height: 1.6; margin: 0 0 20px 0;" id="maint-msg-display">
+      We are currently upgrading Founders Academy infrastructure and database performance for upcoming masterclass cohorts. Public student access will resume shortly.
+    </p>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+
+      // Fetch live maintenance configuration from Database API
+      fetch("/api/maintenance")
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.success && data.data) {
+            if (data.data.status === "OFF") {
+              // System is live, redirect back to index.html
+              localStorage.setItem("founders_maintenance", "OFF");
+              window.location.replace("index.html");
+            } else {
+              if (data.data.title) document.getElementById("maint-title-display").textContent = data.data.title;
+              if (data.data.message) document.getElementById("maint-msg-display").textContent = data.data.message;
+            }
+          }
+        })
+        .catch(() => {
+          const title = localStorage.getItem("maint_title");
+          const msg = localStorage.getItem("maint_msg");
+          if (title) document.getElementById("maint-title-display").textContent = title;
+          if (msg) document.getElementById("maint-msg-display").textContent = msg;
+        });
+    });
+  </script>
+</body>
+</html>

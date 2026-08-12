@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Courses | Khilx Academy</title>
+  <meta name="description" content="Explore our full catalog of high-income digital courses in SMMA, Video Editing, Cinematography, Content Creation, and Graphic Design at Khilx Academy.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <script src="js/maintenance-guard.js"></script>
+</head>
+<body class="dark-theme">
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-content">
+      <span class="badge badge-gold"><i data-lucide="sparkles"></i> NEW ENROLLMENT OPEN</span>
+      <span data-i18n="announcement_text">Founders Academy Accelerator Round 6 registration is live! Get 25% OFF plus 3 bonus courses.</span>
+      <a href="#courses-grid" class="btn-text" id="announcement-cta" data-i18n="claim_offer">Claim Offer &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Main Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="logo-icon">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">FOUNDERS</span>
+          <span class="brand-sub">ACADEMY</span>
+        </div>
+      </a>
+
+      <div class="nav-links" id="nav-links">
+        <a href="index.html" class="nav-link"><i data-lucide="home"></i> Home</a>
+        <a href="index.html#personas" class="nav-link"><i data-lucide="users"></i> Who Is It For?</a>
+        <a href="index.html#what-you-get" class="nav-link"><i data-lucide="package-check"></i> What You Get</a>
+        <a href="index.html#success-stories" class="nav-link"><i data-lucide="trophy"></i> Success Stories</a>
+        <a href="courses.html" class="nav-link active" data-i18n="nav_courses"><i data-lucide="book-open"></i> Courses</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="student-login.html" class="btn btn-outline" id="header-student-login-btn" style="border-color: rgba(255, 255, 255, 0.25);">
+          <i data-lucide="log-in"></i> Login
+        </a>
+
+        <a href="#courses-grid" class="btn btn-primary">
+          <i data-lucide="shopping-cart"></i> Join Courses
+        </a>
+
+        <!-- Mobile Menu Trigger -->
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Courses Page Header -->
+  <section class="hero-section" style="padding: 60px 0 40px;">
+    <div class="hero-bg-glow"></div>
+    <div class="container" style="text-align: center;">
+      <div class="hero-badge">
+        <i data-lucide="book-open"></i>
+        <span>EXPLORE ALL COURSES</span>
+      </div>
+      <h1 class="hero-title" style="font-size: 3rem; margin-bottom: 16px;">
+        Master In-Demand <span class="gradient-text">Digital Skills</span>
+      </h1>
+      <p class="hero-subtitle" style="margin: 0 auto 30px;">
+        Select your career track below. Every course includes lifetime access to HD video modules, 1-on-1 mentorship in Telegram, downloadable agency contract templates, and a verified diploma.
+      </p>
+
+      <!-- Search & Filter Wrapper -->
+      <div class="filter-wrapper">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" id="course-search" placeholder="Search courses by skill (e.g. SMMA, Premiere Pro, Figma)..." aria-label="Search courses">
+        </div>
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-category="all">All Courses</button>
+          <button class="filter-tab" data-category="marketing">SMMA & Marketing</button>
+          <button class="filter-tab" data-category="video">Video Editing & Cinematography</button>
+          <button class="filter-tab" data-category="design">Graphic Design</button>
+          <button class="filter-tab" data-category="content">Content & Branding</button>
+          <button class="filter-tab" data-category="free">Free Courses</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Courses Grid Container -->
+  <section class="courses-section" style="padding-top: 20px;">
+    <div class="container">
+      <div class="courses-grid" id="courses-grid">
+        <!-- Dynamically rendered via JS -->
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col brand-col">
+        <a href="index.html" class="brand-logo">
+          <div class="logo-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">FOUNDERS</span>
+            <span class="brand-sub">ACADEMY</span>
+          </div>
+        </a>
+        <p>Empowering the next generation of Ethiopian entrepreneurs with world-class digital skills and agency masterclasses.</p>
+        <div class="social-links">
+          <a href="https://t.me/founderssupport" target="_blank" aria-label="Telegram"><i data-lucide="send"></i></a>
+          <a href="https://youtube.com/@yonasmoh" target="_blank" aria-label="YouTube"><i data-lucide="youtube"></i></a>
+          <a href="https://instagram.com/yonasmoh" target="_blank" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+          <a href="#" aria-label="Linkedin"><i data-lucide="linkedin"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Courses</h4>
+        <ul>
+          <li><a href="courses.html">SMMA Accelerator</a></li>
+          <li><a href="courses.html">Video Editing Mastery</a></li>
+          <li><a href="courses.html">Cinematography Production</a></li>
+          <li><a href="courses.html">Graphic Design Agency</a></li>
+          <li><a href="courses.html">Free Intro Webinars</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html#personas">Who Is It For?</a></li>
+          <li><a href="index.html#instructors">Our Instructors</a></li>
+          <li><a href="index.html#what-you-get">What You Get Inside</a></li>
+          <li><a href="index.html#success-stories">Success Stories</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="index.html#testimonials">Testimonials</a></li>
+          <li><a href="index.html#faq">FAQ & Support</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col newsletter-col">
+        <h4>Stay Updated</h4>
+        <p>Subscribe to receive free tutorials, market reports, and discount alerts.</p>
+        <form class="newsletter-form" id="newsletter-form">
+          <input type="email" placeholder="Enter your email" required aria-label="Email Address">
+          <button type="submit" class="btn btn-primary"><i data-lucide="arrow-right"></i></button>
+        </form>
+        <span class="privacy-note"><i data-lucide="lock"></i> We respect your privacy. No spam.</span>
+      </div>
+    </div>
+
+    <div class="footer-bottom container">
+      <p>&copy; 2026 Founders Academy. All rights reserved. | Developed by Digital Dynamics</p>
+      <div class="legal-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Security & Payments</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Course Detail Modal / Drawer -->
+  <div class="modal-overlay" id="course-modal">
+    <div class="modal-card drawer-card">
+      <button class="modal-close" id="course-modal-close" aria-label="Close Modal"><i data-lucide="x"></i></button>
+      <div class="modal-body" id="course-modal-body">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Buy & Checkout Modal (Step 1: Contact Info -> Step 2: Payment -> Step 3: Telegram Bot Link) -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="modal-card checkout-card">
+      <button class="modal-close" id="checkout-modal-close" aria-label="Close Checkout"><i data-lucide="x"></i></button>
+      
+      <!-- Checkout Step Indicators -->
+      <div class="checkout-steps-bar">
+        <div class="step-indicator active" id="step-ind-1">
+          <span class="step-num">1</span>
+          <span class="step-label">Your Info</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="step-ind-2">
+          <span class="step-num">2</span>
+          <span class="step-label">Payment</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="step-ind-3">
+          <span class="step-num">3</span>
+          <span class="step-label">Telegram Bot</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: Buyer Info Form -->
+      <div class="checkout-step-panel" id="checkout-step-1">
+        <div class="checkout-header">
+          <h2><i data-lucide="user"></i> Enter Student Details</h2>
+          <p>Enrollment for <strong id="checkout-course-title-step1" style="color: var(--primary-gold);">Course Title</strong></p>
+        </div>
+
+        <form id="buyer-info-form" class="auth-form">
+          <div class="form-group">
+            <label for="buyer-name"><i data-lucide="user"></i> Full Name *</label>
+            <input type="text" id="buyer-name" placeholder="e.g. Kidanewold Hailu" required class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="buyer-phone"><i data-lucide="phone"></i> Phone Number (Must start with 251) *</label>
+            <input type="tel" id="buyer-phone" placeholder="e.g. 251911223344" required class="form-input">
+            <small style="color: var(--text-dim); font-size: 0.78rem; display: block; margin-top: 4px;">Must start with country code 251 (e.g. 251911223344)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="buyer-address"><i data-lucide="map-pin"></i> City / Address *</label>
+            <input type="text" id="buyer-address" placeholder="e.g. Addis Ababa" required class="form-input">
+          </div>
+
+          <div id="cookie-info-badge" class="hidden" style="margin-bottom: 12px; font-size: 0.82rem; color: #10b981; display: flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(16, 185, 129, 0.3);">
+            <i data-lucide="cookie"></i> <span>Loaded your saved details from cookie!</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+            Proceed to Payment <i data-lucide="arrow-right"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- STEP 2: Payment Details -->
+      <div class="checkout-step-panel hidden" id="checkout-step-2">
+        <div class="checkout-header">
+          <h2><i data-lucide="shield-check"></i> Complete Payment</h2>
+          <p>Select your payment method below</p>
+        </div>
+
+        <div class="checkout-grid">
+          <!-- Order Summary -->
+          <div class="order-summary glass-box">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+              <span>Course:</span>
+              <strong id="summary-course-name">SMMA Accelerator</strong>
+            </div>
+            <div class="summary-row">
+              <span>Regular Price:</span>
+              <span id="summary-original-price">12,500 ETB</span>
+            </div>
+            <div class="summary-row discount">
+              <span>Special Discount (25% OFF):</span>
+              <span id="summary-discount">-2,500 ETB</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Payable:</span>
+              <strong id="summary-final-price">10,000 ETB</strong>
+            </div>
+
+            <div class="promo-input-group">
+              <input type="text" id="promo-code" placeholder="Promo Code (FOUNDER25)" aria-label="Promo Code">
+              <button class="btn btn-outline" id="apply-promo-btn">Apply</button>
+            </div>
+
+            <div class="buyer-summary-preview glass-box" style="margin-top: 14px; font-size: 0.82rem;">
+              <div><strong>Student:</strong> <span id="preview-buyer-name">-</span></div>
+              <div><strong>Phone:</strong> <span id="preview-buyer-phone">-</span></div>
+            </div>
+          </div>
+
+          <!-- Payment Options -->
+          <div class="payment-selection">
+            <h3>Select Payment Method</h3>
+            <div class="payment-methods">
+              <label class="payment-option active">
+                <input type="radio" name="payment-method" value="telebirr" checked>
+                <div class="payment-box">
+                  <div class="payment-logo telebirr-badge">telebirr</div>
+                  <div>
+                    <strong>Telebirr Transfer</strong>
+                    <p>Instant mobile payment</p>
+                  </div>
+                </div>
+              </label>
+
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="cbe">
+                <div class="payment-box">
+                  <div class="payment-logo cbe-badge">CBE Birr</div>
+                  <div>
+                    <strong>Commercial Bank of Ethiopia (CBE)</strong>
+                    <p>Account: 1000492819482</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Payment Instructions Box -->
+            <div class="payment-instructions glass-box" id="payment-instructions">
+              <h4><i data-lucide="smartphone"></i> Telebirr Payment Details:</h4>
+              <p>1. Open Telebirr App -> Select <strong>Pay Merchant / Send Money</strong></p>
+              <p>2. Phone / Merchant ID: <strong>+251 906 769 999</strong></p>
+              <p>3. Enter Amount: <strong id="instruction-price">10,000 ETB</strong></p>
+              <p>4. Input Transaction Ref Number below:</p>
+              
+              <input type="text" id="tx-ref-input" placeholder="e.g. TX129849281" class="form-input" required>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+              <button class="btn btn-outline" id="back-to-step1-btn"><i data-lucide="arrow-left"></i> Back</button>
+              <button class="btn btn-primary btn-block btn-lg" id="confirm-payment-btn">
+                <i data-lucide="check-circle"></i> Complete & Verify Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Telegram Bot Success Screen -->
+      <div class="checkout-step-panel hidden" id="checkout-step-3" style="text-align: center; padding: 20px 10px;">
+        <div id="boom-header-container" class="boom-pop-anim" style="margin-bottom: 16px;">
+          <span class="boom-title-badge">💥 BOOM! PAYMENT VERIFIED 💥</span>
+        </div>
+
+        <div class="success-icon-badge" style="width: 70px; height: 70px; background: rgba(16, 185, 129, 0.15); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+          <i data-lucide="check-circle-2" style="width: 42px; height: 42px;"></i>
+        </div>
+        <h2 style="font-family: var(--font-heading); font-size: 2rem; margin-bottom: 10px; color: var(--text-main);">
+          Payment Verified via Verify.ET! 🎉
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1rem; max-width: 550px; margin: 0 auto 24px;">
+          Your registration for <strong id="success-course-name" style="color: var(--primary-gold);">Course</strong> has been verified for <strong id="success-buyer-name">Student</strong> (<span id="success-buyer-phone">251911223344</span>).
+        </p>
+
+        <div class="telegram-bot-card glass-card" style="max-width: 520px; margin: 0 auto 30px; padding: 30px; border-color: rgba(0, 132, 255, 0.5); background: rgba(0, 132, 255, 0.05); box-shadow: 0 0 30px rgba(0, 132, 255, 0.25);">
+          <div class="bot-avatar" style="width: 65px; height: 65px; background: #0084ff; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 0 25px rgba(0, 132, 255, 0.5);">
+            <i data-lucide="bot" style="width: 36px; height: 36px;"></i>
+          </div>
+          <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 8px; color: var(--text-main);">@founders_academybot</h3>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 22px;">
+            Payment verified! Click below to launch <strong>@founders_academybot</strong> to receive your instant course modules, templates, and Telegram group links!
+          </p>
+
+          <a href="https://t.me/founders_academybot" target="_blank" class="btn btn-primary btn-lg btn-block pulse-glow-btn" style="background: linear-gradient(135deg, #0084ff 0%, #0055ff 100%); color: #fff; box-shadow: 0 4px 25px rgba(0, 132, 255, 0.5); font-size: 1.15rem; font-weight: 700;">
+            <i data-lucide="send"></i> Go to Bot @founders_academybot
+          </a>
+        </div>
+
+        <button class="btn btn-outline" id="finish-checkout-btn">
+          <i data-lucide="x"></i> Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

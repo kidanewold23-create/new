@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Account & Portal Settings | Founders Academy</title>
+  <meta name="description" content="Change admin username, password, 2FA security preferences and portal settings.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn active">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <h1 class="dash-title">Admin Account & Portal Settings</h1>
+          <p class="dash-subtitle">Update your admin login username, change security password, and configure 2FA preferences</p>
+        </div>
+      </header>
+
+      <!-- Settings Grid -->
+      <div class="dashboard-grid-2col" style="grid-template-columns: 1fr 1fr;">
+        <!-- Panel 1: Credentials Form -->
+        <div class="dash-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <i data-lucide="user-check" style="color: var(--primary-gold);"></i> Admin Credentials
+            </h2>
+            <span class="badge badge-gold"><i data-lucide="shield-alert"></i> Super Admin</span>
+          </div>
+
+          <form id="form-update-admin-credentials">
+            <div class="form-group">
+              <label class="form-label" for="setting-username">Admin Username</label>
+              <div class="input-with-icon">
+                <input 
+                  type="text" 
+                  id="setting-username" 
+                  class="form-input" 
+                  placeholder="admin" 
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="setting-current-password">Current Password</label>
+              <div class="input-with-icon password-input-wrap">
+                <input 
+                  type="password" 
+                  id="setting-current-password" 
+                  class="form-input" 
+                  placeholder="Enter current password" 
+                  required
+                >
+                <button type="button" class="btn-toggle-password" data-target="setting-current-password">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="setting-new-password">New Password</label>
+              <div class="input-with-icon password-input-wrap">
+                <input 
+                  type="password" 
+                  id="setting-new-password" 
+                  class="form-input" 
+                  placeholder="Enter new password (min 6 chars)" 
+                  required
+                >
+                <button type="button" class="btn-toggle-password" data-target="setting-new-password">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="setting-confirm-password">Confirm New Password</label>
+              <div class="input-with-icon password-input-wrap">
+                <input 
+                  type="password" 
+                  id="setting-confirm-password" 
+                  class="form-input" 
+                  placeholder="Re-enter new password" 
+                  required
+                >
+                <button type="button" class="btn-toggle-password" data-target="setting-confirm-password">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-auth-submit" style="margin-top: 24px;">
+              <span class="btn-text">Save & Update Credentials</span>
+              <div class="btn-spinner"></div>
+              <i data-lucide="check-circle" class="btn-text"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Panel 2: Security & 2FA Preferences -->
+        <div class="dash-panel" id="panel-security-2fa">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <i data-lucide="shield-check" style="color: var(--accent-indigo);"></i> Security & 2FA Preferences
+            </h2>
+            <span class="badge badge-gold" id="badge-2fa-status"><i data-lucide="lock"></i> 2FA Enabled</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- 2FA Master Switch -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+              <div>
+                <strong style="display: block; font-size: 0.95rem;">2FA Security OTP Verification</strong>
+                <span style="font-size: 0.82rem; color: var(--text-muted);">Requires a 6-digit OTP code sent to Telegram when logging in</span>
+              </div>
+              <input type="checkbox" id="toggle-2fa-setting" checked style="width: 22px; height: 22px; accent-color: var(--primary-gold); cursor: pointer;" onchange="toggle2FAPreference(this.checked)">
+            </div>
+
+            <!-- Telegram Admin 2FA Card (Multi-Admin Linkage System) -->
+            <div id="telegram-2fa-card" style="padding: 22px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02);">
+              
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; font-size: 1.05rem;">
+                    <i data-lucide="send" style="color: #0088cc; width: 22px; height: 22px;"></i> Telegram Admin Linkage & 2FA Engine
+                  </div>
+                  <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; margin-bottom: 0;">
+                    Generate linkage codes to add multiple admin chats. Any team member who submits the linkage code to the Telegram bot becomes an authorized admin receiver.
+                  </p>
+                </div>
+                <span class="badge-status active" id="badge-active-admins-count"><i data-lucide="users"></i> <span id="txt-admins-count-num">0</span> Linked Admins</span>
+              </div>
+
+              <!-- Multi-Admin Linkage Generator Box -->
+              <div style="padding: 18px; background: rgba(217, 119, 6, 0.06); border: 1px solid rgba(217, 119, 6, 0.25); border-radius: var(--radius-md); margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                  <div style="font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-gold); font-weight: 700;">
+                    ⚡ Multi-Admin Telegram Linkage Code Generator
+                  </div>
+                  <button type="button" class="btn-dash-action btn-dash-primary" id="btn-generate-pairing-code" onclick="generateAdminPairingCode()" style="padding: 6px 14px; font-size: 0.82rem;">
+                    <i data-lucide="key-round"></i> Generate New Linkage Code
+                  </button>
+                </div>
+
+                <!-- Glowing Generated Code Display -->
+                <div id="pairing-code-display-box" style="display: none;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; background: rgba(0, 0, 0, 0.4); padding: 12px 16px; border-radius: 8px;">
+                    <div>
+                      <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Active Team Linkage Code</div>
+                      <span id="txt-pairing-code" style="font-family: monospace; font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: 0.1em;">FA-89241</span>
+                    </div>
+                    <button type="button" class="btn-dash-action btn-dash-secondary" onclick="copyPairingCode()" style="padding: 6px 12px; font-size: 0.8rem;">
+                      <i data-lucide="copy"></i> Copy Code
+                    </button>
+                  </div>
+
+                  <div style="font-size: 0.86rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 12px;">
+                    <strong>👉 How to Link Multiple Admin Chats:</strong><br>
+                    1. Send this code to any co-founder, instructor, or support manager.<br>
+                    2. They open bot <strong>@founders_academybot</strong> and send: <code id="txt-command-snippet" style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: var(--primary-gold);">/link_admin FA-89241</code><br>
+                    3. Their Telegram chat will instantly be granted Admin status!
+                  </div>
+
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a id="btn-1click-tg-link" href="https://t.me/founders_academybot" target="_blank" class="btn-auth-submit" style="margin: 0; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; width: auto;">
+                      <i data-lucide="send"></i> 1-Click Connect in Telegram
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Authorized Linked Admins Directory -->
+              <div style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="shield-check" style="color: var(--accent-emerald); width: 18px; height: 18px;"></i>
+                    Authorized Admin Telegram Chats (<span id="txt-linked-admins-counter">0</span>)
+                  </h4>
+                  <button type="button" class="btn-auth-submit" id="btn-test-otp" onclick="sendTestOtpToTelegram()" style="margin: 0; padding: 6px 14px; font-size: 0.8rem; width: auto;">
+                    <i data-lucide="send"></i> Test Broadcast 2FA OTP
+                  </button>
+                </div>
+
+                <!-- Admin Chats List Container -->
+                <div id="linked-admins-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Manual Chat ID Addition Form -->
+              <div style="padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                <label for="manual-admin-chatid-input" style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px;">
+                  ➕ Add Telegram Chat ID Manually:
+                </label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="manual-admin-chatid-input" class="form-input" placeholder="e.g. 6241860023" style="flex: 1; padding: 8px 12px; font-size: 0.88rem;">
+                  <button type="button" class="btn-dash-action btn-dash-primary" onclick="saveManualAdminChatId()" style="padding: 8px 16px; white-space: nowrap; font-size: 0.88rem;">
+                    <i data-lucide="plus-circle"></i> Add Admin Chat
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        
+        <!-- Panel 3: Merchant Bank & Telebirr Accounts Manager (No API Section, Enable/Disable Toggles, Multi-Account Support) -->
+        <div class="dash-panel" style="grid-column: 1 / -1; margin-top: 24px;">
+          <div class="panel-header" style="margin-bottom: 20px;">
+            <div>
+              <h2 class="panel-title" style="display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
+                <i data-lucide="building-2" style="color: var(--primary-gold); width: 24px; height: 24px;"></i> Merchant Payment Channels & Multi-Account Manager
+              </h2>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px; margin-bottom: 0;">
+                Configure merchant payment options for Commercial Bank of Ethiopia (CBE) and Telebirr. Enable or disable payment channels and add multiple receiving accounts for each provider.
+              </p>
+            </div>
+            <span class="badge badge-gold" style="white-space: nowrap;"><i data-lucide="database"></i> Database Persisted</span>
+          </div>
+
+          <form id="form-update-bank-accounts">
+            
+            <div style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 24px;">
+              
+              <!-- 1. Commercial Bank of Ethiopia (CBE) Section -->
+              <div style="padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(217, 119, 6, 0.3); background: rgba(217, 119, 6, 0.04);">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217, 119, 6, 0.2); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="building-2" style="color: var(--primary-gold); width: 22px; height: 22px;"></i>
+                    <span style="font-weight: 700; color: #fff; font-size: 1.05rem;">Commercial Bank of Ethiopia (CBE)</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #fff; cursor: pointer; font-weight: 600;">
+                      <input type="checkbox" id="toggle-cbe-enabled" checked style="width: 18px; height: 18px; accent-color: var(--primary-gold);">
+                      Enable CBE Channel
+                    </label>
+                    <button type="button" class="btn-dash-action btn-dash-primary" onclick="addCbeAccountRow()" style="padding: 6px 12px; font-size: 0.8rem;">
+                      <i data-lucide="plus"></i> Add CBE Account
+                    </button>
+                  </div>
+                </div>
+
+                <div id="cbe-accounts-list-container" style="display: flex; flex-direction: column; gap: 12px;">
+                  <!-- Dynamic CBE Account Rows -->
+                </div>
+              </div>
+
+              <!-- 2. Telebirr Merchant Channel Section -->
+              <div style="padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(0, 136, 204, 0.3); background: rgba(0, 136, 204, 0.04);">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0, 136, 204, 0.2); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="smartphone" style="color: #0088cc; width: 22px; height: 22px;"></i>
+                    <span style="font-weight: 700; color: #fff; font-size: 1.05rem;">Telebirr Merchant Channel</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #fff; cursor: pointer; font-weight: 600;">
+                      <input type="checkbox" id="toggle-telebirr-enabled" checked style="width: 18px; height: 18px; accent-color: #0088cc;">
+                      Enable Telebirr Channel
+                    </label>
+                    <button type="button" class="btn-dash-action btn-dash-primary" onclick="addTelebirrNumberRow()" style="padding: 6px 12px; font-size: 0.8rem; background: #0088cc; border-color: #0088cc;">
+                      <i data-lucide="plus"></i> Add Telebirr Number
+                    </button>
+                  </div>
+                </div>
+
+                <div id="telebirr-numbers-list-container" style="display: flex; flex-direction: column; gap: 12px;">
+                  <!-- Dynamic Telebirr Rows -->
+                </div>
+              </div>
+
+
+
+            </div>
+
+            <!-- Save Action Bar -->
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button type="submit" class="btn-auth-submit" style="margin: 0; max-width: 340px;">
+                <span class="btn-text">Save All Payment Accounts & Channels</span>
+                <div class="btn-spinner"></div>
+                <i data-lucide="save" class="btn-text"></i>
+              </button>
+            </div>
+
+          </form>
+        </div> </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js"></script>
+  <script>
+    let pairingPollInterval = null;
+    let currentPairingCode = "";
+
+    // 1. Fetch & Render Admin Security State
+    // 1. Fetch & Render Admin Security State (Multi-Admin)
+    function fetchAdminSecurityStatus() {
+      fetch("/api/admin/security")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            const sec = data.data;
+            const toggle2fa = document.getElementById("toggle-2fa-setting");
+            const badge2fa = document.getElementById("badge-2fa-status");
+
+            if (toggle2fa) toggle2fa.checked = sec.twoFactorEnabled !== false;
+            if (badge2fa) {
+              if (sec.twoFactorEnabled !== false) {
+                badge2fa.className = "badge badge-gold";
+                badge2fa.innerHTML = `<i data-lucide="lock"></i> 2FA Enabled`;
+              } else {
+                badge2fa.className = "badge";
+                badge2fa.style.background = "rgba(255,255,255,0.1)";
+                badge2fa.innerHTML = `<i data-lucide="unlock"></i> 2FA Disabled`;
+              }
+            }
+
+            const linkedList = Array.isArray(sec.linkedAdminChats) ? sec.linkedAdminChats : [];
+            const countNumSpan = document.getElementById("txt-admins-count-num");
+            const counterSpan = document.getElementById("txt-linked-admins-counter");
+            if (countNumSpan) countNumSpan.textContent = linkedList.length;
+            if (counterSpan) counterSpan.textContent = linkedList.length;
+
+            renderLinkedAdmins(linkedList);
+
+            if (sec.activePairingCode) {
+              renderPairingCodeBox(sec.activePairingCode);
+              startPairingPoll();
+            }
+
+            if (window.lucide) window.lucide.createIcons();
+          }
+        })
+        .catch(() => {});
+    }
+
+    function renderLinkedAdmins(linkedList) {
+      const container = document.getElementById("linked-admins-list-container");
+      if (!container) return;
+
+      if (!linkedList || linkedList.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 16px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+            ⚠️ No Telegram Admin Chats linked yet. Generate a linkage code above or input your Chat ID to connect.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = linkedList.map((item, idx) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.95rem;">
+              ${(item.name || 'A').substring(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight: 700; color: #fff; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+                ${item.name || 'Admin'}
+                <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.7rem; padding: 1px 6px;">${item.role || 'Admin'}</span>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 12px; margin-top: 2px;">
+                <span>Username: <strong style="color: #fff;">${item.username || '@Admin'}</strong></span>
+                <span>Chat ID: <strong style="color: var(--primary-gold); font-family: monospace;">${item.chatId}</strong></span>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge-status active" style="font-size: 0.75rem;"><i data-lucide="check-circle-2"></i> Live OTP Receiver</span>
+            <button type="button" class="btn-dash-action btn-dash-secondary" onclick="unlinkSingleAdmin('${item.chatId}')" style="padding: 4px 10px; font-size: 0.78rem; color: #ef4444; border-color: rgba(239,68,68,0.3);">
+              <i data-lucide="trash-2"></i> Unlink
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function unlinkSingleAdmin(chatId) {
+      if (!confirm(`Are you sure you want to unlink Telegram Chat ID ${chatId}?`)) return;
+
+      fetch(`/api/admin/security/unlink-admin/${encodeURIComponent(chatId)}`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            showToast(`Unlinked admin chat ${chatId}.`, "success");
+            fetchAdminSecurityStatus();
+          } else {
+            showToast(data.error || "Failed to unlink chat.", "error");
+          }
+        })
+        .catch(err => showToast("Error unlinking chat: " + err.message, "error"));
+    }
+
+    // 2. Generate Telegram Admin Pairing Code
+    function generateAdminPairingCode() {
+      const btn = document.getElementById("btn-generate-pairing-code");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Generating Code...</span>`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      fetch("/api/admin/security/generate-pairing-code", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="key-round"></i> <span>Generate New Code</span>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+
+          if (data.success && data.pairingCode) {
+            currentPairingCode = data.pairingCode;
+            renderPairingCodeBox(data.pairingCode, data.linkUrl);
+            startPairingPoll();
+            showToast(`Team Linkage Code ${data.pairingCode} generated! Anyone with this code can connect to the bot as an admin.`, "success");
+          } else {
+            showToast(data.error || "Failed to generate pairing code.", "error");
+          }
+        })
+        .catch(err => {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="key-round"></i> <span>Generate New Code</span>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+          showToast("Network error generating code: " + err.message, "error");
+        });
+    }
+
+    function renderPairingCodeBox(code, linkUrl) {
+      const box = document.getElementById("pairing-code-display-box");
+      const codeSpan = document.getElementById("txt-pairing-code");
+      const cmdSnippet = document.getElementById("txt-command-snippet");
+      const oneClickBtn = document.getElementById("btn-1click-tg-link");
+
+      if (codeSpan) codeSpan.textContent = code;
+      if (cmdSnippet) cmdSnippet.textContent = `/link_admin ${code}`;
+      if (oneClickBtn) {
+        const url = linkUrl || `https://t.me/founders_academybot?start=admin_${code}`;
+        oneClickBtn.href = url;
+      }
+      if (box) box.style.display = "block";
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function startPairingPoll() {
+      if (pairingPollInterval) clearInterval(pairingPollInterval);
+      pairingPollInterval = setInterval(() => {
+        fetch("/api/admin/security")
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.data && data.data.telegramLinked) {
+              clearInterval(pairingPollInterval);
+              pairingPollInterval = null;
+              fetchAdminSecurityStatus();
+              showToast("🎉 Telegram Admin Account Successfully Connected! Live OTPs are now active.", "success");
+            }
+          })
+          .catch(() => {});
+      }, 2500);
+    }
+
+    function copyPairingCode() {
+      const codeSpan = document.getElementById("txt-pairing-code");
+      if (codeSpan) {
+        navigator.clipboard.writeText(codeSpan.textContent.trim());
+        showToast(`Copied pairing code "${codeSpan.textContent.trim()}" to clipboard!`, "success");
+      }
+    }
+
+    // 3. Send Test 2FA OTP to Telegram
+    function sendTestOtpToTelegram() {
+      const btn = document.getElementById("btn-test-otp");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Sending Test OTP...</span>`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      fetch("/api/admin/security/test-otp", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="send"></i> <span>Send Test 2FA OTP</span>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+
+          if (data.success) {
+            showToast(data.message || "Test OTP sent to Telegram successfully!", "success");
+          } else {
+            showToast(data.error || "Failed to send test OTP.", "error");
+          }
+        })
+        .catch(err => {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="send"></i> <span>Send Test 2FA OTP</span>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+          showToast("Error sending test OTP: " + err.message, "error");
+        });
+    }
+
+    // 4. Unlink Telegram Admin Account
+    function unlinkTelegramAdmin() {
+      if (!confirm("Are you sure you want to unlink your Telegram Admin account? You will no longer receive 2FA OTP codes on Telegram.")) return;
+
+      fetch("/api/admin/security/unlink-telegram", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            fetchAdminSecurityStatus();
+            const box = document.getElementById("pairing-code-display-box");
+            if (box) box.style.display = "none";
+            showToast("Telegram Admin account unlinked.", "info");
+          } else {
+            showToast(data.error || "Failed to unlink account.", "error");
+          }
+        })
+        .catch(err => showToast("Error unlinking: " + err.message, "error"));
+    }
+
+    // 4b. Save Manual Telegram Chat ID
+    function saveManualAdminChatId() {
+      const input = document.getElementById("manual-admin-chatid-input");
+      const val = input ? input.value.trim() : "";
+      if (!val) {
+        showToast("Please enter a valid numeric Telegram Chat ID.", "error");
+        return;
+      }
+
+      fetch("/api/admin/security/set-chat-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatId: val, name: "Admin (Direct)", username: "@admin" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          fetchAdminSecurityStatus();
+          showToast("Telegram Admin Chat ID connected successfully! Sent verification message to Telegram.", "success");
+          if (input) input.value = "";
+        } else {
+          showToast(data.error || "Failed to save Chat ID.", "error");
+        }
+      })
+      .catch(err => showToast("Error connecting: " + err.message, "error"));
+    }
+
+    // 5. Toggle 2FA Setting
+    function toggle2FAPreference(enabled) {
+
+      fetch("/api/admin/security/toggle-2fa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          fetchAdminSecurityStatus();
+          showToast(enabled ? "2FA Security OTP is now REQUIRED for Admin Login." : "2FA Security OTP has been disabled.", enabled ? "success" : "info");
+        }
+      })
+      .catch(() => {});
+    }
+
+    let currentCbeAccounts = [];
+    let currentTelebirrNumbers = [];
+
+    function renderCbeAccountsList() {
+      const container = document.getElementById("cbe-accounts-list-container");
+      if (!container) return;
+
+      if (currentCbeAccounts.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--radius-md); font-size: 0.84rem; color: var(--text-muted); text-align: center;">
+            No CBE accounts configured. Click "+ Add CBE Account" above to add one.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentCbeAccounts.map((item, idx) => `
+        <div class="cbe-account-row" data-id="${item.id}" style="display: grid; grid-template-columns: 1fr 1.2fr 0.8fr auto; gap: 10px; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+          <div>
+            <label style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Account Name</label>
+            <input type="text" class="cbe-name-inp form-input" value="${item.accountName || ''}" placeholder="Founders Academy LLC" style="padding: 6px 10px; font-size: 0.86rem;">
+          </div>
+          <div>
+            <label style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 2px;">CBE Account Number</label>
+            <input type="text" class="cbe-num-inp form-input" value="${item.accountNumber || ''}" placeholder="1000492819482" style="padding: 6px 10px; font-size: 0.86rem; font-family: monospace;">
+          </div>
+          <div>
+            <label style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Verify.ET Suffix</label>
+            <input type="text" class="cbe-suffix-inp form-input" value="${item.suffix || ''}" placeholder="49281948" style="padding: 6px 10px; font-size: 0.86rem; font-family: monospace;">
+          </div>
+          <div style="padding-top: 14px;">
+            <button type="button" class="btn-dash-action btn-dash-secondary" onclick="removeCbeAccountRow('${item.id}')" style="padding: 6px 10px; font-size: 0.78rem; color: #ef4444; border-color: rgba(239,68,68,0.3);">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function addCbeAccountRow() {
+      currentCbeAccounts.push({
+        id: "cbe-" + Date.now(),
+        accountName: "Founders Academy LLC",
+        accountNumber: "",
+        suffix: ""
+      });
+      renderCbeAccountsList();
+    }
+
+    function removeCbeAccountRow(id) {
+      currentCbeAccounts = currentCbeAccounts.filter(a => a.id !== id);
+      renderCbeAccountsList();
+    }
+
+    function renderTelebirrNumbersList() {
+      const container = document.getElementById("telebirr-numbers-list-container");
+      if (!container) return;
+
+      if (currentTelebirrNumbers.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--radius-md); font-size: 0.84rem; color: var(--text-muted); text-align: center;">
+            No Telebirr merchant numbers configured. Click "+ Add Telebirr Number" above to add one.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentTelebirrNumbers.map((item, idx) => `
+        <div class="telebirr-number-row" data-id="${item.id}" style="display: grid; grid-template-columns: 1fr 1.5fr auto; gap: 10px; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+          <div>
+            <label style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Merchant Name</label>
+            <input type="text" class="tele-name-inp form-input" value="${item.merchantName || ''}" placeholder="Founders Academy" style="padding: 6px 10px; font-size: 0.86rem;">
+          </div>
+          <div>
+            <label style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Telebirr Phone / Merchant ID</label>
+            <input type="text" class="tele-phone-inp form-input" value="${item.merchantPhone || ''}" placeholder="+251 906 769 999" style="padding: 6px 10px; font-size: 0.86rem; font-family: monospace;">
+          </div>
+          <div style="padding-top: 14px;">
+            <button type="button" class="btn-dash-action btn-dash-secondary" onclick="removeTelebirrNumberRow('${item.id}')" style="padding: 6px 10px; font-size: 0.78rem; color: #ef4444; border-color: rgba(239,68,68,0.3);">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function addTelebirrNumberRow() {
+      currentTelebirrNumbers.push({
+        id: "tele-" + Date.now(),
+        merchantName: "Founders Academy",
+        merchantPhone: ""
+      });
+      renderTelebirrNumbersList();
+    }
+
+    function removeTelebirrNumberRow(id) {
+      currentTelebirrNumbers = currentTelebirrNumbers.filter(t => t.id !== id);
+      renderTelebirrNumbersList();
+    }
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Initialize Security Status
+      fetchAdminSecurityStatus();
+
+      // Fetch Merchant Bank Accounts & Telebirr Multi-Account Config from Database API
+      fetch("/api/bank-accounts")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            const b = data.data;
+
+            const cbeToggle = document.getElementById("toggle-cbe-enabled");
+            const teleToggle = document.getElementById("toggle-telebirr-enabled");
+
+            if (cbeToggle) cbeToggle.checked = b.cbeEnabled !== false;
+            if (teleToggle) teleToggle.checked = b.telebirrEnabled !== false;
+
+            currentCbeAccounts = Array.isArray(b.cbeAccounts) && b.cbeAccounts.length > 0
+              ? b.cbeAccounts
+              : [{ id: "cbe-1", accountName: b.cbeAccountName || "Founders Academy LLC", accountNumber: b.cbeAccountNumber || "1000492819482", suffix: b.cbeAccountSuffix || "49281948", isPrimary: true }];
+
+            currentTelebirrNumbers = Array.isArray(b.telebirrNumbers) && b.telebirrNumbers.length > 0
+              ? b.telebirrNumbers
+              : [{ id: "tele-1", merchantName: b.telebirrMerchantName || "Founders Academy", merchantPhone: b.telebirrMerchantPhone || "+251 906 769 999", isPrimary: true }];
+
+            renderCbeAccountsList();
+            renderTelebirrNumbersList();
+          }
+        })
+        .catch(() => {});
+
+      // Bank Accounts Update Form Handler
+      const bankForm = document.getElementById("form-update-bank-accounts");
+      if (bankForm) {
+        bankForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const submitBtn = bankForm.querySelector("button[type='submit']");
+          let originalHtml = "";
+          if (submitBtn) {
+            originalHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>Saving & Syncing to Supabase...</span> <i data-lucide="loader-2" class="spin"></i>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+
+          const cbeEnabled = document.getElementById("toggle-cbe-enabled") ? document.getElementById("toggle-cbe-enabled").checked : true;
+          const telebirrEnabled = document.getElementById("toggle-telebirr-enabled") ? document.getElementById("toggle-telebirr-enabled").checked : true;
+          const boaEnabled = false;
+
+          // Collect CBE Account values
+          const cbeRows = document.querySelectorAll(".cbe-account-row");
+          const cbeAccounts = [];
+          cbeRows.forEach(row => {
+            const id = row.getAttribute("data-id");
+            const name = row.querySelector(".cbe-name-inp") ? row.querySelector(".cbe-name-inp").value.trim() : "";
+            const num = row.querySelector(".cbe-num-inp") ? row.querySelector(".cbe-num-inp").value.trim() : "";
+            const suffix = row.querySelector(".cbe-suffix-inp") ? row.querySelector(".cbe-suffix-inp").value.trim() : (num ? num.slice(-8) : "");
+            if (name || num) {
+              cbeAccounts.push({ id, accountName: name, accountNumber: num, suffix });
+            }
+          });
+
+          // Collect Telebirr Number values
+          const teleRows = document.querySelectorAll(".telebirr-number-row");
+          const telebirrNumbers = [];
+          teleRows.forEach(row => {
+            const id = row.getAttribute("data-id");
+            const name = row.querySelector(".tele-name-inp") ? row.querySelector(".tele-name-inp").value.trim() : "";
+            const phone = row.querySelector(".tele-phone-inp") ? row.querySelector(".tele-phone-inp").value.trim() : "";
+            if (name || phone) {
+              telebirrNumbers.push({ id, merchantName: name, merchantPhone: phone });
+            }
+          });
+
+          const primaryCbe = cbeAccounts[0] || {};
+          const primaryTele = telebirrNumbers[0] || {};
+
+          const payload = {
+            cbeEnabled,
+            cbeAccounts,
+            telebirrEnabled,
+            telebirrNumbers,
+            boaEnabled: false,
+            boaAccounts: [],
+
+            // Flat compatibility fields
+            cbeAccountName: primaryCbe.accountName || "Founders Academy LLC",
+            cbeAccountNumber: primaryCbe.accountNumber || "1000492819482",
+            cbeAccountSuffix: primaryCbe.suffix || "49281948",
+            telebirrMerchantPhone: primaryTele.merchantPhone || "+251 906 769 999",
+            telebirrMerchantName: primaryTele.merchantName || "Founders Academy",
+            boaAccountNumber: "",
+            boaAccountName: ""
+          };
+
+          fetch("/api/admin/bank-accounts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalHtml;
+              if (window.lucide) window.lucide.createIcons();
+            }
+
+            if (data.success) {
+              showToast("✅ Merchant Payment Accounts & Channels saved permanently to Supabase!", "success");
+            } else {
+              showToast(data.error || "Failed to save bank accounts.", "error");
+            }
+          })
+          .catch(err => {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalHtml;
+              if (window.lucide) window.lucide.createIcons();
+            }
+            showToast("Error saving bank accounts: " + err.message, "error");
+          });
+        });
+      }
+
+      // Load current username into form
+      const adminData = localStorage.getItem("founders_admin");
+      if (adminData) {
+        const admin = JSON.parse(adminData);
+        const userInp = document.getElementById("setting-username");
+        if (userInp) userInp.value = admin.username || "admin";
+      }
+
+      // Password Toggles
+      document.querySelectorAll(".btn-toggle-password").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-target");
+          const input = document.getElementById(targetId);
+          if (input) {
+            const type = input.getAttribute("type") === "password" ? "text" : "password";
+            input.setAttribute("type", type);
+            const icon = btn.querySelector("i");
+            if (icon) {
+              icon.setAttribute("data-lucide", type === "password" ? "eye" : "eye-off");
+              if (window.lucide) window.lucide.createIcons();
+            }
+          }
+        });
+      });
+
+      // Update Credentials Handler
+      const form = document.getElementById("form-update-admin-credentials");
+      if (form) {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const submitBtn = form.querySelector("button[type='submit']");
+          const newUsername = document.getElementById("setting-username").value.trim();
+          const curPassword = document.getElementById("setting-current-password").value.trim();
+          const newPassword = document.getElementById("setting-new-password").value.trim();
+          const confirmPassword = document.getElementById("setting-confirm-password").value.trim();
+
+          if (!newUsername) {
+            showToast("Please enter a valid admin username.", "error");
+            return;
+          }
+
+          if (newPassword.length < 4) {
+            showToast("New password must be at least 4 characters long.", "error");
+            return;
+          }
+
+          if (newPassword !== confirmPassword) {
+            showToast("New password and confirmation do not match.", "error");
+            return;
+          }
+
+          let originalHtml = "";
+          if (submitBtn) {
+            originalHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>Saving & Syncing to Supabase...</span> <i data-lucide="loader-2" class="spin"></i>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+
+          try {
+            const res = await fetch("/api/admin/security", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                adminUsername: newUsername,
+                currentPassword: curPassword,
+                newPassword: newPassword
+              })
+            });
+            const data = await res.json();
+
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalHtml;
+              if (window.lucide) window.lucide.createIcons();
+            }
+
+            if (data.success) {
+              // Update saved admin session
+              const stored = localStorage.getItem("founders_admin");
+              const adminObj = stored ? JSON.parse(stored) : { role: "Super Admin" };
+              adminObj.username = newUsername;
+              adminObj.password = newPassword;
+              adminObj.updatedAt = new Date().toISOString();
+              localStorage.setItem("founders_admin", JSON.stringify(adminObj));
+
+              // Update UI header profile
+              document.querySelectorAll(".admin-profile-name, #admin-profile-name").forEach(el => el.textContent = newUsername);
+              document.querySelectorAll(".admin-profile-avatar, #admin-profile-avatar").forEach(el => el.textContent = newUsername.substring(0, 2).toUpperCase());
+
+              showToast(`✅ Success! Admin username "${newUsername}" & password updated permanently in Supabase.`, "success");
+
+              // Reset password fields
+              document.getElementById("setting-current-password").value = "";
+              document.getElementById("setting-new-password").value = "";
+              document.getElementById("setting-confirm-password").value = "";
+            } else {
+              showToast(data.error || "Failed to update password.", "error");
+            }
+          } catch (err) {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalHtml;
+              if (window.lucide) window.lucide.createIcons();
+            }
+            showToast("Error updating password: " + err.message, "error");
+          }
+        });
+      }
+    });
+  </script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

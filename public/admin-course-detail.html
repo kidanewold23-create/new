@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Details | Founders Academy Admin</title>
+  <meta name="description" content="Detailed course overview, Telegram access links, curriculum modules, and editing.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .course-detail-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(20, 24, 40, 0.9), rgba(10, 12, 24, 0.95));
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+    }
+
+    .course-detail-glow {
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.15), transparent 70%);
+      pointer-events: none;
+      filter: blur(30px);
+    }
+
+    .telegram-link-box {
+      background: rgba(0, 136, 204, 0.08);
+      border: 1px solid rgba(0, 136, 204, 0.25);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .telegram-link-val {
+      font-family: monospace;
+      font-size: 0.92rem;
+      color: #0088cc;
+      font-weight: 600;
+    }
+
+    /* Toggle Switch Styling */
+    .switch-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 99px;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .switch-wrap.active .toggle-switch {
+      background: #10b981;
+    }
+
+    .switch-wrap.active .toggle-switch::after {
+      transform: translateX(20px);
+    }
+
+    .switch-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .switch-wrap.active .switch-label {
+      color: #10b981;
+    }
+
+    .switch-wrap:not(.active) .switch-label {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn active">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Action Bar -->
+      <header class="dash-topbar" style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <a href="admin-courses.html" class="btn-dash-action btn-dash-secondary" style="padding: 8px 14px; font-size: 0.85rem;">
+            <i data-lucide="arrow-left"></i> Back to Courses
+          </a>
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-delete-course" style="border-color: rgba(239, 68, 68, 0.4); color: #ef4444;" onclick="deleteCurrentCourse()">
+            <i data-lucide="trash-2"></i> Delete Course
+          </button>
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-edit-course-modal">
+            <i data-lucide="edit-2"></i> Edit Course
+          </button>
+        </div>
+      </header>
+
+      <!-- Course Hero Banner -->
+      <!-- Course Hero Banner -->
+      <div class="course-detail-hero">
+        <div class="course-detail-glow"></div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 300px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+              <span class="badge badge-gold" id="course-category-badge">Marketing / SMMA</span>
+              <span class="badge-duration" id="course-duration-badge"><i data-lucide="clock"></i> 6 Weeks (24 Hours)</span>
+              
+              <!-- Active / Inactive Toggle Switch -->
+              <div class="switch-wrap active" id="course-status-switch" onclick="toggleCourseStatus(this)">
+                <div class="toggle-switch"></div>
+                <span class="switch-label">ACTIVE</span>
+              </div>
+            </div>
+
+            <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 10px 0;" id="course-title">SMMA & Agency Growth Accelerator</h1>
+            <div id="course-desc" style="color: var(--text-muted); margin: 0; font-size: 0.92rem;">
+              Master high-ticket client acquisition, outreach scripts, cold email infrastructure, and agency team scaling.
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 16px 24px; border-radius: 16px; text-align: right;">
+            <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Enrollment Price</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--primary-gold);" id="course-price">10,000 ETB</div>
+            <div style="font-size: 0.8rem; color: #10b981; margin-top: 2px;" id="course-enrolled-count">1,840 Students Enrolled</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Layout: Left Telegram Community Access & Right Masterclass Modules -->
+      <div class="dashboard-grid-2col" style="grid-template-columns: 1fr 1fr;">
+        <!-- Left: Telegram Links Panel -->
+        <div class="dash-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <i data-lucide="send" style="color: #0088cc;"></i> Telegram Community Access
+            </h2>
+          </div>
+
+          <div class="telegram-link-box">
+            <div>
+              <div style="font-size: 0.82rem; color: var(--text-dim); font-weight: 600; margin-bottom: 4px;">OFFICIAL TELEGRAM CHANNEL</div>
+              <div class="telegram-link-val" id="tg-channel-val">https://t.me/founders_smma_channel</div>
+            </div>
+            <a href="https://t.me/founders_smma_channel" id="tg-channel-btn" target="_blank" class="btn-dash-action btn-dash-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: rgba(0, 136, 204, 0.4); color: #0088cc;">
+              <i data-lucide="external-link"></i> Open Channel
+            </a>
+          </div>
+
+          <div class="telegram-link-box">
+            <div>
+              <div style="font-size: 0.82rem; color: var(--text-dim); font-weight: 600; margin-bottom: 4px;">STUDENT DISCUSSION GROUP</div>
+              <div class="telegram-link-val" id="tg-group-val">https://t.me/founders_smma_group</div>
+            </div>
+            <a href="https://t.me/founders_smma_group" id="tg-group-btn" target="_blank" class="btn-dash-action btn-dash-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: rgba(0, 136, 204, 0.4); color: #0088cc;">
+              <i data-lucide="external-link"></i> Open Group
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Modules & Metrics -->
+        <div class="dash-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <i data-lucide="layers" style="color: var(--primary-gold);"></i> Curriculum & Enrolled Metrics
+            </h2>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06);">
+              <div style="font-size: 0.76rem; color: var(--text-dim); text-transform: uppercase;">Duration & Modules</div>
+              <div style="font-size: 1.1rem; font-weight: 700; color: #fff;" id="course-modules-metric">6 Weeks • 36 Modules</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06);">
+              <div style="font-size: 0.76rem; color: var(--text-dim); text-transform: uppercase;">Total Course Revenue</div>
+              <div style="font-size: 1.1rem; font-weight: 700; color: #10b981;" id="course-total-revenue">ETB 18,400,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Quizzes & Assessments Section -->
+      <div class="dash-panel" style="margin-top: 24px;">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h2 class="panel-title" style="display: flex; align-items: center; gap: 10px; margin: 0 0 4px 0;">
+              <i data-lucide="help-circle" style="color: #f59e0b;"></i> Course Quizzes & Assessments
+            </h2>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin: 0;">Create, edit, and manage module quizzes and student assessments for this masterclass in the Quiz Studio.</p>
+          </div>
+          <div>
+            <button type="button" class="btn-dash-action btn-dash-primary" id="btn-create-quiz" onclick="navigateToQuizStudio(event)" style="padding: 12px 22px; font-weight: 700; font-size: 0.92rem; text-decoration: none;">
+              <i data-lucide="plus-circle"></i> Create & Manage Quizzes
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- Edit Course Modal Window -->
+  <div class="admin-modal-overlay" id="edit-course-modal">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <h2 class="panel-title"><i data-lucide="edit-2" style="color: var(--primary-gold);"></i> Edit Course Details</h2>
+        <button type="button" id="btn-close-edit-course" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-edit-course">
+        <div class="form-group">
+          <label class="form-label" for="edit-course-title">Course Name / Title *</label>
+          <input type="text" id="edit-course-title" class="form-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-course-category">Category *</label>
+            <select id="edit-course-category" class="form-input" style="height: 50px;" required>
+              <option value="Digital Marketing / SMMA">Digital Marketing / SMMA</option>
+              <option value="Video Editing & VFX">Video Editing & VFX</option>
+              <option value="Content Creation">Content Creation</option>
+              <option value="Graphic Design">Graphic Design</option>
+              <option value="AI & Automation">AI & Automation</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-course-price">Price (ETB) *</label>
+            <input type="text" id="edit-course-price" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-course-duration"><i data-lucide="clock"></i> Duration</label>
+            <input type="text" id="edit-course-duration" class="form-input" placeholder="e.g. 6 Weeks (24 Hours)">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-course-tg-channel"><i data-lucide="send" style="color: #0088cc;"></i> Telegram Channel Link</label>
+            <input type="text" id="edit-course-tg-channel" class="form-input" placeholder="https://t.me/your_channel">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-course-tg-group"><i data-lucide="messages-square" style="color: #0088cc;"></i> Telegram Group Link</label>
+            <input type="text" id="edit-course-tg-group" class="form-input" placeholder="https://t.me/your_group">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <label class="form-label" for="edit-course-desc" style="margin-bottom: 0;"><i data-lucide="list-checks"></i> Course Description & Curriculum (Accepts Lists & Bullets)</label>
+            <div class="desc-toolbar">
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('edit-course-desc', 'bullet')">• Bullet List</button>
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('edit-course-desc', 'numbered')">1. Numbered</button>
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('edit-course-desc', 'check')">✔ Deliverable</button>
+            </div>
+          </div>
+          <textarea id="edit-course-desc" class="form-input" style="height: 130px; padding: 12px 16px; font-family: inherit; line-height: 1.5;" required></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label">Course Status</label>
+            <select id="edit-course-status" class="form-input" style="height: 50px;">
+              <option value="active">Active (Published)</option>
+              <option value="inactive">Inactive (Draft / Hidden)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-course-students">Enrolled Students Count</label>
+            <input type="number" id="edit-course-students" class="form-input" min="0">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+          <button type="button" id="btn-cancel-edit-course" class="btn-dash-action btn-dash-secondary" style="flex: 1; justify-content: center; height: 48px;">
+            Cancel
+          </button>
+          <button type="submit" class="btn-auth-submit" style="flex: 2; margin-top: 0;">
+            <span>Save to Supabase</span>
+            <i data-lucide="check"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Course Modal Window -->
+  <div class="admin-modal-overlay" id="delete-course-modal">
+    <div class="admin-modal-card" style="max-width: 460px;">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <h2 class="panel-title" style="color: #ef4444;"><i data-lucide="alert-triangle"></i> Delete Course</h2>
+        <button type="button" id="btn-close-delete-course" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+      <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5; margin-bottom: 16px;">
+        Are you sure you want to permanently delete <strong id="delete-course-title-display" style="color: var(--primary-gold);">this course</strong>?
+      </p>
+      <p style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 24px;">
+        This action will permanently remove the course, Telegram links, and curriculum from Supabase.
+      </p>
+      <div style="display: flex; gap: 12px;">
+        <button type="button" id="btn-cancel-delete-course" class="btn-dash-action btn-dash-secondary" style="flex: 1; justify-content: center; height: 44px;">
+          Cancel
+        </button>
+        <button type="button" id="btn-confirm-delete-course" class="btn-dash-action" style="flex: 1; justify-content: center; height: 44px; background: #ef4444; border-color: #ef4444; color: #fff; font-weight: 700;">
+          Delete Permanently
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js?v=2.3"></script>
+  <script>
+    let currentCourseId = "course-smma-accelerator";
+    let currentCourseData = null;
+
+    // Helper functions for dynamic price & revenue calculation
+    function parseETBPrice(str) {
+      if (!str) return 10000;
+      const num = parseFloat(String(str).replace(/[^0-9.]/g, ""));
+      return isNaN(num) ? 10000 : num;
+    }
+
+    function calculateAndRenderRevenue(priceStr, studentsCount) {
+      const priceNum = parseETBPrice(priceStr);
+      const studentsNum = parseInt(studentsCount, 10) || 0;
+      const totalRevenue = priceNum * studentsNum;
+
+      const revEl = document.getElementById("course-total-revenue");
+      const enrolledEl = document.getElementById("course-enrolled-count");
+
+      if (revEl) {
+        revEl.textContent = "ETB " + totalRevenue.toLocaleString("en-US");
+      }
+      if (enrolledEl) {
+        enrolledEl.textContent = `${studentsNum.toLocaleString("en-US")} Students Enrolled`;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const titleParam = params.get("title");
+      const catParam = params.get("category");
+      const priceParam = params.get("price");
+      const durationParam = params.get("duration");
+      const idParam = params.get("id");
+
+      const titleEl = document.getElementById("course-title");
+      const catEl = document.getElementById("course-category-badge");
+      const priceEl = document.getElementById("course-price");
+      const descEl = document.getElementById("course-desc");
+      const durationBadge = document.getElementById("course-duration-badge");
+      const tgChannelVal = document.getElementById("tg-channel-val");
+      const tgGroupVal = document.getElementById("tg-group-val");
+      const tgChannelBtn = document.getElementById("tg-channel-btn");
+      const tgGroupBtn = document.getElementById("tg-group-btn");
+      const statusSwitch = document.getElementById("course-status-switch");
+
+      if (titleParam && titleEl) titleEl.textContent = titleParam;
+      if (catParam && catEl) catEl.textContent = catParam;
+      if (priceParam && priceEl) priceEl.textContent = priceParam;
+      if (durationParam && durationBadge) durationBadge.innerHTML = `<i data-lucide="clock"></i> ${durationParam}`;
+
+      // 1. Fetch Categories for Edit Modal Dropdown
+      fetch("/api/categories")
+        .then(res => res.json())
+        .then(catData => {
+          if (catData.success && catData.data.length > 0) {
+            const catSelect = document.getElementById("edit-course-category");
+            if (catSelect) {
+              catSelect.innerHTML = catData.data.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join("");
+            }
+          }
+        })
+        .catch(() => {});
+
+      // 2. Fetch Course Details from API
+      function loadCourseData() {
+        fetch("/api/courses")
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.data && data.data.length > 0) {
+              let matched = null;
+              if (idParam) {
+                const cleanId = idParam.replace(/^course-/, "").toLowerCase();
+                matched = data.data.find(c => 
+                  c.id === idParam || 
+                  c.id.toLowerCase() === cleanId || 
+                  c.id.toLowerCase().includes(cleanId) || 
+                  cleanId.includes(c.id.toLowerCase())
+                );
+              }
+              if (!matched && titleParam) {
+                matched = data.data.find(c => c.title.toLowerCase().trim() === titleParam.toLowerCase().trim() || c.title.toLowerCase().includes(titleParam.toLowerCase().trim()));
+              }
+              if (!matched && catParam) {
+                matched = data.data.find(c => (c.category || "").toLowerCase().includes(catParam.toLowerCase().trim()));
+              }
+              if (!matched) {
+                matched = data.data[0];
+              }
+
+              if (matched) {
+                currentCourseId = matched.id;
+                currentCourseData = matched;
+
+                if (titleEl) titleEl.textContent = matched.title;
+                if (catEl) catEl.textContent = matched.category;
+                if (priceEl) priceEl.textContent = matched.price;
+                if (durationBadge) durationBadge.innerHTML = `<i data-lucide="clock"></i> ${matched.duration || '6 Weeks (24 Hours)'}`;
+                if (descEl && matched.description) {
+                  descEl.innerHTML = typeof formatRichDescription === 'function' ? formatRichDescription(matched.description) : matched.description;
+                }
+                if (tgChannelVal) tgChannelVal.textContent = matched.tg_channel || "https://t.me/founders_channel";
+                if (tgGroupVal) tgGroupVal.textContent = matched.tg_group || "https://t.me/founders_group";
+                if (tgChannelBtn) tgChannelBtn.href = matched.tg_channel && matched.tg_channel.startsWith("http") ? matched.tg_channel : "https://t.me/founders_channel";
+                if (tgGroupBtn) tgGroupBtn.href = matched.tg_group && matched.tg_group.startsWith("http") ? matched.tg_group : "https://t.me/founders_group";
+
+                const modulesMetric = document.getElementById("course-modules-metric");
+                if (modulesMetric) {
+                  modulesMetric.textContent = matched.duration ? `${matched.duration}` : "6 Weeks • 36 Modules";
+                }
+
+                // Calculate Total Course Revenue
+                calculateAndRenderRevenue(matched.price, matched.enrolled_students || 0);
+
+                if (statusSwitch) {
+                  const isActive = matched.status === "ON" || matched.status === "active";
+                  const label = statusSwitch.querySelector(".switch-label");
+                  if (isActive) {
+                    statusSwitch.classList.add("active");
+                    if (label) label.textContent = "ACTIVE";
+                  } else {
+                    statusSwitch.classList.remove("active");
+                    if (label) label.textContent = "INACTIVE";
+                  }
+                }
+                if (window.lucide) window.lucide.createIcons();
+              }
+            }
+          })
+          .catch(err => console.log("Course detail API load fallback", err));
+      }
+
+      loadCourseData();
+      fetchCourseQuizzes();
+
+      // 3. Edit Modal Handlers
+
+      const editModal = document.getElementById("edit-course-modal");
+      const btnOpen = document.getElementById("btn-open-edit-course-modal");
+      const btnClose = document.getElementById("btn-close-edit-course");
+      const btnCancel = document.getElementById("btn-cancel-edit-course");
+      const formEdit = document.getElementById("form-edit-course");
+
+      const inputTitle = document.getElementById("edit-course-title");
+      const inputCat = document.getElementById("edit-course-category");
+      const inputPrice = document.getElementById("edit-course-price");
+      const inputDuration = document.getElementById("edit-course-duration");
+      const inputChannel = document.getElementById("edit-course-tg-channel");
+      const inputGroup = document.getElementById("edit-course-tg-group");
+      const inputDesc = document.getElementById("edit-course-desc");
+      const inputStatus = document.getElementById("edit-course-status");
+      const inputStudents = document.getElementById("edit-course-students");
+
+      if (btnOpen && editModal) {
+        btnOpen.addEventListener("click", () => {
+          const c = currentCourseData || {};
+          if (inputTitle) inputTitle.value = c.title || (titleEl ? titleEl.textContent : "");
+          if (inputCat && c.category) inputCat.value = c.category;
+          if (inputPrice) inputPrice.value = c.price || (priceEl ? priceEl.textContent : "");
+          if (inputDuration) inputDuration.value = c.duration || "6 Weeks (24 Hours)";
+          if (inputChannel) inputChannel.value = c.tg_channel || (tgChannelVal ? tgChannelVal.textContent : "");
+          if (inputGroup) inputGroup.value = c.tg_group || (tgGroupVal ? tgGroupVal.textContent : "");
+          if (inputDesc) inputDesc.value = c.description || "";
+          if (inputStatus) {
+            const isActive = c.status === "ON" || c.status === "active";
+            inputStatus.value = isActive ? "active" : "inactive";
+          }
+          if (inputStudents) inputStudents.value = c.enrolled_students || 0;
+
+          editModal.classList.add("open");
+        });
+      }
+
+      if (btnClose && editModal) {
+        btnClose.addEventListener("click", () => editModal.classList.remove("open"));
+      }
+      if (btnCancel && editModal) {
+        btnCancel.addEventListener("click", () => editModal.classList.remove("open"));
+      }
+
+      if (formEdit && editModal) {
+        formEdit.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const targetId = currentCourseId || (currentCourseData && currentCourseData.id) || idParam;
+
+          const updatedPayload = {
+            title: inputTitle.value.trim(),
+            category: inputCat.value,
+            price: inputPrice.value.trim(),
+            duration: inputDuration ? inputDuration.value.trim() : "6 Weeks (24 Hours)",
+            description: inputDesc.value.trim(),
+            tg_channel: inputChannel.value.trim(),
+            tg_group: inputGroup.value.trim(),
+            status: inputStatus.value,
+            enrolled_students: parseInt(inputStudents.value, 10) || 0
+          };
+
+          // Optimistically update UI hero & Total Revenue
+          if (titleEl) titleEl.textContent = updatedPayload.title;
+          if (catEl) catEl.textContent = updatedPayload.category;
+          if (priceEl) priceEl.textContent = updatedPayload.price;
+          if (durationBadge) durationBadge.innerHTML = `<i data-lucide="clock"></i> ${updatedPayload.duration}`;
+          if (descEl) descEl.innerHTML = typeof formatRichDescription === 'function' ? formatRichDescription(updatedPayload.description) : escapeHtml(updatedPayload.description);
+          if (tgChannelVal) tgChannelVal.textContent = updatedPayload.tg_channel || "https://t.me/founders_channel";
+          if (tgGroupVal) tgGroupVal.textContent = updatedPayload.tg_group || "https://t.me/founders_group";
+          if (tgChannelBtn) tgChannelBtn.href = updatedPayload.tg_channel && updatedPayload.tg_channel.startsWith("http") ? updatedPayload.tg_channel : "https://t.me/founders_channel";
+          if (tgGroupBtn) tgGroupBtn.href = updatedPayload.tg_group && updatedPayload.tg_group.startsWith("http") ? updatedPayload.tg_group : "https://t.me/founders_group";
+
+          if (statusSwitch) {
+            const isActive = updatedPayload.status === "active" || updatedPayload.status === "ON";
+            const label = statusSwitch.querySelector(".switch-label");
+            if (isActive) {
+              statusSwitch.classList.add("active");
+              if (label) label.textContent = "ACTIVE";
+            } else {
+              statusSwitch.classList.remove("active");
+              if (label) label.textContent = "INACTIVE";
+            }
+          }
+          calculateAndRenderRevenue(updatedPayload.price, updatedPayload.enrolled_students);
+          if (window.lucide) window.lucide.createIcons();
+
+          fetch(`/api/courses/${targetId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedPayload)
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              currentCourseData = { ...currentCourseData, ...updatedPayload };
+              showToast("Course details and curriculum updated!", "success");
+              editModal.classList.remove("open");
+            }
+          })
+          .catch(() => {
+            showToast("Course updated successfully!", "success");
+            editModal.classList.remove("open");
+          });
+        });
+      }
+    });
+
+    // 4. Toggle Active / Inactive Status
+    function toggleCourseStatus(el) {
+      const targetId = currentCourseId || (currentCourseData && currentCourseData.id);
+      if (!targetId) return;
+
+      const isCurrentlyActive = el.classList.contains("active");
+      const newStatus = isCurrentlyActive ? "inactive" : "active";
+
+      // Optimistic UI update
+      el.classList.toggle("active");
+      const label = el.querySelector(".switch-label");
+      if (label) {
+        label.textContent = isCurrentlyActive ? "INACTIVE" : "ACTIVE";
+      }
+
+      fetch(`/api/courses/${targetId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          if (currentCourseData) currentCourseData.status = newStatus;
+          showToast(`Course status set to ${newStatus === 'active' ? 'Active' : 'Inactive'}`, newStatus === 'active' ? "success" : "error");
+        }
+      })
+      .catch(() => {
+        showToast(`Course status updated`, "info");
+      });
+    }
+
+    // 5. Delete Course Permanently
+    function deleteCurrentCourse() {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = currentCourseId || (currentCourseData && currentCourseData.id) || params.get("id") || "course-smma-accelerator";
+      const modal = document.getElementById("delete-course-modal");
+      const titleDisplay = document.getElementById("delete-course-title-display");
+      const currentTitle = document.getElementById("course-title")?.textContent || (currentCourseData && currentCourseData.title) || params.get("title") || "this course";
+
+      if (titleDisplay) titleDisplay.textContent = currentTitle;
+
+      if (!modal) {
+        if (!confirm(`Are you sure you want to permanently delete course "${currentTitle}"?`)) return;
+        executeCourseDelete(targetId, currentTitle);
+        return;
+      }
+
+      modal.classList.add("open");
+
+      const btnCancel = document.getElementById("btn-cancel-delete-course");
+      const btnClose = document.getElementById("btn-close-delete-course");
+      const btnConfirm = document.getElementById("btn-confirm-delete-course");
+
+      if (btnCancel) btnCancel.onclick = () => modal.classList.remove("open");
+      if (btnClose) btnClose.onclick = () => modal.classList.remove("open");
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove("open");
+      };
+
+      if (btnConfirm) {
+        btnConfirm.onclick = () => {
+          btnConfirm.disabled = true;
+          btnConfirm.textContent = "Deleting...";
+          executeCourseDelete(targetId, currentTitle, modal, btnConfirm);
+        };
+      }
+    }
+
+    function executeCourseDelete(targetId, currentTitle, modal, btnConfirm) {
+      fetch(`/api/courses/${encodeURIComponent(targetId)}`, { method: "DELETE" })
+        .then(res => res.json())
+        .then(data => {
+          showToast(`Course "${currentTitle}" deleted successfully!`, "success");
+          if (modal) modal.classList.remove("open");
+          setTimeout(() => {
+            window.location.href = "admin-courses.html";
+          }, 500);
+        })
+        .catch(() => {
+          showToast(`Course removed`, "info");
+          if (modal) modal.classList.remove("open");
+          setTimeout(() => {
+            window.location.href = "admin-courses.html";
+          }, 500);
+        });
+    }
+
+      window.deleteCurrentCourse = deleteCurrentCourse;
+
+    // --- COURSE QUIZ MANAGEMENT SYSTEM ---
+    let currentCourseQuizzes = [];
+    let currentQuizQuestions = [];
+    let currentPreviewQuiz = null;
+    let previewAnswers = {};
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function navigateToQuizStudio(e) {
+      if (e) e.preventDefault();
+      const params = new URLSearchParams(window.location.search);
+      const targetId = currentCourseId || (currentCourseData && currentCourseData.id) || params.get("id") || "course-smma-accelerator";
+      window.location.href = `admin-quiz.html?course_id=${encodeURIComponent(targetId)}`;
+    }
+
+    window.deleteCurrentCourse = deleteCurrentCourse;
+    window.navigateToQuizStudio = navigateToQuizStudio;
+    window.openCreateQuizModal = navigateToQuizStudio;
+  </script>
+</body>
+</html>
+
+

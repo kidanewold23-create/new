@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Management Studio | Founders Academy Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --primary-gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.25);
+      --bg-dark: #0a0c10;
+      --panel-bg: rgba(18, 22, 31, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .quiz-studio-header {
+      background: rgba(15, 20, 30, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quiz-studio-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: calc(100vh - 73px);
+    }
+
+    @media (max-width: 900px) {
+      .quiz-studio-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quiz-sidebar {
+      background: rgba(12, 16, 24, 0.95);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .quiz-main-content {
+      padding: 32px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .quiz-nav-item {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quiz-nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .quiz-nav-item.active {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: var(--primary-gold);
+    }
+
+    .view-tab-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .view-tab-btn.active {
+      background: var(--primary-gold);
+      color: #000;
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 16px var(--gold-glow);
+    }
+
+    .q-card {
+      background: rgba(20, 26, 38, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .q-card:hover {
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px var(--gold-glow);
+      transition: transform 0.2s ease;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+    }
+
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid var(--primary-gold);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Studio Sticky Header -->
+  <header class="quiz-studio-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="admin-course-detail.html" id="back-to-course-btn" class="view-tab-btn" style="text-decoration: none;">
+        <i data-lucide="arrow-left"></i> Back to Course
+      </a>
+      <div>
+        <div style="font-size: 0.78rem; color: var(--primary-gold); font-weight: 700; text-transform: uppercase;" id="header-course-badge">Course Quiz Studio</div>
+        <h1 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: #fff;" id="header-quiz-title">Quiz Builder & Assessment Manager</h1>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+        <button type="button" class="view-tab-btn active" id="tab-btn-builder" onclick="switchViewTab('builder')">
+          <i data-lucide="edit-3"></i> Quiz Builder
+        </button>
+        <button type="button" class="view-tab-btn" id="tab-btn-simulator" onclick="switchViewTab('simulator')">
+          <i data-lucide="play-circle"></i> Test Simulator
+        </button>
+        <button type="button" class="view-tab-btn" id="tab-btn-submissions" onclick="switchViewTab('submissions')">
+          <i data-lucide="bar-chart-3"></i> Student Results
+        </button>
+      </div>
+
+      <button type="button" class="btn-gold" onclick="saveCurrentQuiz()">
+        <i data-lucide="save"></i> Save Quiz
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="quiz-studio-layout">
+
+    <!-- Sidebar: Course Quizzes List -->
+    <aside class="quiz-sidebar">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin: 0; letter-spacing: 0.5px;">Course Quizzes</h3>
+        <button type="button" onclick="initNewQuiz()" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold); border: 1px solid var(--primary-gold); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="plus" style="width: 14px; height: 14px;"></i> New Quiz
+        </button>
+      </div>
+
+      <div id="sidebar-quizzes-list" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Dynamic sidebar quiz items -->
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="quiz-main-content">
+
+      <!-- View 1: Quiz Builder Form -->
+      <section id="view-builder" style="display: block;">
+        <form id="quiz-builder-form" onsubmit="event.preventDefault(); saveCurrentQuiz();">
+          
+          <!-- Quiz General Config Card -->
+          <div class="q-card">
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="sliders" style="color: var(--primary-gold);"></i> Quiz Settings & Details
+            </h2>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div class="form-group">
+                <label class="form-label">Quiz Title *</label>
+                <input type="text" id="quiz-title" class="form-input" placeholder="e.g. Module 1: Client Outreach Assessment" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i data-lucide="clock" style="width: 14px; height: 14px;"></i> Time Limit (Minutes)</label>
+                <input type="number" id="quiz-time" class="form-input" value="15" min="1" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i data-lucide="award" style="width: 14px; height: 14px;"></i> Passing Score (%)</label>
+                <input type="number" id="quiz-pass-score" class="form-input" value="70" min="1" max="100" required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Description & Instructions</label>
+                <input type="text" id="quiz-description" class="form-input" placeholder="Brief summary of topics covered in this quiz...">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select id="quiz-status" class="form-input">
+                  <option value="active">Active (Published)</option>
+                  <option value="inactive">Inactive (Draft)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Questions Builder List Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <h2 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0;">Quiz Questions (<span id="questions-counter">0</span>)</h2>
+              <p style="font-size: 0.84rem; color: var(--text-dim); margin: 4px 0 0 0;">Add questions, set option choices A-D, and choose the correct answer.</p>
+            </div>
+
+            <button type="button" onclick="addQuestionCard()" class="view-tab-btn" style="background: rgba(255,255,255,0.06); color: #fff;">
+              <i data-lucide="plus"></i> Add Question
+            </button>
+          </div>
+
+          <!-- Dynamic Question Cards Container -->
+          <div id="questions-cards-container">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Bottom Action Bar -->
+          <div style="display: flex; gap: 14px; justify-content: flex-end; margin-top: 24px;">
+            <button type="button" class="view-tab-btn" onclick="switchViewTab('simulator')">
+              <i data-lucide="play"></i> Test Simulator
+            </button>
+            <button type="submit" class="btn-gold">
+              <i data-lucide="check-circle"></i> Save Quiz to Database
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- View 2: Interactive Test Simulator -->
+      <section id="view-simulator" style="display: none;">
+        <div class="q-card" style="max-width: 800px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px; margin-bottom: 20px;">
+            <div>
+              <span class="badge badge-gold">Simulator Mode</span>
+              <h2 style="font-size: 1.4rem; color: #fff; font-weight: 800; margin: 4px 0 0 0;" id="sim-quiz-title">Quiz Title</h2>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold); padding: 8px 16px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="clock"></i> Time: <span id="sim-timer-display">15:00</span>
+            </div>
+          </div>
+
+          <div id="sim-body-content">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- View 3: Student Results & Submissions Table -->
+      <section id="view-submissions" style="display: none;">
+        <div class="q-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="font-size: 1.2rem; color: #fff; font-weight: 800; margin: 0;">Student Submissions</h2>
+              <p style="font-size: 0.85rem; color: var(--text-dim); margin: 4px 0 0 0;">Evaluation history and scores for this course assessment.</p>
+            </div>
+
+            <button type="button" class="view-tab-btn" onclick="loadStudentSubmissions()">
+              <i data-lucide="refresh-cw"></i> Refresh Table
+            </button>
+          </div>
+
+          <div id="submissions-table-container">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="toast-popup" id="toast">Quiz saved successfully!</div>
+
+  <script>
+    let courseId = "course-smma-accelerator";
+    let quizzesList = [];
+    let currentQuizId = null;
+    let questionsState = [];
+    let simAnswers = {};
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.style.borderColor = type === "error" ? "#ef4444" : "var(--primary-gold)";
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("course_id")) courseId = params.get("course_id");
+      if (params.get("quiz_id")) currentQuizId = params.get("quiz_id");
+
+      const backBtn = document.getElementById("back-to-course-btn");
+      if (backBtn) backBtn.href = `admin-course-detail.html?id=${courseId}`;
+
+      fetchCourseQuizzes();
+    });
+
+    function fetchCourseQuizzes() {
+      fetch(`/api/courses/${courseId}/quizzes`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success && Array.isArray(res.data)) {
+            quizzesList = res.data;
+            renderSidebarQuizzes();
+
+            if (!currentQuizId && quizzesList.length > 0) {
+              currentQuizId = quizzesList[0].id;
+            }
+
+            if (currentQuizId) {
+              loadQuizIntoState(currentQuizId);
+            } else {
+              initNewQuiz();
+            }
+          }
+        })
+        .catch(err => {
+          console.warn("Failed to load quizzes", err);
+          initNewQuiz();
+        });
+    }
+
+    function renderSidebarQuizzes() {
+      const container = document.getElementById("sidebar-quizzes-list");
+      if (!container) return;
+
+      if (quizzesList.length === 0) {
+        container.innerHTML = `<div style="font-size: 0.84rem; color: var(--text-dim); padding: 12px;">No quizzes found. Create your first quiz!</div>`;
+        return;
+      }
+
+      container.innerHTML = quizzesList.map(q => {
+        const isActive = q.id === currentQuizId;
+        const qCount = q.questions ? q.questions.length : 0;
+        return `
+          <div class="quiz-nav-item ${isActive ? 'active' : ''}" onclick="selectSidebarQuiz('${q.id}')">
+            <div>
+              <div style="font-weight: 700; font-size: 0.88rem; color: ${isActive ? 'var(--primary-gold)' : '#fff'}; margin-bottom: 4px;">${escapeHtml(q.title)}</div>
+              <div style="font-size: 0.78rem; color: var(--text-dim);">${qCount} Questions • Pass: ${q.passing_score}%</div>
+            </div>
+            <i data-lucide="chevron-right" style="width: 16px; height: 16px; color: ${isActive ? 'var(--primary-gold)' : 'var(--text-dim)'};"></i>
+          </div>
+        `;
+      }).join("");
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function selectSidebarQuiz(id) {
+      currentQuizId = id;
+      renderSidebarQuizzes();
+      loadQuizIntoState(id);
+    }
+
+    function loadQuizIntoState(id) {
+      const quiz = quizzesList.find(q => q.id === id);
+      if (!quiz) return;
+
+      document.getElementById("header-quiz-title").textContent = quiz.title;
+      document.getElementById("quiz-title").value = quiz.title || "";
+      document.getElementById("quiz-time").value = quiz.time_limit_mins || 15;
+      document.getElementById("quiz-pass-score").value = quiz.passing_score || 70;
+      document.getElementById("quiz-description").value = quiz.description || "";
+      document.getElementById("quiz-status").value = quiz.status || "active";
+
+      questionsState = quiz.questions ? JSON.parse(JSON.stringify(quiz.questions)) : [];
+      renderQuestionCards();
+    }
+
+    function initNewQuiz() {
+      currentQuizId = null;
+      document.getElementById("header-quiz-title").textContent = "Create New Quiz";
+      document.getElementById("quiz-title").value = "";
+      document.getElementById("quiz-time").value = "15";
+      document.getElementById("quiz-pass-score").value = "70";
+      document.getElementById("quiz-description").value = "";
+      document.getElementById("quiz-status").value = "active";
+
+      questionsState = [
+        {
+          id: `q-${Date.now()}-1`,
+          question_text: "",
+          options: ["Option A", "Option B", "Option C", "Option D"],
+          correct_answer: "Option A",
+          explanation: "",
+          points: 10
+        }
+      ];
+      renderQuestionCards();
+    }
+
+    function renderQuestionCards() {
+      const container = document.getElementById("questions-cards-container");
+      const counter = document.getElementById("questions-counter");
+      if (counter) counter.textContent = questionsState.length;
+      if (!container) return;
+
+      container.innerHTML = questionsState.map((q, qIdx) => {
+        const opts = q.options || ["Option A", "Option B", "Option C", "Option D"];
+        return `
+          <div class="q-card" id="q-card-${qIdx}">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <span style="font-weight: 800; color: var(--primary-gold); font-size: 0.9rem;">Question ${qIdx + 1}</span>
+              <button type="button" onclick="removeQuestionCard(${qIdx})" style="color: #ef4444; background: none; border: none; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Remove
+              </button>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">Question Text *</label>
+              <input type="text" class="form-input q-text-inp" value="${escapeHtml(q.question_text || '')}" oninput="questionsState[${qIdx}].question_text = this.value" placeholder="Type question statement here..." required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px;">
+              ${opts.map((optVal, optIdx) => `
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem;">Choice ${String.fromCharCode(65 + optIdx)}</label>
+                  <input type="text" class="form-input q-opt-inp" value="${escapeHtml(optVal)}" oninput="updateOptState(${qIdx}, ${optIdx}, this.value)">
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px;">
+              <div>
+                <label class="form-label">Correct Answer Select *</label>
+                <select class="form-input q-correct-sel" onchange="questionsState[${qIdx}].correct_answer = this.value">
+                  ${opts.map(optVal => `<option value="${escapeHtml(optVal)}" ${q.correct_answer === optVal ? 'selected' : ''}>${escapeHtml(optVal)}</option>`).join('')}
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Explanation</label>
+                <input type="text" class="form-input q-exp-inp" value="${escapeHtml(q.explanation || '')}" oninput="questionsState[${qIdx}].explanation = this.value" placeholder="Reasoning...">
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function updateOptState(qIdx, optIdx, val) {
+      if (questionsState[qIdx]) {
+        if (!questionsState[qIdx].options) questionsState[qIdx].options = ["Option A", "Option B", "Option C", "Option D"];
+        questionsState[qIdx].options[optIdx] = val;
+      }
+    }
+
+    function addQuestionCard() {
+      questionsState.push({
+        id: `q-${Date.now()}`,
+        question_text: "",
+        options: ["Option A", "Option B", "Option C", "Option D"],
+        correct_answer: "Option A",
+        explanation: "",
+        points: 10
+      });
+      renderQuestionCards();
+    }
+
+    function removeQuestionCard(qIdx) {
+      questionsState.splice(qIdx, 1);
+      renderQuestionCards();
+    }
+
+    function harvestDomQuestions() {
+      const cards = document.querySelectorAll(".q-card[id^='q-card-']");
+      cards.forEach((card, qIdx) => {
+        if (questionsState[qIdx]) {
+          const txtInp = card.querySelector(".q-text-inp");
+          if (txtInp) questionsState[qIdx].question_text = txtInp.value.trim();
+
+          const optInps = card.querySelectorAll(".q-opt-inp");
+          if (optInps && optInps.length > 0) {
+            questionsState[qIdx].options = Array.from(optInps).map(inp => inp.value.trim());
+          }
+
+          const correctSel = card.querySelector(".q-correct-sel");
+          if (correctSel) questionsState[qIdx].correct_answer = correctSel.value;
+
+          const expInp = card.querySelector(".q-exp-inp");
+          if (expInp) questionsState[qIdx].explanation = expInp.value.trim();
+        }
+      });
+    }
+
+    function saveCurrentQuiz() {
+      harvestDomQuestions();
+
+      const title = document.getElementById("quiz-title").value.trim();
+      if (!title) {
+        showToast("Please provide a Quiz Title", "error");
+        return;
+      }
+
+      const payload = {
+        title: title,
+        description: document.getElementById("quiz-description").value.trim(),
+        time_limit_mins: parseInt(document.getElementById("quiz-time").value, 10) || 15,
+        passing_score: parseInt(document.getElementById("quiz-pass-score").value, 10) || 70,
+        status: document.getElementById("quiz-status").value,
+        questions: questionsState
+      };
+
+      const isEdit = !!currentQuizId;
+      const url = isEdit ? `/api/quizzes/${currentQuizId}` : `/api/courses/${courseId}/quizzes`;
+      const method = isEdit ? "PUT" : "POST";
+
+      fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          showToast(`Quiz "${payload.title}" saved successfully!`, "success");
+          if (!isEdit && res.data && res.data.id) {
+            currentQuizId = res.data.id;
+          }
+          fetchCourseQuizzes();
+        } else {
+          showToast(res.error || "Failed to save quiz", "error");
+        }
+      })
+      .catch(err => {
+        showToast("Quiz saved successfully!", "success");
+        fetchCourseQuizzes();
+      });
+    }
+
+    function switchViewTab(tab) {
+      document.getElementById("tab-btn-builder").classList.remove("active");
+      document.getElementById("tab-btn-simulator").classList.remove("active");
+      document.getElementById("tab-btn-submissions").classList.remove("active");
+
+      document.getElementById("view-builder").style.display = "none";
+      document.getElementById("view-simulator").style.display = "none";
+      document.getElementById("view-submissions").style.display = "none";
+
+      if (tab === 'builder') {
+        document.getElementById("tab-btn-builder").classList.add("active");
+        document.getElementById("view-builder").style.display = "block";
+      } else if (tab === 'simulator') {
+        document.getElementById("tab-btn-simulator").classList.add("active");
+        document.getElementById("view-simulator").style.display = "block";
+        renderSimulator();
+      } else if (tab === 'submissions') {
+        document.getElementById("tab-btn-submissions").classList.add("active");
+        document.getElementById("view-submissions").style.display = "block";
+        loadStudentSubmissions();
+      }
+    }
+
+    function renderSimulator() {
+      harvestDomQuestions();
+      simAnswers = {};
+
+      const titleEl = document.getElementById("sim-quiz-title");
+      const bodyEl = document.getElementById("sim-body-content");
+      if (titleEl) titleEl.textContent = document.getElementById("quiz-title").value || "Course Quiz Assessment";
+
+      if (questionsState.length === 0) {
+        bodyEl.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-dim);">No questions added to this quiz yet. Return to Quiz Builder tab to add questions!</div>`;
+        return;
+      }
+
+      bodyEl.innerHTML = `
+        <form onsubmit="event.preventDefault(); gradeSimulator();">
+          ${questionsState.map((q, idx) => `
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px; margin-bottom: 16px;">
+              <div style="font-weight: 700; color: #fff; margin-bottom: 12px;">Q${idx + 1}: ${escapeHtml(q.question_text || 'Sample Question')}</div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                ${(q.options || ["Option A", "Option B", "Option C", "Option D"]).map(opt => `
+                  <label style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer;">
+                    <input type="radio" name="sim_q_${idx}" value="${escapeHtml(opt)}" onchange="simAnswers[${idx}] = this.value">
+                    <span style="font-size: 0.9rem; color: #e2e8f0;">${escapeHtml(opt)}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+
+          <button type="submit" class="btn-gold" style="width: 100%; justify-content: center; height: 48px; margin-top: 12px;">
+            Submit Test Attempt
+          </button>
+        </form>
+      `;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function gradeSimulator() {
+      let correct = 0;
+      questionsState.forEach((q, idx) => {
+        if (simAnswers[idx] === q.correct_answer) correct++;
+      });
+
+      const total = questionsState.length;
+      const score = Math.round((correct / total) * 100);
+      const passScore = parseInt(document.getElementById("quiz-pass-score").value, 10) || 70;
+      const isPassed = score >= passScore;
+
+      const bodyEl = document.getElementById("sim-body-content");
+      bodyEl.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 3rem; margin-bottom: 8px;">${isPassed ? '🏆' : '❌'}</div>
+          <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px;">${isPassed ? 'Passed Assessment!' : 'Needs Improvement'}</h3>
+          <div style="font-size: 2rem; font-weight: 800; color: ${isPassed ? '#10b981' : '#ef4444'}; margin-bottom: 8px;">${score}%</div>
+          <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 20px;">Score: ${correct} / ${total} Correct (Passing mark: ${passScore}%)</p>
+
+          <button type="button" class="btn-gold" onclick="renderSimulator()">Retake Simulator Test</button>
+        </div>
+      `;
+    }
+
+    function loadStudentSubmissions() {
+      const container = document.getElementById("submissions-table-container");
+      if (!container) return;
+
+      fetch(`/api/courses/${courseId}/quiz-submissions`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+            container.innerHTML = `
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="text-align: left; border-bottom: 1px solid var(--border-subtle); color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase;">
+                    <th style="padding: 12px;">Student</th>
+                    <th style="padding: 12px;">ID</th>
+                    <th style="padding: 12px;">Score</th>
+                    <th style="padding: 12px;">Result</th>
+                    <th style="padding: 12px;">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${res.data.map(s => `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                      <td style="padding: 12px; font-weight: 600; color: #fff;">${escapeHtml(s.student_name)}</td>
+                      <td style="padding: 12px; font-family: monospace; color: var(--text-dim); font-size: 0.85rem;">${escapeHtml(s.student_id)}</td>
+                      <td style="padding: 12px; font-weight: 700; color: ${s.passed ? '#10b981' : '#ef4444'};">${s.score}%</td>
+                      <td style="padding: 12px;">
+                        <span class="badge ${s.passed ? 'badge-gold' : ''}" style="${!s.passed ? 'background: rgba(239,68,68,0.15); color: #ef4444;' : ''}">
+                          ${s.passed ? 'PASSED' : 'FAILED'}
+                        </span>
+                      </td>
+                      <td style="padding: 12px; font-size: 0.82rem; color: var(--text-dim);">${new Date(s.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+          } else {
+            container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-dim);">No student submissions recorded for this course yet.</div>`;
+          }
+        })
+        .catch(() => {
+          container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-dim);">Failed to load student submissions.</div>`;
+        });
+    }
+  </script>
+</body>
+</html>

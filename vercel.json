@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "name": "founders-academy",
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "public/**",
+          "web/**",
+          "NotoSansEthiopic-Bold.ttf",
+          "NotoSansEthiopic-Regular.ttf",
+          "api/a.html",
+          "api/IMG_0892.png",
+          "api/IMG_6757.html"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/admin/login",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/courses",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/login",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/maintenance",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/send_daily_quiz",
+      "schedule": "0 10 * * *"
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "https://icdjgtfiqwwdqtvwuyaw.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_7SjYAbvNDwTXOVBlkuox-g_wMj58uUK",
+    "SUPABASE_KEY": "sb_publishable_7SjYAbvNDwTXOVBlkuox-g_wMj58uUK",
+    "TELEGRAM_BOT_TOKEN": "8659500401:AAEUvDQTc0pniztDTiIQU65igbuiiM5ZXAc",
+    "ADMIN_USERNAME": "admin",
+    "ADMIN_PASSWORD": "admin123",
+    "JWT_SECRET": "founders_academy_ultra_secure_jwt_secret_2026_production",
+    "VERIFY_ET_API_KEY": "VERIFY_BANK_ET_Cpm-68GRc4aQQmyqLQj_7BMpiy5uc8ZoYoT6cqtGMsdjL2_magRH_wjq5KeNF7n9",
+    "VERIFY_ET_BASE_URL": "https://verify.et",
+    "VERIFY_ET_WEBHOOK_SECRET": "verify_et_webhook_secret_founders_2026",
+    "VERIFY_ET_SANDBOX": "false",
+    "MERCHANT_CBE_ACCOUNT": "1000123456789",
+    "MERCHANT_CBE_ACCOUNT_SUFFIX": "12345678",
+    "MERCHANT_TELEBIRR_PHONE": "+251961147131"
+  }
+}
+
+

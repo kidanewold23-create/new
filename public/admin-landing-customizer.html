@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing Page Customizer Hub | Founders Academy Admin</title>
+  <meta name="description" content="Manage all landing page sections, headlines, videos, testimonials, and FAQs.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .cms-sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .cms-hub-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .cms-hub-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .cms-hub-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .cms-hub-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .cms-hub-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .cms-hub-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .cms-hub-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .cms-hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary-gold);
+    }
+
+    .cms-hub-card:hover .cms-hub-btn {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn active">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <h1 class="dash-title"><i data-lucide="palette" style="color: var(--primary-gold);"></i> Landing Page Customizer</h1>
+          <p class="dash-subtitle">Select a specific section below to customize headlines, media, copy, testimonials, or FAQs</p>
+        </div>
+
+        <div class="topbar-actions" style="display: flex; gap: 10px;">
+          <a href="index.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> Live Preview
+          </a>
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-reset-all" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+            <i data-lucide="rotate-ccw"></i> Reset All Defaults
+          </button>
+        </div>
+      </header>
+
+      <!-- Section Navigation Hub Grid -->
+      <div class="cms-sections-grid">
+        <!-- 1. Hero & Intro Video -->
+        <a href="admin-landing-hero.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold);">
+                <i data-lucide="zap"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">1. Hero & Intro Video</div>
+                <div class="cms-hub-desc">Announcement banner, main headlines, highlight words, CTA buttons, and intro video player.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge badge-gold">Top Section</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 2. Metrics Bar -->
+        <a href="admin-landing-metrics.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo);">
+                <i data-lucide="bar-chart-3"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">2. Metrics Bar</div>
+                <div class="cms-hub-desc">4 Live counter statistics (Students trained, success rate, Telegram community, partner agencies).</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">Proof Numbers</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 3. Who Is It For? -->
+        <a href="admin-landing-personas.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">
+                <i data-lucide="users"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">3. Who Is It For?</div>
+                <div class="cms-hub-desc">Target audience personas, student profiles, and tailored career transformation outcomes.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">Audience</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 4. Instructors & Brands -->
+        <a href="admin-landing-instructors.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">
+                <i data-lucide="award"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">4. Instructors & Brands</div>
+                <div class="cms-hub-desc">Mentor bios, instructor credentials, agency portfolio experience, and partner brand logos.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">Mentors</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 5. What You Get & Guarantee -->
+        <a href="admin-landing-guarantee.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">
+                <i data-lucide="package-check"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">5. What You Get & Guarantee</div>
+                <div class="cms-hub-desc">Curriculum deliverables, templates, lifetime community access, and 3 risk-free guarantee pillars.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">Value Offer</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 6. Success Stories -->
+        <a href="admin-landing-stories.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+                <i data-lucide="trophy"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">6. Success Stories</div>
+                <div class="cms-hub-desc">High-earning student case studies, verified agency revenue milestones, and 2026 earnings banner.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee;">Case Studies</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 7. Testimonials (CRUD) -->
+        <a href="admin-landing-testimonials.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(234, 179, 8, 0.15); color: #eab308;">
+                <i data-lucide="star"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">7. Testimonials (CRUD)</div>
+                <div class="cms-hub-desc">Add, edit, delete, and toggle verified student reviews, earnings, avatars, and graduation quotes.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge badge-gold">Reviews CRUD</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 8. FAQs (CRUD) -->
+        <a href="admin-landing-faqs.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">
+                <i data-lucide="help-circle"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">8. FAQs (CRUD)</div>
+                <div class="cms-hub-desc">Manage frequently asked questions, answers, and objections to boost student enrollment conversion.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Q&A CRUD</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+
+        <!-- 9. Support & Footer -->
+        <a href="admin-landing-footer.html" class="cms-hub-card">
+          <div>
+            <div class="cms-hub-header">
+              <div class="cms-hub-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+                <i data-lucide="headset"></i>
+              </div>
+              <div>
+                <div class="cms-hub-title">9. Support & Footer</div>
+                <div class="cms-hub-desc">Telegram support handle, phone hotline, brand tagline, and copyright footer text.</div>
+              </div>
+            </div>
+          </div>
+          <div class="cms-hub-footer">
+            <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa;">Contact Info</span>
+            <span class="cms-hub-btn">Edit Section &rarr;</span>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/landing-cms-helper.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("btn-reset-all")?.addEventListener("click", () => {
+        if (!confirm("Are you sure you want to reset all landing page customizations back to factory defaults?")) return;
+        fetch("/api/landing/reset", { method: "POST" })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              showToast("All landing page sections restored to factory defaults!", "success");
+            }
+          })
+          .catch(() => showToast("Restored to factory defaults!", "info"));
+      });
+    });
+  </script>
+</body>
+</html>

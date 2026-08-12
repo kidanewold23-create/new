@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "name": "founders-academy",
+  "builds": [
+    { "src": "api/**/*.ts", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "css/**", "use": "@vercel/static" },
+    { "src": "js/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.ts" },
+    { "src": "/admin/login", "dest": "/admin-login.html" },
+    { "src": "/admin-login", "dest": "/admin-login.html" },
+    { "src": "/admin/dashboard", "dest": "/admin-dashboard.html" },
+    { "src": "/admin-dashboard", "dest": "/admin-dashboard.html" },
+    { "src": "/admin/courses", "dest": "/admin-courses.html" },
+    { "src": "/admin-courses", "dest": "/admin-courses.html" },
+    { "src": "/admin/course-detail", "dest": "/admin-course-detail.html" },
+    { "src": "/admin-course-detail", "dest": "/admin-course-detail.html" },
+    { "src": "/admin/categories", "dest": "/admin-categories.html" },
+    { "src": "/admin-categories", "dest": "/admin-categories.html" },
+    { "src": "/admin/students", "dest": "/admin-students.html" },
+    { "src": "/admin-students", "dest": "/admin-students.html" },
+    { "src": "/admin/student-profile", "dest": "/admin-student-profile.html" },
+    { "src": "/admin-student-profile", "dest": "/admin-student-profile.html" },
+    { "src": "/admin/transactions", "dest": "/admin-transactions.html" },
+    { "src": "/admin-transactions", "dest": "/admin-transactions.html" },
+    { "src": "/admin/landing", "dest": "/admin-landing-customizer.html" },
+    { "src": "/admin/customizer", "dest": "/admin-landing-customizer.html" },
+    { "src": "/admin-landing-customizer", "dest": "/admin-landing-customizer.html" },
+    { "src": "/admin/maintenance", "dest": "/admin-maintenance.html" },
+    { "src": "/admin-maintenance", "dest": "/admin-maintenance.html" },
+    { "src": "/admin/settings", "dest": "/admin-settings.html" },
+    { "src": "/admin-settings", "dest": "/admin-settings.html" },
+    { "src": "/admin/broadcast", "dest": "/admin-broadcast.html" },
+    { "src": "/admin-broadcast", "dest": "/admin-broadcast.html" },
+    { "src": "/admin", "dest": "/admin-dashboard.html" },
+    { "src": "/courses", "dest": "/courses.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/maintenance", "dest": "/maintenance.html" },
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ],
+  "env": {
+    "SUPABASE_URL": "https://icdjgtfiqwwdqtvwuyaw.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_7SjYAbvNDwTXOVBlkuox-g_wMj58uUK"
+  }
+}
+

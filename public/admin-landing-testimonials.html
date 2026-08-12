@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Testimonials (CRUD) | Landing Customizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .cms-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .cms-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .testimonial-cms-item {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .sticky-actions-bar {
+      position: sticky;
+      top: 70px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn active">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <div id="cms-section-nav"></div>
+
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <a href="admin-landing-customizer.html" style="color: var(--primary-gold); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+              &larr; Landing Customizer Hub
+            </a>
+          </div>
+          <h1 class="dash-title"><i data-lucide="star" style="color: #eab308;"></i> Section 7: Student Testimonials (CRUD)</h1>
+          <p class="dash-subtitle">Add, edit, delete, and toggle verified student reviews, earnings, and quotes</p>
+        </div>
+
+        <div class="topbar-actions" style="display: flex; gap: 10px;">
+          <a href="index.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> Live Preview
+          </a>
+        </div>
+      </header>
+
+      <!-- Sticky Action Bar -->
+      <div class="sticky-actions-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge badge-gold"><i data-lucide="star"></i> Testimonials Manager</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Manage real student feedback & earnings proof</span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-add-testimonial">
+            <i data-lucide="plus"></i> Add New Testimonial
+          </button>
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-save-section" style="padding: 10px 24px;">
+            <i data-lucide="save"></i> Save Testimonials
+          </button>
+        </div>
+      </div>
+
+      <div class="cms-card">
+        <div class="cms-card-title">
+          <i data-lucide="message-circle" style="color: var(--primary-gold);"></i> Published Testimonials List
+        </div>
+
+        <div id="testimonials-cms-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/landing-cms-helper.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      renderCmsNavTabs("testimonials");
+
+      let currentTestimonials = [];
+
+      const config = await getLandingConfig();
+      if (config && Array.isArray(config.testimonials) && config.testimonials.length > 0) {
+        currentTestimonials = config.testimonials;
+      } else {
+        currentTestimonials = [
+          { id: "t-1", name: "Natnael Berhanu", role: "SMMA Founder", earnings: "ETB 180,000 / Mo", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", status: "active", quote: "The cold email infrastructure alone was worth 10x the course fee. Signed 3 retainers in month one!" },
+          { id: "t-2", name: "Hanan Mohammed", role: "Short-Form Video Editor", earnings: "$1,200 / Mo (Remote)", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb", status: "active", quote: "Went from zero editing skills to working directly with international fitness and crypto creators." }
+        ];
+      }
+
+      renderList(currentTestimonials);
+
+      function renderList(list) {
+        const container = document.getElementById("testimonials-cms-list");
+        if (!container) return;
+
+        if (list.length === 0) {
+          container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px;">No testimonials yet. Click "Add New Testimonial" above.</div>`;
+          return;
+        }
+
+        container.innerHTML = list.map((t, idx) => `
+          <div class="testimonial-cms-item" data-id="${t.id || 't-' + idx}">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${t.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <div>
+                  <strong style="color: var(--text-main); font-size: 0.95rem;">${t.name || 'Student Name'}</strong>
+                  <div style="font-size: 0.78rem; color: var(--text-dim);">${t.role || 'Graduate'}</div>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="badge badge-gold">${t.earnings || 'Verified Result'}</span>
+                <button type="button" class="btn-dash-action btn-dash-secondary btn-del-test" onclick="removeTestItem('${t.id || 't-' + idx}')" style="padding: 4px 10px; font-size: 0.78rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+                  <i data-lucide="trash-2"></i> Delete
+                </button>
+              </div>
+            </div>
+
+            <div class="grid-3" style="margin-bottom: 10px;">
+              <div class="form-group">
+                <label class="form-label">Student Name</label>
+                <input type="text" class="form-input t-name" value="${t.name || ''}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role / Career Title</label>
+                <input type="text" class="form-input t-role" value="${t.role || ''}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Earnings / Result</label>
+                <input type="text" class="form-input t-earnings" value="${t.earnings || ''}">
+              </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 10px;">
+              <div class="form-group">
+                <label class="form-label">Photo Avatar URL</label>
+                <input type="text" class="form-input t-image" value="${t.image || ''}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Display Status</label>
+                <select class="form-input t-status" style="height: 48px;">
+                  <option value="active" ${t.status !== 'inactive' ? 'selected' : ''}>Active (Visible on index.html)</option>
+                  <option value="inactive" ${t.status === 'inactive' ? 'selected' : ''}>Hidden / Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Quote Text</label>
+              <textarea class="form-input t-quote" style="height: 60px; padding: 10px 14px;">${t.quote || ''}</textarea>
+            </div>
+          </div>
+        `).join("");
+
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function gatherListFromDOM() {
+        const items = document.querySelectorAll(".testimonial-cms-item");
+        const list = [];
+        items.forEach((item, idx) => {
+          list.push({
+            id: item.dataset.id || `t-${idx}`,
+            name: item.querySelector(".t-name")?.value.trim() || "Student",
+            role: item.querySelector(".t-role")?.value.trim() || "Graduate",
+            earnings: item.querySelector(".t-earnings")?.value.trim() || "Verified Result",
+            image: item.querySelector(".t-image")?.value.trim() || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+            status: item.querySelector(".t-status")?.value || "active",
+            quote: item.querySelector(".t-quote")?.value.trim() || "",
+            rating: 5
+          });
+        });
+        return list;
+      }
+
+      document.getElementById("btn-add-testimonial")?.addEventListener("click", () => {
+        const current = gatherListFromDOM();
+        current.unshift({
+          id: `t-${Date.now()}`,
+          name: "New Student",
+          role: "Digital Freelancer",
+          earnings: "60,000 ETB / Month",
+          image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+          quote: "Founders Academy curriculum is hands-on and practical.",
+          status: "active"
+        });
+        renderList(current);
+        showToast("New Testimonial draft added!", "success");
+      });
+
+      window.removeTestItem = (id) => {
+        const current = gatherListFromDOM().filter(t => t.id !== id);
+        renderList(current);
+        showToast("Testimonial removed", "info");
+      };
+
+      document.getElementById("btn-save-section")?.addEventListener("click", () => {
+        const list = gatherListFromDOM();
+        saveLandingSection({ testimonials: list }, "Testimonials Section");
+      });
+    });
+  </script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

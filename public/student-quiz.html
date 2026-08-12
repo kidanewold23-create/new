@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Assessment | Founders Academy</title>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --primary-gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.25);
+      --bg-dark: #090d16;
+    }
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(245, 158, 11, 0.08) 0px, transparent 40%),
+        radial-gradient(at 90% 90%, rgba(99, 102, 241, 0.1) 0px, transparent 40%);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #f8fafc;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .quiz-container {
+      max-width: 840px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .quiz-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+    .q-choice-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 10px;
+    }
+    .q-choice-label:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+    .q-choice-label input[type="radio"] {
+      accent-color: var(--primary-gold);
+      width: 18px;
+      height: 18px;
+    }
+    .btn-submit-quiz {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #000;
+      font-weight: 800;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 8px 25px var(--gold-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.2s ease;
+    }
+    .btn-submit-quiz:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navbar -->
+  <nav class="navbar" style="background: rgba(10,13,22,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div class="nav-container">
+      <a href="student-dashboard.html" class="brand-logo">
+        <div class="logo-icon">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">FOUNDERS</span>
+          <span class="brand-sub">ACADEMY</span>
+        </div>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="student-dashboard.html" class="btn btn-outline" style="text-decoration: none; border-color: rgba(255,255,255,0.15); color: #fff;">
+          <i data-lucide="arrow-left"></i> Exit to Dashboard
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="quiz-container">
+    <div class="quiz-card" id="quiz-portal-card">
+      <!-- Header Timer Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <span class="badge badge-gold" id="quiz-course-tag">Course Assessment</span>
+          <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 700; color: #fff; margin: 6px 0 0 0;" id="quiz-title-display">Loading Quiz...</h1>
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--primary-gold); color: var(--primary-gold); padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="clock"></i> Time Left: <span id="quiz-timer">15:00</span>
+        </div>
+      </div>
+
+      <div id="quiz-questions-form">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let courseId = "course-smma-accelerator";
+    let quizId = null;
+    let quizData = null;
+    let studentAnswers = {};
+    let studentSession = null;
+    let timerSeconds = 15 * 60;
+    let timerInterval = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+
+      const sessionRaw = localStorage.getItem("founders_student_session");
+      if (sessionRaw) {
+        try { studentSession = JSON.parse(sessionRaw); } catch(_e) {}
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("course_id")) courseId = params.get("course_id");
+      if (params.get("quiz_id")) quizId = params.get("quiz_id");
+
+      fetchQuizDetails();
+    });
+
+    function fetchQuizDetails() {
+      if (!quizId) {
+        // Fallback: fetch quizzes for course and grab first
+        fetch(`/api/courses/${courseId}/quizzes`)
+          .then(res => res.json())
+          .then(res => {
+            if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+              quizData = res.data[0];
+              quizId = quizData.id;
+              renderQuizForm();
+            } else {
+              renderError("No active quizzes found for this course.");
+            }
+          })
+          .catch(() => renderError("Failed to load quiz. Please try again."));
+        return;
+      }
+
+      fetch(`/api/quizzes/${quizId}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success && res.data) {
+            quizData = res.data;
+            renderQuizForm();
+          } else {
+            renderError("Quiz details not found.");
+          }
+        })
+        .catch(() => renderError("Network error loading quiz."));
+    }
+
+    function renderQuizForm() {
+      document.getElementById("quiz-title-display").textContent = quizData.title || "Course Quiz";
+      document.getElementById("quiz-course-tag").textContent = `Pass Mark: ${quizData.passing_score || 70}%`;
+
+      const limitMins = quizData.time_limit_mins || 15;
+      timerSeconds = limitMins * 60;
+      startTimer();
+
+      const questions = quizData.questions || [];
+      const formEl = document.getElementById("quiz-questions-form");
+
+      if (questions.length === 0) {
+        renderError("This quiz has no questions published yet.");
+        return;
+      }
+
+      formEl.innerHTML = `
+        <form onsubmit="submitStudentQuiz(event)">
+          ${questions.map((q, idx) => `
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 20px;">
+              <div style="font-weight: 700; font-size: 1.05rem; color: #fff; margin-bottom: 16px; display: flex; gap: 8px;">
+                <span style="color: var(--primary-gold);">Q${idx + 1}.</span>
+                <span>${escapeHtml(q.question_text)}</span>
+              </div>
+
+              <div style="display: flex; flex-direction: column;">
+                ${(q.options || ["Option A", "Option B", "Option C", "Option D"]).map((opt, optIdx) => `
+                  <label class="q-choice-label">
+                    <input type="radio" name="student_q_${idx}" value="${escapeHtml(opt)}" onchange="studentAnswers[${idx}] = this.value" required>
+                    <span style="font-size: 0.95rem; color: #e2e8f0;">${escapeHtml(opt)}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+
+          <button type="submit" class="btn-submit-quiz" style="margin-top: 24px;">
+            <span>Submit Quiz & View Results</span>
+            <i data-lucide="check-circle"></i>
+          </button>
+        </form>
+      `;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          alert("Time's up! Submitting your quiz automatically.");
+          submitStudentQuiz();
+        } else {
+          const mins = Math.floor(timerSeconds / 60);
+          const secs = timerSeconds % 60;
+          document.getElementById("quiz-timer").textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+      }, 1000);
+    }
+
+    function submitStudentQuiz(e) {
+      if (e) e.preventDefault();
+      clearInterval(timerInterval);
+
+      const questions = quizData.questions || [];
+      let correctCount = 0;
+
+      questions.forEach((q, idx) => {
+        if (studentAnswers[idx] === q.correct_answer) {
+          correctCount++;
+        }
+      });
+
+      const total = questions.length;
+      const score = Math.round((correctCount / total) * 100);
+      const passScore = quizData.passing_score || 70;
+      const isPassed = score >= passScore;
+
+      const studentId = studentSession ? (studentSession.id || studentSession.phone) : "STU-VIP";
+      const studentName = studentSession ? studentSession.name : "Student Champion";
+
+      // Submit to database
+      fetch(`/api/quizzes/${quizId}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          course_id: courseId,
+          student_id: studentId,
+          student_name: studentName,
+          score: score,
+          total_questions: total,
+          passed: isPassed
+        })
+      })
+      .then(res => res.json())
+      .then(() => renderResultScreen(score, isPassed, passScore, correctCount, total))
+      .catch(() => renderResultScreen(score, isPassed, passScore, correctCount, total));
+    }
+
+    function renderResultScreen(score, isPassed, passScore, correctCount, total) {
+      const cardEl = document.getElementById("quiz-portal-card");
+      cardEl.innerHTML = `
+        <div style="text-align: center; padding: 30px 20px;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: ${isPassed ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; border: 2px solid ${isPassed ? '#10b981' : '#ef4444'}; color: ${isPassed ? '#10b981' : '#ef4444'}; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; font-size: 2.2rem;">
+            <i data-lucide="${isPassed ? 'check-circle-2' : 'x-circle'}"></i>
+          </div>
+
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
+            ${isPassed ? 'Congratulations! Quiz Passed 🎉' : 'Assessment Needs Review'}
+          </h2>
+
+          <div style="font-size: 3rem; font-weight: 800; color: ${isPassed ? '#10b981' : '#ef4444'}; margin-bottom: 10px;">${score}%</div>
+
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+            You scored ${correctCount} out of ${total} questions correctly. Required passing mark is ${passScore}%.
+          </p>
+
+          <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+            <a href="student-dashboard.html" class="btn btn-outline" style="text-decoration: none; padding: 12px 24px;">
+              <i data-lucide="layout-dashboard"></i> Return to Dashboard
+            </a>
+            ${isPassed ? `
+              <a href="certificate.html?course_id=${encodeURIComponent(courseId)}&student_name=${encodeURIComponent(studentSession ? studentSession.name : 'Student')}" class="btn btn-primary" style="text-decoration: none; padding: 12px 28px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800;">
+                <i data-lucide="award"></i> 🎓 Download Certificate
+              </a>
+            ` : `
+              <button type="button" class="btn btn-primary" onclick="window.location.reload()" style="padding: 12px 24px;">
+                <i data-lucide="refresh-cw"></i> Retake Quiz
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderError(msg) {
+      document.getElementById("quiz-portal-card").innerHTML = `
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <i data-lucide="alert-circle" style="width: 48px; height: 48px; color: #ef4444; margin-bottom: 12px;"></i>
+          <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 8px;">Unable to Load Quiz</h3>
+          <p style="margin-bottom: 20px;">${msg}</p>
+          <a href="student-dashboard.html" class="btn btn-primary" style="text-decoration: none;">Return to Dashboard</a>
+        </div>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>

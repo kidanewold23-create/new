@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate of Completion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .certificate-container {
+      position: relative;
+      width: 1000px;
+      height: 750px;
+      background-color: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 30px;
+    }
+
+    /* Outer Border Line */
+    .inner-border {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border: 3.5px solid #2e1065;
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+    }
+
+    /* Top Left Decorative Shape */
+    .shape-top-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Bottom Right Decorative Shape */
+    .shape-bottom-right {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header & Logo */
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-icon {
+      width: 65px;
+      height: 45px;
+      margin-bottom: 5px;
+    }
+
+    .logo-text {
+      text-align: center;
+      line-height: 1;
+    }
+
+    .logo-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #00A3E0 0%, #1D2B64 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-subtitle {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #e61f5b;
+      margin-top: 2px;
+    }
+
+    /* Certificate Title */
+    .title-main {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #00c6ff 0%, #0072ff 35%, #6a11cb 70%, #2575fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .title-sub {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0d0d0d;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    .title-sub::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 2px;
+      background-color: #0d0d0d;
+    }
+
+    /* Recipient Section */
+    .award-text {
+      margin-top: 45px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #555555;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .recipient-name {
+      margin-top: 10px;
+      font-size: 38px;
+      font-weight: 800;
+      color: #e61f5b;
+      letter-spacing: 0.5px;
+    }
+
+    /* Description */
+    .description {
+      margin-top: 25px;
+      text-align: center;
+      max-width: 820px;
+      font-size: 16.5px;
+      line-height: 1.5;
+      color: #222222;
+      font-weight: 500;
+    }
+
+    .highlight {
+      color: #e61f5b;
+      font-weight: 700;
+    }
+
+    /* Footer Details Grid */
+    .footer-grid {
+      margin-top: auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: flex-end;
+      padding-bottom: 15px;
+    }
+
+    .footer-col-left {
+      text-align: left;
+    }
+
+    .footer-col-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .footer-col-right {
+      text-align: right;
+    }
+
+    .issue-date {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 50px;
+    }
+
+    .issue-date span {
+      font-weight: 800;
+      color: #1d2b64;
+    }
+
+    .signature-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 200px;
+    }
+
+    .signature-line {
+      width: 100%;
+      height: 2px;
+      background-color: #333333;
+      margin-bottom: 8px;
+    }
+
+    .instructor-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #222222;
+      line-height: 1.2;
+    }
+
+    .instructor-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1d1160;
+    }
+
+    .cert-id-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1d1160;
+      line-height: 1.2;
+    }
+
+    .cert-id-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #222222;
+      letter-spacing: 0.5px;
+    }
+
+    /* Certified Badge */
+    .badge-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: -15px;
+    }
+
+    .ribbon-badge {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #ff2a6d 0%, #d81b60 100%);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(216, 27, 96, 0.3);
+      position: relative;
+      z-index: 2;
+      border: 3px dashed rgba(255, 255, 255, 0.5);
+      outline: 4px solid #d81b60;
+      outline-offset: 2px;
+    }
+
+    .badge-text-top {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+      line-height: 1.1;
+    }
+
+    .badge-text-bottom {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: capitalize;
+      line-height: 1.1;
+    }
+
+    .ribbon-tails {
+      position: absolute;
+      bottom: -25px;
+      width: 110px;
+      height: 40px;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="certificate-container">
+    
+    <!-- Top Left Gradient Curve -->
+    <svg class="shape-top-left" viewBox="0 0 1000 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad-top" x1="0%" y1="0%" x2="50%" y2="50%">
+          <stop offset="0%" stop-color="#0062ff" />
+          <stop offset="50%" stop-color="#00c6ff" />
+          <stop offset="100%" stop-color="#2e1065" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="grad-top-solid" x1="0%" y1="0%" x2="30%" y2="40%">
+          <stop offset="0%" stop-color="#003cd5" />
+          <stop offset="70%" stop-color="#00b4d8" />
+          <stop offset="100%" stop-color="#7209b7" />
+        </linearGradient>
+      </defs>
+      <path d="M0 0 H520 C380 0, 220 50, 140 160 C50 280, 0 460, 0 550 Z" fill="url(#grad-top-solid)" />
+      <path d="M0 0 H580 C420 10, 260 80, 160 210 C50 350, 0 540, 0 620 Z" fill="url(#grad-top)" opacity="0.6" />
+    </svg>
+
+    <!-- Bottom Right Gradient Curve -->
+    <svg class="shape-bottom-right" viewBox="0 0 1000 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad-bottom" x1="100%" y1="100%" x2="50%" y2="50%">
+          <stop offset="0%" stop-color="#0072ff" />
+          <stop offset="50%" stop-color="#7209b7" />
+          <stop offset="100%" stop-color="#00c6ff" />
+        </linearGradient>
+      </defs>
+      <path d="M1000 750 V260 C1000 400, 960 520, 860 620 C750 720, 580 750, 480 750 Z" fill="url(#grad-bottom)" />
+    </svg>
+
+    <!-- Certificate Frame -->
+    <div class="inner-border">
+      
+      <!-- Logo Header -->
+      <div class="logo-container">
+        <svg class="logo-icon" viewBox="0 0 100 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5 L85 60 H15 Z" fill="url(#logo-grad)" />
+          <path d="M50 5 L62 25 L50 20 L38 25 Z" fill="#00c6ff" />
+          <!-- Flag -->
+          <path d="M50 5 L50 0 L65 4 L50 10" fill="#0072ff" stroke="#0072ff" stroke-width="2" />
+          <!-- Mountain Lines -->
+          <line x1="25" y1="45" x2="40" y2="25" stroke="#ffffff" stroke-width="2.5" />
+          <line x1="32" y1="55" x2="50" y2="30" stroke="#ffffff" stroke-width="2.5" />
+          <line x1="42" y1="60" x2="60" y2="35" stroke="#ffffff" stroke-width="2.5" />
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00b4d8" />
+              <stop offset="100%" stop-color="#2b1b93" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="logo-text">
+          <div class="logo-title">FOUNDERS</div>
+          <div class="logo-subtitle">ACADEMY</div>
+        </div>
+      </div>
+
+      <!-- Main Title -->
+      <h1 class="title-main">CERTIFICATE</h1>
+      <h2 class="title-sub">OF COMPLETION</h2>
+
+      <!-- Recipient -->
+      <p class="award-text">THIS CERIFICATE IS PROUDLY AWARDED TO</p>
+      <h3 class="recipient-name">Seblewongel Girma</h3>
+
+      <!-- Description Body -->
+      <p class="description">
+        For successfully completing <span class="highlight">Meta Ads Engineering,</span> demonstrating expert mastery<br>
+        in Full-Funnel Campaign Architecture, Conversion Tracking, Direct-Response<br>
+        Creative Strategy, and High-ROAS Scaling Systems.
+      </p>
+
+      <!-- Footer Grid -->
+      <div class="footer-grid">
+        
+        <!-- Issue Date & Instructor Signature -->
+        <div class="footer-col-left">
+          <div class="issue-date">
+            <span>Issued On:</span> August 3, 2026
+          </div>
+          <div class="signature-container">
+            <div class="signature-line"></div>
+            <div class="instructor-name">Yonatan Amsalu</div>
+            <div class="instructor-title">Instructor</div>
+          </div>
+        </div>
+
+        <!-- Center Ribbon Seal -->
+        <div class="footer-col-center">
+          <div class="badge-wrapper">
+            <div class="ribbon-badge">
+              <span class="badge-text-top">Certified</span>
+              <span class="badge-text-bottom">Expert</span>
+            </div>
+            <!-- SVG Ribbon Tails -->
+            <svg class="ribbon-tails" viewBox="0 0 100 40">
+              <path d="M20 0 L5 35 L25 25 L40 38 L35 0 Z" fill="#d81b60" />
+              <path d="M80 0 L65 38 L80 25 L95 35 L80 0 Z" fill="#b0124a" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Certificate ID -->
+        <div class="footer-col-right">
+          <div class="cert-id-title">Certificate ID</div>
+          <div class="cert-id-value">FA-META- 00001</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

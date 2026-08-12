@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Certificate of Completion | Founders Academy</title>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --gold-primary: #d97706;
+      --gold-light: #f59e0b;
+      --gold-border: #b45309;
+      --bg-cert: #090d16;
+    }
+
+    body {
+      background-color: #050811;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #1e293b;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .cert-actions-bar {
+      margin-bottom: 24px;
+      display: flex;
+      gap: 16px;
+      z-index: 100;
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-print:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Certificate Outer Frame */
+    .cert-frame {
+      width: 1000px;
+      max-width: 100%;
+      background: #ffffff;
+      border: 16px solid #1e293b;
+      outline: 4px solid var(--gold-light);
+      border-radius: 8px;
+      padding: 48px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      box-sizing: border-box;
+      position: relative;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.03) 0%, transparent 70%);
+    }
+
+    .cert-inner-border {
+      border: 2px solid #d97706;
+      padding: 36px;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .cert-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .cert-logo-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      margin-bottom: 12px;
+      border: 2px solid #d97706;
+    }
+
+    .cert-brand-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #0f172a;
+    }
+
+    .cert-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #b45309;
+      margin: 16px 0;
+      letter-spacing: 2px;
+    }
+
+    .cert-body {
+      text-align: center;
+      margin: 32px 0;
+    }
+
+    .cert-student-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 2px solid #d97706;
+      display: inline-block;
+      padding: 0 24px 8px 24px;
+      margin: 16px 0 20px 0;
+    }
+
+    .cert-course-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 12px 0;
+    }
+
+    .cert-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .cert-seal {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4);
+      border: 3px solid #fff;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .cert-actions-bar {
+        display: none !important;
+      }
+      .cert-frame {
+        box-shadow: none;
+        border-width: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cert-actions-bar">
+    <a href="student-dashboard.html" class="btn-back">
+      <i data-lucide="arrow-left"></i> Dashboard
+    </a>
+    <button type="button" class="btn-print" onclick="window.print()">
+      <i data-lucide="printer"></i> Print / Download PDF Certificate
+    </button>
+  </div>
+
+  <div class="cert-frame">
+    <div class="cert-inner-border">
+      <!-- Certificate Header -->
+      <div class="cert-header">
+        <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="cert-logo-img">
+        <div class="cert-brand-name">FOUNDERS ACADEMY</div>
+        <div style="font-size: 0.8rem; letter-spacing: 2px; color: #64748b; font-weight: 600;">ETHIOPIA • DIGITAL MASTERCLASSES</div>
+        
+        <div class="cert-title">CERTIFICATE OF COMPLETION</div>
+        <div style="font-size: 0.95rem; color: #475569; font-style: italic;">This official certificate is proudly awarded to</div>
+      </div>
+
+      <!-- Student & Course Details -->
+      <div class="cert-body">
+        <div class="cert-student-name" id="cert-name-display">STUDENT NAME</div>
+
+        <p style="font-size: 1.05rem; color: #334155; max-width: 720px; margin: 0 auto; line-height: 1.6;">
+          For successfully completing all rigorous training modules, practical agency evaluations, and passing all course assessments with distinction for:
+        </p>
+
+        <div class="cert-course-title" id="cert-course-display">SMMA & DIGITAL MARKETING ACCELERATOR</div>
+      </div>
+
+      <!-- Certificate Footer & Seal -->
+      <div class="cert-footer">
+        <div style="text-align: left;">
+          <div style="font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Issue Date</div>
+          <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;" id="cert-date-display">August 11, 2026</div>
+          <div style="font-size: 0.75rem; color: #94a3b8; font-family: monospace; margin-top: 4px;" id="cert-hash-display">VERIFICATION CODE: FA-CERT-2026-X8921</div>
+        </div>
+
+        <div class="cert-seal">
+          <i data-lucide="award" style="width: 24px; height: 24px; margin-bottom: 2px;"></i>
+          OFFICIAL SEAL
+        </div>
+
+        <div style="text-align: right;">
+          <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 800; color: #0f172a; border-bottom: 1px solid #94a3b8; padding-bottom: 4px; display: inline-block;">
+            Yonatan Degefe
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 4px;">Founder & Lead Instructor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+
+      const params = new URLSearchParams(window.location.search);
+      const nameParam = params.get("student_name") || params.get("name");
+      const courseParam = params.get("course_title") || params.get("course");
+      const dateParam = params.get("date");
+
+      if (nameParam) {
+        document.getElementById("cert-name-display").textContent = nameParam.toUpperCase();
+      } else {
+        const sessionRaw = localStorage.getItem("founders_student_session");
+        if (sessionRaw) {
+          try {
+            const s = JSON.parse(sessionRaw);
+            if (s.name) document.getElementById("cert-name-display").textContent = s.name.toUpperCase();
+          } catch(_e) {}
+        }
+      }
+
+      if (courseParam) {
+        document.getElementById("cert-course-display").textContent = courseParam.toUpperCase();
+      }
+
+      const now = dateParam ? new Date(dateParam) : new Date();
+      document.getElementById("cert-date-display").textContent = now.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+      const randomHash = "FA-CERT-2026-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+      document.getElementById("cert-hash-display").textContent = `VERIFICATION CODE: ${randomHash}`;
+    });
+  </script>
+</body>
+</html>

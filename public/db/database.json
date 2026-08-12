@@ -1,0 +1,336 @@
+{
+  "landing_config": {
+    "announcement": {
+      "enabled": true,
+      "badge": "NEW ENROLLMENT OPEN",
+      "text": "August 2026 Masterclass Cohort Registration is Live — Limited Slots Available!",
+      "ctaText": "Claim Offer →"
+    },
+    "hero": {
+      "badge": "ETHIOPIA'S #1 SKILL ACADEMY",
+      "title": "Master High-Income Skills & Build Youre",
+      "highlightText": "Digital Empire",
+      "subtitle": "Practical, action-oriented masterclasses in SMMA, Video Editing, AI Automation, and E-commerce designed specifically for Ethiopian creators, freelancers, and entrepreneurs.",
+      "primaryCtaText": "Explore Courses",
+      "primaryCtaLink": "#courses",
+      "secondaryCtaText": "Watch 2-Min Demo",
+      "trustStudentsCount": "4,850+",
+      "trustSubtitle": "Ethiopian youth trained & launching clients",
+      "featuredCardBadge": "LIVE BOOTCAMP",
+      "featuredCardPrice": "10,000 ETB",
+      "featuredCardDuration": "8 Weeks",
+      "featuredCardTitle": "SMMA & Agency Growth Accelerator",
+      "featuredCardDesc": "Learn how to find international & local clients, build service packages, and close 50,000+ ETB retainers.",
+      "featuredCardBonus": "Includes 1-on-1 Portfolio Review",
+      "featuredCardBtnText": "Quick Enroll Nows"
+    },
+    "metrics": [
+      {
+        "id": "m1",
+        "target": 5200,
+        "suffix": "+",
+        "label": "Graduates Employed / Freelancing"
+      },
+      {
+        "id": "m2",
+        "target": 96,
+        "suffix": "%",
+        "label": "Course Completion Rate"
+      },
+      {
+        "id": "m3",
+        "target": 1200,
+        "suffix": "+",
+        "label": "Active Student Community"
+      },
+      {
+        "id": "m4",
+        "target": 450,
+        "suffix": "K+",
+        "label": "ETB Average Monthly Graduate Revenue"
+      }
+    ],
+    "personas": [
+      {
+        "id": "p1",
+        "title": "University Students",
+        "icon": "graduation-cap",
+        "description": "Escape traditional employment bottlenecks by learning high-income digital skills during your studies.",
+        "outcome": "Earn 15,000+ ETB/month while studying"
+      },
+      {
+        "id": "p2",
+        "title": "Aspiring Freelancers",
+        "icon": "laptop",
+        "description": "Turn your laptop into an agency business serving local Ethiopian businesses and global remote clients.",
+        "outcome": "Land international remote contracts"
+      },
+      {
+        "id": "p3",
+        "title": "Content Creators",
+        "icon": "video",
+        "description": "Master video editing, storytelling, and audience growth to monetize your brand effectively.",
+        "outcome": "Monetize YouTube, TikTok & Telegram"
+      },
+      {
+        "id": "p4",
+        "title": "Business Owners",
+        "icon": "trending-up",
+        "description": "Learn digital marketing and customer acquisition strategies to scale your sales rapidly.",
+        "outcome": "3x your monthly business sales"
+      }
+    ],
+    "guaranteePillars": [
+      {
+        "id": "g1",
+        "title": "Practical Project Exercises",
+        "icon": "video",
+        "description": "Step-by-step video tutorials and real-world client assignments."
+      },
+      {
+        "id": "g2",
+        "title": "Live Q&A Mentorship",
+        "icon": "users",
+        "description": "Weekly live sessions with Yonatan and industry expert guest mentors."
+      },
+      {
+        "id": "g3",
+        "title": "VIP Telegram Community",
+        "icon": "send",
+        "description": "Networking, job referrals, and instant support from fellow students."
+      },
+      {
+        "id": "g4",
+        "title": "Certificate of Mastery",
+        "icon": "award",
+        "description": "Industry-recognized certification upon project submission."
+      }
+    ],
+    "founder": {
+      "name": "Yonatan",
+      "role": "Founder & Lead Instructor",
+      "quote": "My mission is to equip 10,000+ Ethiopian youth with world-class digital skills so they can build profitable remote careers and agency businesses.",
+      "photoUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+      "leadText": "Building the next generation of Ethiopian digital leaders.",
+      "bioText": "With over 6 years of hands-on experience scaling digital agencies, creating viral content, and training thousands of students, Yonatan brings practical, no-fluff industry insights to every masterclass.",
+      "highlight1Title": "5,000+ Students Mentored",
+      "highlight1Desc": "Trained youth across Addis Ababa, Regional Cities, and the Diaspora.",
+      "highlight2Title": "10M+ Organic Views",
+      "highlight2Desc": "Proven viral content strategies for personal brands & clients.",
+      "telegramLink": "https://t.me/founders_academy",
+      "youtubeLink": "https://youtube.com/@foundersacademy",
+      "instagramLink": "https://instagram.com/foundersacademy"
+    },
+    "testimonials": [],
+    "faqs": [],
+    "supportFooter": {
+      "supportTitle": "Need Help Or Have Questions?",
+      "supportSubtitle": "Our student support team is available 7 days a week on Telegram and phone.",
+      "supportTelegramHandle": "@FoundersSupport",
+      "supportTelegramLink": "https://t.me/FoundersSupport",
+      "supportPhone": "+251 91 123 4567",
+      "footerTagline": "Empowering Ethiopian Youth Through High-Income Digital Skills",
+      "footerCopyright": "© 2026 Founders Academy Ethiopia. All rights reserved."
+    }
+  },
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "Digital Marketing / SMMA",
+      "status": "ON"
+    },
+    {
+      "id": "cat-2",
+      "name": "Video Editing & VFX",
+      "status": "ON"
+    },
+    {
+      "id": "cat-3",
+      "name": "Content Creation",
+      "status": "ON"
+    },
+    {
+      "id": "cat-4",
+      "name": "Graphic Design",
+      "status": "ON"
+    },
+    {
+      "id": "cat-5",
+      "name": "AI & Automation",
+      "status": "ON"
+    }
+  ],
+  "courses": [
+    {
+      "id": "course-smma-accelerator",
+      "title": "SMMA & Agency Growth Accelerator",
+      "category": "Digital Marketing / SMMA",
+      "price": "10,000 ETB",
+      "description": "Master high-ticket client acquisition, outreach scripts, cold email infrastructure, and agency team scaling.",
+      "tg_channel": "https://t.me/founders_smma_channel",
+      "tg_group": "https://t.me/founders_smma_group",
+      "status": "ON",
+      "enrolled_students": 1840,
+      "created_at": "2026-08-06T18:29:31.125265+00:00"
+    },
+    {
+      "id": "course-video-editing",
+      "title": "Video Editing & Post-Production Masterclass",
+      "category": "Video Editing & VFX",
+      "price": "8,500 ETB",
+      "description": "Professional Adobe Premiere Pro, After Effects, color grading, sound design, and viral short-form editing.",
+      "tg_channel": "https://t.me/founders_video_channel",
+      "tg_group": "https://t.me/founders_video_group",
+      "status": "ON",
+      "enrolled_students": 1420,
+      "created_at": "2026-08-06T18:29:31.125265+00:00"
+    },
+    {
+      "id": "course-content-creation",
+      "title": "Content Creation & Short Form Viral Blueprint",
+      "category": "Content Creation",
+      "price": "6,500 ETB",
+      "description": "Algorithm secrets, hook mastery, camera gear setups, and monetizing TikTok & Instagram Reels.",
+      "tg_channel": "https://t.me/founders_content_channel",
+      "tg_group": "https://t.me/founders_content_group",
+      "status": "ON",
+      "enrolled_students": 980,
+      "created_at": "2026-08-06T18:29:31.125265+00:00"
+    },
+    {
+      "id": "course-graphic-design",
+      "title": "Graphic Design & Brand Identity Mastery",
+      "category": "Graphic Design",
+      "price": "7,000 ETB",
+      "description": "Photoshop, Illustrator, logo systems, typography, and premium brand presentation strategy.",
+      "tg_channel": "https://t.me/founders_design_channel",
+      "tg_group": "https://t.me/founders_design_group",
+      "status": "ON",
+      "enrolled_students": 750,
+      "created_at": "2026-08-06T18:29:31.125265+00:00"
+    },
+    {
+      "id": "course-ai-automation",
+      "title": "AI Automation & Agency Bot Systems",
+      "category": "AI & Automation",
+      "price": "9,500 ETB",
+      "description": "Build custom ChatGPT bots, Make.com automations, CRM integrations, and AI workflow tools.",
+      "tg_channel": "https://t.me/founders_ai_channel",
+      "tg_group": "https://t.me/founders_ai_group",
+      "status": "ON",
+      "enrolled_students": 520,
+      "created_at": "2026-08-06T18:29:31.125265+00:00"
+    }
+  ],
+  "students": [
+    {
+      "id": "#STD-9921",
+      "name": "Abebe Bikila",
+      "phone": "+251 91 123 4567",
+      "email": "@abebe_bikila",
+      "joined_date": "Aug 06, 2026"
+    },
+    {
+      "id": "#STD-9922",
+      "name": "Tigist Haile",
+      "phone": "+251 92 888 9900",
+      "email": "@tigist_haile",
+      "joined_date": "Aug 06, 2026"
+    },
+    {
+      "id": "#STD-9923",
+      "name": "Dawit Yilma",
+      "phone": "+251 94 333 2211",
+      "email": "@dawit_yilma",
+      "joined_date": "Aug 05, 2026"
+    },
+    {
+      "id": "#STD-9924",
+      "name": "Bethlehem Tadesse",
+      "phone": "+251 91 777 4433",
+      "email": "@bethlehem_t",
+      "joined_date": "Aug 05, 2026"
+    },
+    {
+      "id": "#STD-9925",
+      "name": "Mulugeta Tesfaye",
+      "phone": "+251 98 444 1122",
+      "email": "@mulugeta_tesfaye",
+      "joined_date": "Aug 04, 2026"
+    },
+    {
+      "id": "#STD-9926",
+      "name": "Helen Alemu",
+      "phone": "+251 91 000 7788",
+      "email": "@helen_alemu",
+      "joined_date": "Aug 04, 2026"
+    },
+    {
+      "id": "#STD-9927",
+      "name": "Kassahun Worku",
+      "phone": "+251 93 555 8899",
+      "email": "@kassahun_worku",
+      "joined_date": "Aug 03, 2026"
+    },
+    {
+      "id": "#STD-9928",
+      "name": "Samrawit Bekele",
+      "phone": "+251 92 111 4455",
+      "email": "@samrawit_bekele",
+      "joined_date": "Aug 02, 2026"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "TXN-884920",
+      "student_name": "Abebe Bikila",
+      "student_phone": "+251 91 123 4567",
+      "student_email": "abebe.b@gmail.com",
+      "masterclass_title": "SMMA & Agency Growth Accelerator",
+      "course_id": "course-smma-accelerator",
+      "payment_method": "telebirr",
+      "reference_number": "TLB-9938102",
+      "amount": "ETB 10,000",
+      "status": "Completed",
+      "verify_et_status": "VERIFIED",
+      "created_at": "2026-08-06T12:56:46.079Z"
+    },
+    {
+      "id": "TXN-884921",
+      "student_name": "Tigist Haile",
+      "student_phone": "+251 92 888 9900",
+      "student_email": "tigist.h@yahoo.com",
+      "masterclass_title": "Video Editing & Post-Production Masterclass",
+      "course_id": "course-video-editing",
+      "payment_method": "cbe",
+      "reference_number": "FT240108829",
+      "account_suffix": "12345678",
+      "amount": "ETB 8,500",
+      "status": "Completed",
+      "verify_et_status": "VERIFIED",
+      "created_at": "2026-08-07T12:56:46.079Z"
+    },
+    {
+      "id": "TXN-884922",
+      "student_name": "Dawit Yilma",
+      "student_phone": "+251 94 333 2211",
+      "student_email": "dawit.y@gmail.com",
+      "masterclass_title": "Content Creation & Short Form Viral Blueprint",
+      "course_id": "course-content-creation",
+      "payment_method": "boa",
+      "reference_number": "BOA-7729104",
+      "amount": "ETB 6,500",
+      "status": "Pending",
+      "verify_et_status": "PENDING_AUDIT",
+      "created_at": "2026-08-09T07:56:46.079Z"
+    }
+  ],
+  "maintenance": {
+    "id": 1,
+    "status": "OFF",
+    "title": "System Under Scheduled Upgrades & Maintenance",
+    "message": "We are currently upgrading Founders Academy infrastructure. Access will resume shortly.",
+    "updated_at": "2026-08-06T18:29:31.125265+00:00"
+  },
+  "updated_at": "2026-08-09T12:57:44.528Z"
+}

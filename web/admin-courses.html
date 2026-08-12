@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Courses & Access Links | Founders Academy Admin</title>
+  <meta name="description" content="Manage Founders Academy courses, access links, student enrollments and pricing.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn active">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <h1 class="dash-title">Courses & Access Links</h1>
+          <p class="dash-subtitle">Manage Supabase live course curriculum, Telegram private access links, and pricing in real time</p>
+        </div>
+
+        <div class="topbar-actions" style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-create-course">
+            <i data-lucide="plus-circle"></i> Create New Course
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Course List Table Panel -->
+      <div class="dash-panel">
+        <div class="table-filter-row" style="flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
+          <div class="search-input-box" style="flex: 1; min-width: 260px;">
+            <i data-lucide="search"></i>
+            <input type="text" id="course-search-input" placeholder="Search by course title...">
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <select id="filter-category" class="form-input" style="width: auto; height: 42px; padding: 0 14px; font-size: 0.88rem;">
+              <option value="all">All Categories</option>
+            </select>
+
+            <select id="filter-status" class="form-input" style="width: auto; height: 42px; padding: 0 14px; font-size: 0.88rem;">
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table" id="courses-table">
+            <thead>
+              <tr>
+                <th>Course Title & Curriculum</th>
+                <th>Category</th>
+                <th>Enrolled Students</th>
+                <th>Status (Active / Inactive)</th>
+              </tr>
+            </thead>
+            <tbody id="courses-table-body">
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div class="btn-spinner" style="display: inline-block; width: 28px; height: 28px;"></div>
+                    <span>Connecting to Supabase database & loading courses...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Courses Table Pagination Footer -->
+        <div class="table-pagination-footer" id="courses-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 1. CREATE New Course Modal -->
+  <div class="admin-modal-overlay" id="create-course-modal">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <div class="panel-header" style="margin-bottom: 20px;">
+        <h2 class="panel-title"><i data-lucide="plus-circle" style="color: var(--primary-gold);"></i> Create New Course</h2>
+        <button type="button" id="btn-close-create-course" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-create-new-course">
+        <div class="form-group">
+          <label class="form-label" for="new-course-title">Course Title *</label>
+          <input type="text" id="new-course-title" class="form-input" placeholder="e.g. AI-Powered SMMA & Automation" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="new-course-category">Category *</label>
+            <select id="new-course-category" class="form-input" style="height: 50px;" required>
+              <option value="Digital Marketing / SMMA">Digital Marketing / SMMA</option>
+              <option value="Video Editing & VFX">Video Editing & VFX</option>
+              <option value="Content Creation">Content Creation</option>
+              <option value="Graphic Design">Graphic Design</option>
+              <option value="AI & Automation">AI & Automation</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-course-price">Price (ETB) *</label>
+            <input type="text" id="new-course-price" class="form-input" placeholder="e.g. 10,000 ETB" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-course-duration"><i data-lucide="clock"></i> Duration *</label>
+            <input type="text" id="new-course-duration" class="form-input" placeholder="e.g. 6 Weeks (24 Hours)" value="6 Weeks (24 Hours)" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="new-course-tg-channel"><i data-lucide="send" style="color: #0088cc;"></i> Telegram Channel Link</label>
+            <input type="text" id="new-course-tg-channel" class="form-input" placeholder="https://t.me/founders_smma_channel">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-course-tg-group"><i data-lucide="messages-square" style="color: #0088cc;"></i> Telegram Group Link</label>
+            <input type="text" id="new-course-tg-group" class="form-input" placeholder="https://t.me/founders_smma_group">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="new-course-coupon-code"><i data-lucide="tag" style="color: var(--primary-gold);"></i> Promo / Coupon Code (Optional)</label>
+            <input type="text" id="new-course-coupon-code" class="form-input" placeholder="e.g. FOUNDER25 or VIP50" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="new-course-coupon-discount"><i data-lucide="percent" style="color: var(--accent-emerald);"></i> Coupon Discount (Optional)</label>
+            <input type="text" id="new-course-coupon-discount" class="form-input" placeholder="e.g. 25% or 2,000 ETB">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <label class="form-label" for="new-course-desc" style="margin-bottom: 0;"><i data-lucide="list-checks"></i> Course Description & Curriculum (Accepts Lists & Bullets)</label>
+            <div class="desc-toolbar">
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('new-course-desc', 'bullet')">• Bullet List</button>
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('new-course-desc', 'numbered')">1. Numbered</button>
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('new-course-desc', 'check')">✔ Deliverable</button>
+            </div>
+          </div>
+          <textarea id="new-course-desc" class="form-input" style="height: 130px; padding: 12px 16px; font-family: inherit; line-height: 1.5;" placeholder="• Module 1: Core Strategy & Market Foundations&#10;• Module 2: High-Ticket Client Funnels&#10;• Module 3: Automation Infrastructure&#10;✔ Includes Weekly Live Q&A and Downloadable Assets"></textarea>
+          <div style="font-size: 0.74rem; color: var(--text-dim); margin-top: 4px;">Supports bullet points (•, -), numbered lists (1., 2.), checkmarks (✔), and multiple paragraphs.</div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-cancel-create-course" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn-auth-submit" style="flex: 2; margin-top: 0;">
+            <span>Save & Publish to Supabase</span>
+            <i data-lucide="check"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. EDIT Course Modal -->
+  <div class="admin-modal-overlay" id="edit-course-modal">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <div class="panel-header" style="margin-bottom: 20px;">
+        <h2 class="panel-title"><i data-lucide="edit-3" style="color: var(--accent-indigo);"></i> Edit Course</h2>
+        <button type="button" id="btn-close-edit-course" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-edit-course">
+        <input type="hidden" id="edit-course-id">
+
+        <div class="form-group">
+          <label class="form-label" for="edit-course-title">Course Title *</label>
+          <input type="text" id="edit-course-title" class="form-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-course-category">Category *</label>
+            <select id="edit-course-category" class="form-input" style="height: 50px;" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-course-price">Price (ETB) *</label>
+            <input type="text" id="edit-course-price" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-course-duration"><i data-lucide="clock"></i> Duration</label>
+            <input type="text" id="edit-course-duration" class="form-input" placeholder="e.g. 6 Weeks (24 Hours)">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-course-students">Enrolled Students</label>
+            <input type="number" id="edit-course-students" class="form-input" placeholder="0">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-course-status">Publish Status</label>
+            <select id="edit-course-status" class="form-input" style="height: 50px;">
+              <option value="active">Active (Published)</option>
+              <option value="inactive">Inactive (Draft / Hidden)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-course-tg-channel"><i data-lucide="send" style="color: #0088cc;"></i> Telegram Channel Link</label>
+            <input type="text" id="edit-course-tg-channel" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-course-tg-group"><i data-lucide="messages-square" style="color: #0088cc;"></i> Telegram Group Link</label>
+            <input type="text" id="edit-course-tg-group" class="form-input">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-course-coupon-code"><i data-lucide="tag" style="color: var(--primary-gold);"></i> Promo / Coupon Code</label>
+            <input type="text" id="edit-course-coupon-code" class="form-input" placeholder="e.g. FOUNDER25" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-course-coupon-discount"><i data-lucide="percent" style="color: var(--accent-emerald);"></i> Coupon Discount</label>
+            <input type="text" id="edit-course-coupon-discount" class="form-input" placeholder="e.g. 25% or 2,000 ETB">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <label class="form-label" for="edit-course-desc" style="margin-bottom: 0;"><i data-lucide="list-checks"></i> Course Description & Curriculum (Accepts Lists & Bullets)</label>
+            <div class="desc-toolbar">
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('edit-course-desc', 'bullet')">• Bullet List</button>
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('edit-course-desc', 'numbered')">1. Numbered</button>
+              <button type="button" class="btn-desc-tool" onclick="insertDescListTemplate('edit-course-desc', 'check')">✔ Deliverable</button>
+            </div>
+          </div>
+          <textarea id="edit-course-desc" class="form-input" style="height: 130px; padding: 12px 16px; font-family: inherit; line-height: 1.5;"></textarea>
+          <div style="font-size: 0.74rem; color: var(--text-dim); margin-top: 4px;">Supports bullet points (•, -), numbered lists (1., 2.), checkmarks (✔), and multiple paragraphs.</div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-cancel-edit-course" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn-auth-submit" style="flex: 2; margin-top: 0; background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-indigo-hover) 100%);">
+            <span>Update Course</span>
+            <i data-lucide="check-circle-2"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. DELETE Confirmation Modal -->
+  <div class="admin-modal-overlay" id="delete-course-modal">
+    <div class="admin-modal-card" style="max-width: 480px; text-align: center; padding: 32px 24px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <i data-lucide="trash-2" style="width: 28px; height: 28px;"></i>
+      </div>
+      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 8px;">Delete Course?</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 24px;">
+        Are you sure you want to delete <strong id="delete-course-title-display" style="color: var(--text-main);">-</strong>? This action will permanently remove it from Supabase.
+      </p>
+      <input type="hidden" id="delete-course-id">
+      <div style="display: flex; gap: 12px;">
+        <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-cancel-delete-course" style="flex: 1;">Cancel</button>
+        <button type="button" class="btn-dash-action btn-dash-primary" id="btn-confirm-delete-course" style="flex: 1; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff;">
+          Delete Permanently
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js?v=2.3"></script>
+</body>
+</html>
+

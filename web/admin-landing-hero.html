@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero & Intro Video | Landing Customizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .cms-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .cms-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .sticky-actions-bar {
+      position: sticky;
+      top: 70px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn active">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <div id="cms-section-nav"></div>
+
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <a href="admin-landing-customizer.html" style="color: var(--primary-gold); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+              &larr; Landing Customizer Hub
+            </a>
+          </div>
+          <h1 class="dash-title"><i data-lucide="zap" style="color: var(--primary-gold);"></i> Section 1: Hero & Intro Video</h1>
+          <p class="dash-subtitle">Edit the top announcement bar, main headlines, highlight gradient keywords, CTA buttons, and video modal</p>
+        </div>
+
+        <div class="topbar-actions" style="display: flex; gap: 10px;">
+          <a href="index.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> Live Preview
+          </a>
+        </div>
+      </header>
+
+      <!-- Sticky Action Bar -->
+      <div class="sticky-actions-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge badge-gold"><i data-lucide="sparkles"></i> Hero Section</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Changes publish immediately to index.html</span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-save-section" style="padding: 10px 24px;">
+            <i data-lucide="save"></i> Save Hero Changes
+          </button>
+        </div>
+      </div>
+
+      <form id="form-hero-cms">
+        <!-- Announcement Bar Card -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="megaphone" style="color: var(--primary-gold);"></i> Top Announcement Bar Settings
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <input type="checkbox" id="ann-enabled" checked style="width: 20px; height: 20px; accent-color: var(--primary-gold);">
+            <label for="ann-enabled" style="font-weight: 600; font-size: 0.92rem; color: var(--text-main);">Enable Announcement Bar on top of index.html</label>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label" for="ann-badge">Badge Text</label>
+              <input type="text" id="ann-badge" class="form-input" placeholder="NEW ENROLLMENT OPEN">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label" for="ann-text">Announcement Headline / Promotion Text</label>
+              <input type="text" id="ann-text" class="form-input" placeholder="Founders Academy Accelerator Round 6 registration is live! Get 25% OFF plus 3 bonus courses.">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="ann-cta">CTA Link Button Text</label>
+              <input type="text" id="ann-cta" class="form-input" placeholder="Join Now →">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="ann-link">CTA Destination Link</label>
+              <input type="text" id="ann-link" class="form-input" placeholder="courses.html">
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Section Card -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="zap" style="color: var(--accent-indigo);"></i> Hero Main Headline, Subtitle & CTAs
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hero-badge">Hero Top Badge</label>
+            <input type="text" id="hero-badge" class="form-input" placeholder="#1 Digital Agency Incubator in Ethiopia">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="hero-title">Main Title Text</label>
+              <input type="text" id="hero-title" class="form-input" placeholder="Master High-Income Skills & Launch Your">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hero-highlight">Highlighted Gradient Text</label>
+              <input type="text" id="hero-highlight" class="form-input" placeholder="6-Figure Agency">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hero-subtitle">Hero Subtitle / Value Proposition</label>
+            <textarea id="hero-subtitle" class="form-input" style="height: 80px; padding: 12px 14px;" placeholder="Comprehensive masterclasses in SMMA, High-Ticket Video Editing, Content Creation, and AI Agency Automation. Direct mentorship, client acquisition scripts, and Telegram community access."></textarea>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="hero-primary-cta">Primary CTA Button Text</label>
+              <input type="text" id="hero-primary-cta" class="form-input" placeholder="Explore All Masterclasses →">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hero-primary-link">Primary CTA Destination Link</label>
+              <input type="text" id="hero-primary-link" class="form-input" placeholder="courses.html">
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom: 0;">
+            <div class="form-group">
+              <label class="form-label" for="hero-secondary-cta">Secondary CTA Button Text</label>
+              <input type="text" id="hero-secondary-cta" class="form-input" placeholder="Watch 2-Min Trailer">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hero-trust-count">Social Proof Student Count</label>
+              <input type="text" id="hero-trust-count" class="form-input" placeholder="5,200+">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hero-trust-sub">Social Proof Text</label>
+              <input type="text" id="hero-trust-sub" class="form-input" placeholder="Enrolled Ethiopian Students">
+            </div>
+          </div>
+        </div>
+
+        <!-- Intro Video Card -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="play-circle" style="color: #ef4444;"></i> Intro Video Modal & Trailer Settings
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="video-title">Video Card Header Title</label>
+              <input type="text" id="video-title" class="form-input" placeholder="Watch Founders Academy Walkthrough">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="video-duration">Duration Badge Text</label>
+              <input type="text" id="video-duration" class="form-input" placeholder="2 MIN PREVIEW • 4K HD">
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 0;">
+            <div class="form-group">
+              <label class="form-label" for="video-thumb">Video Thumbnail Image URL</label>
+              <input type="text" id="video-thumb" class="form-input" placeholder="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="video-embed">YouTube / Video Embed URL</label>
+              <input type="text" id="video-embed" class="form-input" placeholder="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0">
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="js/landing-cms-helper.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      renderCmsNavTabs("hero");
+
+      const config = await getLandingConfig();
+      if (config) {
+        if (config.announcement) {
+          document.getElementById("ann-enabled").checked = config.announcement.enabled !== false;
+          document.getElementById("ann-badge").value = config.announcement.badge || "";
+          document.getElementById("ann-text").value = config.announcement.text || "";
+          document.getElementById("ann-cta").value = config.announcement.ctaText || "";
+          document.getElementById("ann-link").value = config.announcement.ctaLink || "";
+        }
+        if (config.hero) {
+          document.getElementById("hero-badge").value = config.hero.badge || "";
+          document.getElementById("hero-title").value = config.hero.title || "";
+          document.getElementById("hero-highlight").value = config.hero.highlightText || "";
+          document.getElementById("hero-subtitle").value = config.hero.subtitle || "";
+          document.getElementById("hero-primary-cta").value = config.hero.primaryCtaText || "";
+          document.getElementById("hero-primary-link").value = config.hero.primaryCtaLink || "";
+          document.getElementById("hero-secondary-cta").value = config.hero.secondaryCtaText || "";
+          document.getElementById("hero-trust-count").value = config.hero.trustStudentsCount || "";
+          document.getElementById("hero-trust-sub").value = config.hero.trustSubtitle || "";
+          if (config.hero.introVideo) {
+            document.getElementById("video-title").value = config.hero.introVideo.title || "";
+            document.getElementById("video-duration").value = config.hero.introVideo.durationBadge || "";
+            document.getElementById("video-thumb").value = config.hero.introVideo.thumbUrl || "";
+            document.getElementById("video-embed").value = config.hero.introVideo.embedUrl || "";
+          }
+        }
+      }
+
+      document.getElementById("btn-save-section")?.addEventListener("click", () => {
+        const payload = {
+          announcement: {
+            enabled: document.getElementById("ann-enabled").checked,
+            badge: document.getElementById("ann-badge").value.trim(),
+            text: document.getElementById("ann-text").value.trim(),
+            ctaText: document.getElementById("ann-cta").value.trim(),
+            ctaLink: document.getElementById("ann-link").value.trim() || "courses.html"
+          },
+          hero: {
+            badge: document.getElementById("hero-badge").value.trim(),
+            title: document.getElementById("hero-title").value.trim(),
+            highlightText: document.getElementById("hero-highlight").value.trim(),
+            subtitle: document.getElementById("hero-subtitle").value.trim(),
+            primaryCtaText: document.getElementById("hero-primary-cta").value.trim(),
+            primaryCtaLink: document.getElementById("hero-primary-link").value.trim() || "courses.html",
+            secondaryCtaText: document.getElementById("hero-secondary-cta").value.trim(),
+            trustStudentsCount: document.getElementById("hero-trust-count").value.trim(),
+            trustSubtitle: document.getElementById("hero-trust-sub").value.trim(),
+            introVideo: {
+              title: document.getElementById("video-title").value.trim(),
+              durationBadge: document.getElementById("video-duration").value.trim(),
+              thumbUrl: document.getElementById("video-thumb").value.trim(),
+              embedUrl: document.getElementById("video-embed").value.trim()
+            }
+          }
+        };
+
+        saveLandingSection(payload, "Hero & Announcement Section");
+      });
+    });
+  </script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

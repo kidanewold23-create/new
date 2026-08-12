@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "start": "deno run --allow-net --allow-read --allow-env server.ts",
+    "bot": "deno run --allow-net --allow-read --allow-write --allow-env bot.ts",
+    "migrate": "deno run --allow-net --allow-env db/migrate.ts"
+  },
+  "imports": {
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.48.1"
+  },
+  "nodeModulesDir": "auto"
+}

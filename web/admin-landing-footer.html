@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support & Footer | Landing Customizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .cms-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .cms-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .sticky-actions-bar {
+      position: sticky;
+      top: 70px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn active">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <div id="cms-section-nav"></div>
+
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <a href="admin-landing-customizer.html" style="color: var(--primary-gold); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+              &larr; Landing Customizer Hub
+            </a>
+          </div>
+          <h1 class="dash-title"><i data-lucide="headset" style="color: #8b5cf6;"></i> Section 9: Support & Footer Settings</h1>
+          <p class="dash-subtitle">Edit direct student support contact channels, phone numbers, and footer branding</p>
+        </div>
+
+        <div class="topbar-actions" style="display: flex; gap: 10px;">
+          <a href="index.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> Live Preview
+          </a>
+        </div>
+      </header>
+
+      <!-- Sticky Action Bar -->
+      <div class="sticky-actions-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa;"><i data-lucide="headset"></i> Support & Footer</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Changes publish immediately to index.html</span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-save-section" style="padding: 10px 24px;">
+            <i data-lucide="save"></i> Save Support & Footer
+          </button>
+        </div>
+      </div>
+
+      <form id="form-footer-cms">
+        <!-- Direct Support Channel Settings -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="message-circle" style="color: var(--primary-gold);"></i> 24/7 Student Support Contact Details
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="supp-title">Support Box Title</label>
+              <input type="text" id="supp-title" class="form-input" placeholder="Have Questions Before Enrolling?">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="supp-subtitle">Support Subtitle</label>
+              <input type="text" id="supp-subtitle" class="form-input" placeholder="Our student admissions team is active daily on Telegram and phone hotline.">
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom: 0;">
+            <div class="form-group">
+              <label class="form-label" for="supp-tg-handle">Telegram Support Display</label>
+              <input type="text" id="supp-tg-handle" class="form-input" placeholder="@FoundersSupport">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="supp-tg-link">Telegram Link URL</label>
+              <input type="text" id="supp-tg-link" class="form-input" placeholder="https://t.me/FoundersSupport">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="supp-phone">Phone Hotline</label>
+              <input type="text" id="supp-phone" class="form-input" placeholder="+251 906 769 999">
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Branding & Copyright -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="globe" style="color: #8b5cf6;"></i> Footer Branding & Copyright
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 0;">
+            <div class="form-group">
+              <label class="form-label" for="footer-tagline">Footer Brand Tagline</label>
+              <input type="text" id="footer-tagline" class="form-input" placeholder="Ethiopia's Premier Digital Academy & Agency Incubator.">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="footer-copyright">Footer Copyright Text</label>
+              <input type="text" id="footer-copyright" class="form-input" placeholder="© 2026 Founders Academy. All rights reserved.">
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="js/landing-cms-helper.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      renderCmsNavTabs("footer");
+
+      const config = await getLandingConfig();
+      if (config && config.supportFooter) {
+        document.getElementById("supp-title").value = config.supportFooter.supportTitle || "";
+        document.getElementById("supp-subtitle").value = config.supportFooter.supportSubtitle || "";
+        document.getElementById("supp-tg-handle").value = config.supportFooter.supportTelegramHandle || "";
+        document.getElementById("supp-tg-link").value = config.supportFooter.supportTelegramLink || "";
+        document.getElementById("supp-phone").value = config.supportFooter.supportPhone || "";
+        document.getElementById("footer-tagline").value = config.supportFooter.footerTagline || "";
+        document.getElementById("footer-copyright").value = config.supportFooter.footerCopyright || "";
+      }
+
+      document.getElementById("btn-save-section")?.addEventListener("click", () => {
+        const payload = {
+          supportFooter: {
+            supportTitle: document.getElementById("supp-title").value.trim(),
+            supportSubtitle: document.getElementById("supp-subtitle").value.trim(),
+            supportTelegramHandle: document.getElementById("supp-tg-handle").value.trim(),
+            supportTelegramLink: document.getElementById("supp-tg-link").value.trim(),
+            supportPhone: document.getElementById("supp-phone").value.trim(),
+            footerTagline: document.getElementById("footer-tagline").value.trim(),
+            footerCopyright: document.getElementById("footer-copyright").value.trim()
+          }
+        };
+
+        saveLandingSection(payload, "Support & Footer Section");
+      });
+    });
+  </script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Founders Academy</title>
+  <meta name="description" content="Founders Academy Admin Overview & Live Metrics">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    /* Simple & Modern Dashboard Custom Layout */
+    .simple-dash-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .simple-dash-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .quick-action-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .quick-action-card:hover {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.35);
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    .quick-action-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .quick-action-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .quick-action-sub {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn active">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar" style="margin-bottom: 24px;">
+        <div>
+          <h1 class="dash-title">Admin Dashboard</h1>
+          <p class="dash-subtitle" id="admin-welcome-sub">Welcome back, Administrator • 2FA Active • Live Database Connected</p>
+        </div>
+
+        <div class="live-indicator-pill">
+          <span class="live-indicator-dot"></span>
+          <span id="analytics-filter-status">Live Database Metrics</span>
+        </div>
+      </header>
+
+      <!-- VIEW: OVERVIEW DASHBOARD -->
+      <div class="dash-view active" id="view-overview">
+        <!-- 3 Simple & Dynamic KPI Summary Cards -->
+        <div class="analytics-kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+          <!-- KPI 1: Gross Revenue -->
+          <div class="analytics-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Gross Revenue</span>
+              <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold);">
+                <i data-lucide="banknote"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-total-revenue">ETB 47,030,000</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend positive" id="kpi-revenue-trend"><i data-lucide="trending-up"></i> +24.8%</span>
+              <span id="kpi-revenue-period">verified total</span>
+            </div>
+          </div>
+
+          <!-- KPI 2: Total Active Students -->
+          <div class="analytics-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Active Students</span>
+              <div class="kpi-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo);">
+                <i data-lucide="users-2"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-total-enrollments">5,510 Students</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend positive" id="kpi-enrollment-trend"><i data-lucide="trending-up"></i> +18.2%</span>
+              <span>across all cohorts</span>
+            </div>
+          </div>
+
+          <!-- KPI 3: Active Masterclasses -->
+          <div class="analytics-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Published Courses</span>
+              <div class="kpi-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">
+                <i data-lucide="book-open"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-total-courses">5 Courses</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend positive"><i data-lucide="sparkles"></i> Active</span>
+              <span>online catalog</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Column Clean Grid: Main Growth Chart (Left) & Payment Share + Shortcuts (Right) -->
+        <div class="simple-dash-grid">
+          <!-- Left Column: Revenue & Growth Trajectory Chart -->
+          <div class="chart-panel" style="margin-bottom: 0;">
+            <div class="chart-header" style="flex-wrap: wrap; gap: 12px;">
+              <div class="chart-title-wrap">
+                <h2 class="chart-title" style="font-size: 1.1rem;">
+                  <i data-lucide="line-chart" style="color: var(--primary-gold);"></i> Revenue Trajectory
+                </h2>
+                <span class="chart-subtitle">Net revenue & enrollment trends</span>
+              </div>
+
+              <!-- Clean Period & Course Filter Controls -->
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div class="timeframe-group" style="padding: 2px;">
+                  <button type="button" class="btn-timeframe active" data-timeframe="monthly" style="padding: 4px 12px; font-size: 0.8rem;">
+                    Monthly
+                  </button>
+                  <button type="button" class="btn-timeframe" data-timeframe="yearly" style="padding: 4px 12px; font-size: 0.8rem;">
+                    Yearly
+                  </button>
+                </div>
+
+                <div class="filter-dropdown-wrap" style="height: 32px; padding: 0 10px;">
+                  <i data-lucide="filter" style="width: 14px; height: 14px;"></i>
+                  <select id="analytics-course-filter" title="Filter by course" style="font-size: 0.8rem;">
+                    <option value="all">All Courses</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-canvas-wrap" style="height: 280px; margin-top: 10px;">
+              <canvas id="chart-revenue"></canvas>
+            </div>
+          </div>
+
+          <!-- Right Column: Payment Gateway Share + Quick Action Shortcuts -->
+          <div class="chart-panel" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="chart-header" style="margin-bottom: 12px;">
+                <div class="chart-title-wrap">
+                  <h2 class="chart-title" style="font-size: 1.05rem;">
+                    <i data-lucide="pie-chart" style="color: var(--accent-emerald);"></i> Payment Gateway Share
+                  </h2>
+                  <span class="chart-subtitle">Telebirr vs CBE vs BOA</span>
+                </div>
+              </div>
+
+              <div class="chart-canvas-wrap" style="height: 180px; position: relative;">
+                <canvas id="chart-payment-methods"></canvas>
+              </div>
+            </div>
+
+            <!-- Quick Management Shortcuts -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+              <span style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); display: block; margin-bottom: 10px;">
+                Quick Navigation
+              </span>
+              <div class="quick-actions-grid">
+                <a href="admin-courses.html" class="quick-action-card">
+                  <div class="quick-action-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold);">
+                    <i data-lucide="book-open"></i>
+                  </div>
+                  <div>
+                    <div class="quick-action-title">Courses</div>
+                    <div class="quick-action-sub">Manage & Pricing</div>
+                  </div>
+                </a>
+
+                <a href="admin-students.html" class="quick-action-card">
+                  <div class="quick-action-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo);">
+                    <i data-lucide="users"></i>
+                  </div>
+                  <div>
+                    <div class="quick-action-title">Students</div>
+                    <div class="quick-action-sub">View Directory</div>
+                  </div>
+                </a>
+
+                <a href="admin-transactions.html" class="quick-action-card">
+                  <div class="quick-action-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">
+                    <i data-lucide="credit-card"></i>
+                  </div>
+                  <div>
+                    <div class="quick-action-title">Payments</div>
+                    <div class="quick-action-sub">Verify Receipts</div>
+                  </div>
+                </a>
+
+                <a href="admin-broadcast.html" class="quick-action-card">
+                  <div class="quick-action-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">
+                    <i data-lucide="send"></i>
+                  </div>
+                  <div>
+                    <div class="quick-action-title">Broadcast</div>
+                    <div class="quick-action-sub">Telegram Bot</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Student Enrollments Table Panel -->
+        <div class="dash-panel" style="margin-top: 24px;">
+          <div class="table-filter-row">
+            <h2 class="panel-title" style="font-size: 1.1rem;">
+              <i data-lucide="users" style="color: var(--primary-gold);"></i> Recent Student Enrollments
+            </h2>
+
+            <div class="search-input-box" style="max-width: 320px;">
+              <i data-lucide="search"></i>
+              <input type="text" id="student-search-input" placeholder="Search student name, phone, course...">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Phone / Email</th>
+                  <th>Masterclass Enrolled</th>
+                  <th>Payment Method</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="students-table-body">
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                      <div class="btn-spinner" style="display: inline-block; width: 28px; height: 28px;"></div>
+                      <span>Fetching recent enrollments from database...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Student Table Pagination Footer -->
+          <div class="table-pagination-footer" id="students-pagination"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js"></script>
+</body>
+</html>

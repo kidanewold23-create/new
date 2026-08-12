@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Founders Academy | Master High-Income Digital Skills & Build Your Agency</title>
+  <meta name="description" content="Founders Academy is Ethiopia's premier e-learning platform for digital entrepreneurship, SMMA, Video Editing, Content Creation, and Graphic Design.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <script src="js/maintenance-guard.js"></script>
+</head>
+<body class="dark-theme preloader-lock">
+  <script>
+    if (sessionStorage.getItem("founders_preloader_seen") === "true") {
+      document.body.classList.remove("preloader-lock");
+    }
+  </script>
+
+  <!-- Animated Loading Preloader Screen -->
+  <div id="preloader">
+    <div class="preloader-bg-glow"></div>
+    <div class="preloader-grid-overlay"></div>
+    <div class="preloader-content">
+      <div class="preloader-logo-wrap">
+        <div class="preloader-ring-outer"></div>
+        <div class="preloader-ring-inner"></div>
+        <div class="preloader-logo-box">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+        </div>
+      </div>
+      <h1 class="preloader-title">FOUNDERS <span class="preloader-title-highlight">ACADEMY</span></h1>
+      <p class="preloader-subtitle">Digital Agency Incubator</p>
+      <div class="preloader-progress-box">
+        <div class="preloader-progress-track">
+          <div class="preloader-progress-fill" id="preloader-progress-fill"></div>
+        </div>
+        <div class="preloader-info-row">
+          <span class="preloader-status" id="preloader-status">Initializing Studio...</span>
+          <span class="preloader-percent" id="preloader-percent">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Announcement Bar (Links to courses.html) -->
+  <div class="announcement-bar">
+    <div class="announcement-content">
+      <span class="badge badge-gold"><i data-lucide="sparkles"></i> NEW ENROLLMENT OPEN</span>
+      <span data-i18n="announcement_text">Founders Accelerator Round 6 registration is live! Get 25% OFF plus 3 bonus courses.</span>
+      <a href="courses.html" class="btn-text" id="announcement-cta" data-i18n="claim_offer">Join Now &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Main Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="logo-icon">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">FOUNDERS</span>
+          <span class="brand-sub">ACADEMY</span>
+        </div>
+      </a>
+
+      <div class="nav-links" id="nav-links">
+        <a href="index.html" class="nav-link active"><i data-lucide="home"></i> Home</a>
+        <a href="#personas" class="nav-link"><i data-lucide="users"></i> Who Is It For?</a>
+        <a href="#what-you-get" class="nav-link"><i data-lucide="package-check"></i> What You Get</a>
+        <a href="#success-stories" class="nav-link"><i data-lucide="trophy"></i> Success Stories</a>
+        <a href="courses.html" class="nav-link" data-i18n="nav_courses"><i data-lucide="book-open"></i> Courses</a>
+        <a href="student-login.html" class="nav-link"><i data-lucide="user"></i> Student Login</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="student-login.html" class="btn btn-outline" id="header-student-login-btn" style="border-color: rgba(255, 255, 255, 0.25);">
+          <i data-lucide="log-in"></i> Login
+        </a>
+
+        <a href="courses.html" class="btn btn-primary">
+          <i data-lucide="shopping-cart"></i> Join Courses
+        </a>
+
+        <!-- Mobile Menu Trigger -->
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 1. HOME: Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="hero-bg-glow"></div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i data-lucide="zap"></i>
+          <span data-i18n="hero_badge">#1 Digital Agency Incubator in Ethiopia</span>
+        </div>
+        <h1 class="hero-title" data-i18n="hero_title">
+          Master High-Income Skills & Launch Your <span class="gradient-text">6-Figure Agency</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_subtitle">
+          Step-by-step masterclasses in Social Media Marketing (SMMA), Video Editing, Content Creation, and Graphic Design. Mentored by top digital entrepreneurs.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="courses.html" class="btn btn-primary btn-lg">
+            <i data-lucide="rocket"></i> <span data-i18n="hero_cta_primary">Explore & Join Courses</span>
+          </a>
+          <button class="btn btn-glass btn-lg" id="watch-demo-btn">
+            <i data-lucide="play-circle"></i> <span data-i18n="hero_cta_secondary">Watch Intro Video</span>
+          </button>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="hero-trust">
+          <div class="trust-avatars">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Student">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Student">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80" alt="Student">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80" alt="Student">
+          </div>
+          <div class="trust-text">
+            <div class="stars">
+              <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
+            </div>
+            <span><strong>4,850+</strong> Ethiopian youth trained & launching clients</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual: Featured Intro Video Player Card (Course fully removed) -->
+      <div class="hero-visual">
+        <div class="hero-video-box" id="hero-video-box-trigger" style="margin-top: 0;">
+          <div class="video-thumb-wrap" style="height: 320px;">
+            <img src="https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?auto=format&fit=crop&w=800&q=80" alt="Founders Academy Intro Video Preview" class="video-thumb-img">
+            <div class="video-thumb-overlay">
+              <div class="video-play-btn-lg">
+                <i data-lucide="play" style="margin-left: 4px;"></i>
+              </div>
+            </div>
+          </div>
+          <div class="video-info-strip">
+            <h4><i data-lucide="play-circle" style="color: var(--primary-gold);"></i> Founders Academy Video Overview</h4>
+            <span class="video-badge"><i data-lucide="clock"></i> 2:15 MIN TOUR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Metrics Bar -->
+  <section class="metrics-bar">
+    <div class="container metrics-grid">
+      <div class="metric-item">
+        <h2 class="metric-number" data-target="5200">0+</h2>
+        <p class="metric-label">Enrolled Students</p>
+      </div>
+      <div class="metric-item">
+        <h2 class="metric-number" data-target="96">0%</h2>
+        <p class="metric-label">Course Completion Rate</p>
+      </div>
+      <div class="metric-item">
+        <h2 class="metric-number" data-target="1200">0+</h2>
+        <p class="metric-label">Agencies & Freelancers Formed</p>
+      </div>
+      <div class="metric-item">
+        <h2 class="metric-number" data-target="450">0K+</h2>
+        <p class="metric-label">ETB Avg. Student Monthly Income</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. FOR WHO IS THIS COURSE FOR (Personas Section) -->
+  <section class="personas-section" id="personas">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-tag"><i data-lucide="users"></i> WHO IS THIS COURSE FOR?</span>
+        <h2 class="section-title">Designed for Those Who Refuse to Stay <span class="gradient-text">Average</span></h2>
+        <p class="section-subtitle">Whether you are starting with zero experience or looking to transition into a 6-figure agency, our programs provide the exact blueprint to win.</p>
+      </div>
+
+      <div class="persona-grid">
+        <!-- Persona 1 -->
+        <div class="glass-card persona-card">
+          <div>
+            <div class="persona-icon-box">
+              <i data-lucide="graduation-cap"></i>
+            </div>
+            <h3>University Students & Grads</h3>
+            <p class="persona-desc">Break free from stagnant entry-level salaries and lack of opportunities. Learn high-income digital skills that allow you to earn 30,000 to 100,000+ ETB/month while still in school or right after graduation.</p>
+          </div>
+          <div>
+            <a href="courses.html" class="persona-outcome-tag"><i data-lucide="check-circle-2"></i> Launch Remote Freelancing &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Persona 2 -->
+        <div class="glass-card persona-card">
+          <div>
+            <div class="persona-icon-box">
+              <i data-lucide="briefcase"></i>
+            </div>
+            <h3>9-to-5 Corporate Escapees</h3>
+            <p class="persona-desc">Tired of the rigid corporate grind and limited pay ceilings? Build a high-ticket digital marketing agency on the side and create a predictable transition to financial freedom and remote location flexibility.</p>
+          </div>
+          <div>
+            <a href="courses.html" class="persona-outcome-tag"><i data-lucide="check-circle-2"></i> High-Ticket Side Income &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Persona 3 -->
+        <div class="glass-card persona-card">
+          <div>
+            <div class="persona-icon-box">
+              <i data-lucide="sparkles"></i>
+            </div>
+            <h3>Freelancers & Creators</h3>
+            <p class="persona-desc">Stop trading hours for cheap one-off $50 gigs. Master client acquisition, high-ticket packaging, and close recurring $1,000+ monthly retainers with international and local businesses.</p>
+          </div>
+          <div>
+            <a href="courses.html" class="persona-outcome-tag"><i data-lucide="check-circle-2"></i> Convert Gigs to Retainers &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Persona 4 -->
+        <div class="glass-card persona-card">
+          <div>
+            <div class="persona-icon-box">
+              <i data-lucide="rocket"></i>
+            </div>
+            <h3>Aspiring Agency Founders</h3>
+            <p class="persona-desc">Master the complete agency operating system: cold outreach engines, high-converting discovery calls, legal client contracts, and contractor delegation for rapid, stress-free scaling.</p>
+          </div>
+          <div>
+            <a href="courses.html" class="persona-outcome-tag"><i data-lucide="check-circle-2"></i> Scale to 5+ Retainers &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. OUR INSTRUCTORS ARE TRUSTED BY (Instructors & Trusted By Section) -->
+  <section class="instructors-section" id="instructors">
+    <div class="container">
+      
+      <!-- Trusted By Brands & Credibility Strip -->
+      <div class="trusted-strip">
+        <div class="trusted-strip-header">OUR INSTRUCTORS & CLIENT WORK FEATURED WITH INDUSTRY LEADERS</div>
+        <div class="trusted-logos-grid">
+          <div class="trusted-logo-pill"><i data-lucide="radio"></i> Safaricom</div>
+          <div class="trusted-logo-pill"><i data-lucide="tv"></i> Canal+</div>
+          <div class="trusted-logo-pill"><i data-lucide="play-square"></i> DStv</div>
+          <div class="trusted-logo-pill"><i data-lucide="star"></i> Upwork Top-Rated</div>
+          <div class="trusted-logo-pill"><i data-lucide="smartphone"></i> Telebirr Official</div>
+          <div class="trusted-logo-pill"><i data-lucide="building-2"></i> CBE Commercial Bank</div>
+          <div class="trusted-logo-pill"><i data-lucide="globe"></i> Meta Business Partner</div>
+          <div class="trusted-logo-pill"><i data-lucide="youtube"></i> YouTube Creator Studio</div>
+        </div>
+      </div>
+
+      <div class="section-header center">
+        <span class="section-tag"><i data-lucide="award"></i> WORLD-CLASS MENTORS</span>
+        <h2 class="section-title">Our Instructors Are <span class="gradient-text">Trusted By Industry Leaders</span></h2>
+        <p class="section-subtitle">Learn directly from proven 7-figure agency operators, commercial directors, and top freelance strategists who have delivered campaigns for Safaricom, Canal+, DStv, and global brands.</p>
+      </div>
+
+      <!-- Instructors Grid -->
+      <div class="instructors-grid">
+        <!-- Instructor 1 -->
+        <div class="instructor-card glass-card">
+          <div class="instructor-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80" alt="Yonas Mohammed" class="instructor-avatar-img">
+            <div class="instructor-badge-icon"><i data-lucide="shield-check"></i></div>
+          </div>
+          <h3 class="instructor-name">Yonas Mohammed</h3>
+          <span class="instructor-role">Founder & SMMA Lead Mentor</span>
+          <p class="instructor-bio">Founder of Founders Academy. Built and scaled an advertising agency executing campaigns for Safaricom, Canal+, and DStv. 100K+ creator community.</p>
+          <div class="instructor-stats-row">
+            <span><i data-lucide="users"></i> 5,000+ Mentored</span>
+            <span><i data-lucide="award"></i> 7+ Yrs Exp</span>
+          </div>
+        </div>
+
+        <!-- Instructor 2 -->
+        <div class="instructor-card glass-card">
+          <div class="instructor-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" alt="Dawit Hailu" class="instructor-avatar-img">
+            <div class="instructor-badge-icon"><i data-lucide="video"></i></div>
+          </div>
+          <h3 class="instructor-name">Dawit Hailu</h3>
+          <span class="instructor-role">Video Production & Motion Lead</span>
+          <p class="instructor-bio">Master of Premiere Pro & DaVinci Resolve. Directed commercial ads and high-retention vertical edits for YouTube creators with 5M+ subscribers.</p>
+          <div class="instructor-stats-row">
+            <span><i data-lucide="film"></i> 400+ Ads Edited</span>
+            <span><i data-lucide="award"></i> DaVinci Certified</span>
+          </div>
+        </div>
+
+        <!-- Instructor 3 -->
+        <div class="instructor-card glass-card">
+          <div class="instructor-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" alt="Selamawit Tadesse" class="instructor-avatar-img">
+            <div class="instructor-badge-icon"><i data-lucide="palette"></i></div>
+          </div>
+          <h3 class="instructor-name">Selamawit Tadesse</h3>
+          <span class="instructor-role">Brand Identity & UI/UX Director</span>
+          <p class="instructor-bio">Award-winning brand designer behind 200+ visual identities for tech startups, corporate banks, and luxury lifestyle brands across Africa.</p>
+          <div class="instructor-stats-row">
+            <span><i data-lucide="layers"></i> 200+ Identities</span>
+            <span><i data-lucide="star"></i> Top Rated</span>
+          </div>
+        </div>
+
+        <!-- Instructor 4 -->
+        <div class="instructor-card glass-card">
+          <div class="instructor-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" alt="Abel Getachew" class="instructor-avatar-img">
+            <div class="instructor-badge-icon"><i data-lucide="target"></i></div>
+          </div>
+          <h3 class="instructor-name">Abel Getachew</h3>
+          <span class="instructor-role">Client Acquisition & Sales Coach</span>
+          <p class="instructor-bio">Upwork Top-Rated Plus consultant specializing in high-converting cold email funnels, discovery call scripts, and multi-thousand dollar monthly retainers.</p>
+          <div class="instructor-stats-row">
+            <span><i data-lucide="dollar-sign"></i> $250K+ Closed</span>
+            <span><i data-lucide="check-circle-2"></i> Upwork Expert</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. WHAT YOU GET INSIDE (What You Get Inside Section) -->
+  <section class="what-you-get-section" id="what-you-get">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-tag"><i data-lucide="package-check"></i> THE COMPLETE INCUBATOR SYSTEM</span>
+        <h2 class="section-title">What You Get Inside <span class="gradient-text">Founders Academy</span></h2>
+        <p class="section-subtitle">Everything you need to go from zero experience to closing high-paying client retainers, organized into one powerful step-by-step system.</p>
+      </div>
+
+      <!-- 6 What You Get Feature Cards -->
+      <div class="what-you-get-grid">
+        <!-- Card 1 -->
+        <div class="what-you-get-card glass-card">
+          <div>
+            <div class="what-you-get-header">
+              <div class="what-you-get-icon"><i data-lucide="send"></i></div>
+              <span class="value-pill">INSTANT ACCESS</span>
+            </div>
+            <h3>100% Automated Telegram Delivery</h3>
+            <p>Our smart bot <strong>@founders_academybot</strong> instantly issues your 1-time private channel & group access links right after enrollment.</p>
+          </div>
+          <ul class="what-you-get-list">
+            <li><i data-lucide="check"></i> 1-Time unique invite links</li>
+            <li><i data-lucide="check"></i> Mobile & desktop accessible</li>
+            <li><i data-lucide="check"></i> No passwords to remember</li>
+          </ul>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="what-you-get-card glass-card">
+          <div>
+            <div class="what-you-get-header">
+              <div class="what-you-get-icon"><i data-lucide="tv"></i></div>
+              <span class="value-pill">LIFETIME UPDATES</span>
+            </div>
+            <h3>Step-by-Step HD Video Modules</h3>
+            <p>Practical over-the-shoulder video lessons showing exact screens, tools, ad setups, and editing workflows with zero fluff.</p>
+          </div>
+          <ul class="what-you-get-list">
+            <li><i data-lucide="check"></i> 40+ HD training modules</li>
+            <li><i data-lucide="check"></i> Downloadable lesson notes</li>
+            <li><i data-lucide="check"></i> Lifetime access & updates</li>
+          </ul>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="what-you-get-card glass-card">
+          <div>
+            <div class="what-you-get-header">
+              <div class="what-you-get-icon"><i data-lucide="message-square"></i></div>
+              <span class="value-pill">WEEKLY LIVE Q&A</span>
+            </div>
+            <h3>Direct Mentorship & VIP Community</h3>
+            <p>Join our private student group for weekly live coaching calls with Yonas Mohammed, pitch audits, and peer networking.</p>
+          </div>
+          <ul class="what-you-get-list">
+            <li><i data-lucide="check"></i> Weekly live Q&A with Yonas</li>
+            <li><i data-lucide="check"></i> 5,000+ active student peers</li>
+            <li><i data-lucide="check"></i> Deal & proposal reviews</li>
+          </ul>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="what-you-get-card glass-card">
+          <div>
+            <div class="what-you-get-header">
+              <div class="what-you-get-icon"><i data-lucide="folder-down"></i></div>
+              <span class="value-pill">$1,500 VALUE</span>
+            </div>
+            <h3>Resource Vaults & Copy-Paste Assets</h3>
+            <p>Plug-and-play cold outreach email scripts, Upwork proposal templates, client contracts, invoice sheets, and LUT preset packs.</p>
+          </div>
+          <ul class="what-you-get-list">
+            <li><i data-lucide="check"></i> Legal agency contract templates</li>
+            <li><i data-lucide="check"></i> 50GB+ SFX & video motion presets</li>
+            <li><i data-lucide="check"></i> Cold email & DM pitch scripts</li>
+          </ul>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="what-you-get-card glass-card">
+          <div>
+            <div class="what-you-get-header">
+              <div class="what-you-get-icon"><i data-lucide="check-square"></i></div>
+              <span class="value-pill">PROGRESS ENGINE</span>
+            </div>
+            <h3>Interactive In-Bot Quizzes & Projects</h3>
+            <p>Reinforce your mastery with interactive module quizzes directly inside Telegram, progress tracking, and practical portfolio reviews.</p>
+          </div>
+          <ul class="what-you-get-list">
+            <li><i data-lucide="check"></i> Telegram bot quiz tests</li>
+            <li><i data-lucide="check"></i> Real client scenario grading</li>
+            <li><i data-lucide="check"></i> Portfolio project review</li>
+          </ul>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="what-you-get-card glass-card">
+          <div>
+            <div class="what-you-get-header">
+              <div class="what-you-get-icon"><i data-lucide="award"></i></div>
+              <span class="value-pill">CREDENTIAL</span>
+            </div>
+            <h3>Official Verified Certificate</h3>
+            <p>Earn an official verified digital diploma issued directly inside Telegram upon completing your curriculum and final project.</p>
+          </div>
+          <ul class="what-you-get-list">
+            <li><i data-lucide="check"></i> Verifiable unique certificate ID</li>
+            <li><i data-lucide="check"></i> Shareable on LinkedIn & portfolio</li>
+            <li><i data-lucide="check"></i> Recognized by hiring brands</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Telegram Delivery Workflow & Interactive Bot Demo Showcase -->
+      <div class="telegram-workflow-inner" id="telegram-workflow" style="margin-top: 50px;">
+        <div class="section-header center" style="margin-bottom: 36px;">
+          <span class="section-tag"><i data-lucide="send"></i> TELEGRAM BOT ENGINE</span>
+          <h3 class="section-title" style="font-size: 2rem;">Experience the <span class="gradient-text">Telegram Learning Engine</span></h3>
+          <p class="section-subtitle">Test our interactive bot demo below to see how effortless course verification, quiz taking, and certificate issuance are.</p>
+        </div>
+
+        <div class="telegram-demo-container glass-card">
+          <div class="demo-header">
+            <div class="bot-info">
+              <div class="bot-avatar-sm">
+                <i data-lucide="bot"></i>
+              </div>
+              <div>
+                <h4>@founders_academybot <span class="online-badge"><span class="dot"></span> BOT ACTIVE</span></h4>
+                <p>Official Founders Academy Telegram Learning Engine</p>
+              </div>
+            </div>
+            <div class="demo-controls">
+              <button class="btn btn-outline btn-sm tg-demo-tab active" data-demo-step="verify">
+                <i data-lucide="shield-check"></i> 1. Verification & Links
+              </button>
+              <button class="btn btn-outline btn-sm tg-demo-tab" data-demo-step="quiz">
+                <i data-lucide="help-circle"></i> 2. Bot Quiz Demo
+              </button>
+              <button class="btn btn-outline btn-sm tg-demo-tab" data-demo-step="cert">
+                <i data-lucide="award"></i> 3. Verified Certificate
+              </button>
+            </div>
+          </div>
+
+          <div class="telegram-chat-window" id="telegram-chat-window">
+            <!-- Populated interactively via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Founders Guarantee Banner -->
+      <div class="guarantee-section" style="margin-top: 60px; padding: 40px 30px; background: rgba(17, 24, 39, 0.6); border: 1px solid var(--border-gold); border-radius: var(--radius-lg);">
+        <div class="metrics-grid">
+          <div class="metric-item" style="padding: 10px; text-align: center;">
+            <i data-lucide="shield-check" style="width: 36px; height: 36px; color: var(--primary-gold); margin-bottom: 10px;"></i>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">100% Practical Skills</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Action-oriented blueprints built for real market clients.</p>
+          </div>
+          <div class="metric-item" style="padding: 10px; text-align: center;">
+            <i data-lucide="message-square" style="width: 36px; height: 36px; color: var(--primary-gold); margin-bottom: 10px;"></i>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Direct Mentorship</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Weekly live coaching calls and ongoing portfolio feedback.</p>
+          </div>
+          <div class="metric-item" style="padding: 10px; text-align: center;">
+            <i data-lucide="folder-down" style="width: 36px; height: 36px; color: var(--primary-gold); margin-bottom: 10px;"></i>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Resource Vaults</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Templates, contracts, email scripts, and motion presets.</p>
+          </div>
+          <div class="metric-item" style="padding: 10px; text-align: center;">
+            <i data-lucide="award" style="width: 36px; height: 36px; color: var(--primary-gold); margin-bottom: 10px;"></i>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Verified Certificate</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Official diploma recognized by employers and clients.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. SUCCESS STORIES (Success Stories & Case Studies Section) -->
+  <section class="success-stories-section" id="success-stories">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-tag"><i data-lucide="trophy"></i> PROVEN STUDENT RESULTS</span>
+        <h2 class="section-title">Real Results From Our <span class="gradient-text">Graduates</span></h2>
+        <p class="section-subtitle">Real students, real client retainers, real financial transformations. Here is what happens when you apply our agency operating system.</p>
+      </div>
+
+      <!-- 4 Detailed Case Studies Grid -->
+      <div class="success-stories-grid">
+        <!-- Case Study 1 -->
+        <div class="case-study-card glass-card">
+          <div>
+            <div class="case-study-top">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Abebe Kassaye" class="case-study-avatar">
+              <div class="case-study-author">
+                <h4>Abebe Kassaye</h4>
+                <span>SMMA Agency Founder</span>
+              </div>
+            </div>
+
+            <div class="case-study-revenue-badge">
+              <i data-lucide="trending-up"></i> $3,400 USD / Month
+            </div>
+
+            <h3 class="case-study-headline">"From Unemployed Graduate to 3 International Retainers in 60 Days"</h3>
+            <p class="case-study-body">
+              "After university, I struggled to find decent jobs in Addis. I enrolled in Founders Academy's SMMA course and used their exact cold email scripts. Within 2 months, I signed 3 remote clients from the US & Dubai!"
+            </p>
+          </div>
+
+          <div>
+            <div class="case-study-keys">
+              <span><i data-lucide="check-circle-2"></i> Track: <strong>SMMA Accelerator</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Result: <strong>3 Foreign Retainers Closed</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Location: <strong>Addis Ababa (Working Remotely)</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case Study 2 -->
+        <div class="case-study-card glass-card">
+          <div>
+            <div class="case-study-top">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Tigist Haile" class="case-study-avatar">
+              <div class="case-study-author">
+                <h4>Tigist Haile</h4>
+                <span>Freelance Video Editor</span>
+              </div>
+            </div>
+
+            <div class="case-study-revenue-badge">
+              <i data-lucide="trending-up"></i> 120,000 ETB / Month
+            </div>
+
+            <h3 class="case-study-headline">"Editing for 4 Top YouTube Creators with Zero Prior Experience"</h3>
+            <p class="case-study-body">
+              "I didn't even know how to cut a clip in Premiere. The module pacing and motion graphics presets gave me everything. After building my portfolio in week 4, I closed my first international creator retainer."
+            </p>
+          </div>
+
+          <div>
+            <div class="case-study-keys">
+              <span><i data-lucide="check-circle-2"></i> Track: <strong>Video Editing & Post-Production</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Result: <strong>4 Monthly Retainer Clients</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Location: <strong>Hawassa / Remote</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case Study 3 -->
+        <div class="case-study-card glass-card">
+          <div>
+            <div class="case-study-top">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" alt="Dawit Worku" class="case-study-avatar">
+              <div class="case-study-author">
+                <h4>Dawit Worku</h4>
+                <span>Brand Identity Designer</span>
+              </div>
+            </div>
+
+            <div class="case-study-revenue-badge">
+              <i data-lucide="trending-up"></i> 85,000 ETB / Month
+            </div>
+
+            <h3 class="case-study-headline">"Stopped Doing $20 Logos on Telegram; Now Packaging $1,000+ Brand Kits"</h3>
+            <p class="case-study-body">
+              "Founders Academy taught me how to stop competing as a cheap graphic designer and start presenting myself as a brand identity partner. The proposal templates alone changed my entire pricing strategy."
+            </p>
+          </div>
+
+          <div>
+            <div class="case-study-keys">
+              <span><i data-lucide="check-circle-2"></i> Track: <strong>Graphic Design & Brand Identity</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Result: <strong>Scaled Rates 5x on Upwork</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Location: <strong>Addis Ababa, Bole</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case Study 4 -->
+        <div class="case-study-card glass-card">
+          <div>
+            <div class="case-study-top">
+              <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80" alt="Henok Tadesse" class="case-study-avatar">
+              <div class="case-study-author">
+                <h4>Henok Tadesse</h4>
+                <span>Commercial Video Producer</span>
+              </div>
+            </div>
+
+            <div class="case-study-revenue-badge">
+              <i data-lucide="trending-up"></i> 150,000 ETB Single Deal
+            </div>
+
+            <h3 class="case-study-headline">"Landed First 150K ETB Corporate Commercial Ad Production"</h3>
+            <p class="case-study-body">
+              "Using the commercial pitch deck and lighting frameworks from the cinematography course, I pitched a major fintech brand in Addis Ababa and won the 150,000 ETB production contract against traditional agencies."
+            </p>
+          </div>
+
+          <div>
+            <div class="case-study-keys">
+              <span><i data-lucide="check-circle-2"></i> Track: <strong>Commercial Cinematography</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Result: <strong>Corporate Brand Commercial Deal</strong></span>
+              <span><i data-lucide="check-circle-2"></i> Location: <strong>Addis Ababa</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graduate Revenue Highlight Banner -->
+      <div class="stories-metric-banner">
+        <div class="stories-metric-content">
+          <div class="stories-metric-icon">
+            <i data-lucide="badge-dollar-sign" style="width: 28px; height: 28px;"></i>
+          </div>
+          <div class="stories-metric-text">
+            <h3>18,500,000+ ETB Total Student Earnings Generated</h3>
+            <p>Our 5,000+ graduates are actively signing local and international client retainers every week.</p>
+          </div>
+        </div>
+        <a href="courses.html" class="btn btn-primary btn-lg">
+          <i data-lucide="rocket"></i> Start Your Journey & Join Courses
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. COURSES (Courses Curriculum Section) -->
+  <section class="courses-section" id="courses">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-tag" data-i18n="tag_curriculum"><i data-lucide="sparkles"></i> WORLD-CLASS CURRICULUM</span>
+        <h2 class="section-title" data-i18n="courses_title">Explore Our High-Income <span class="gradient-text">Courses</span></h2>
+        <p class="section-subtitle" data-i18n="courses_subtitle">Select your career track below. Every course includes lifetime access in private Telegram channels, bot quizzes, mentorship group, and a verified certificate.</p>
+      </div>
+
+      <!-- Filter Tabs & Search Box -->
+      <div class="filter-wrapper">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" id="course-search" placeholder="Search courses, skills, tools..." aria-label="Search courses">
+        </div>
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-category="all">All Courses</button>
+          <button class="filter-tab" data-category="marketing">SMMA & Marketing</button>
+          <button class="filter-tab" data-category="video">Video Editing</button>
+          <button class="filter-tab" data-category="content">Content & Branding</button>
+          <button class="filter-tab" data-category="design">Graphic Design</button>
+          <button class="filter-tab" data-category="free">Free Starter</button>
+        </div>
+      </div>
+
+      <!-- Course Cards Grid -->
+      <div class="courses-grid" id="courses-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- More Courses Link Button -->
+      <div class="more-courses-wrapper" style="text-align: center; margin-top: -60px; margin-bottom: 80px;">
+        <a href="courses.html" class="btn btn-primary btn-lg" style="box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);">
+          <i data-lucide="book-open"></i> Browse All Courses & Join in Courses.html <i data-lucide="arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. TESTIMONIALS (Student Reviews & Feedback Section) -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-tag"><i data-lucide="star"></i> 5,000+ STUDENT REVIEWS</span>
+        <h2 class="section-title">What Our Community Says About <span class="gradient-text">Founders Academy</span></h2>
+        <p class="section-subtitle">Hear directly from our alumni who transformed their skills into thriving freelance careers and digital agencies.</p>
+      </div>
+
+      <div class="testimonials-grid" id="testimonials-grid">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. FAQ (Frequently Asked Questions Section) -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-tag"><i data-lucide="help-circle"></i> GOT QUESTIONS?</span>
+        <h2 class="section-title">Frequently Asked <span class="gradient-text">Questions</span></h2>
+        <p class="section-subtitle">Everything you need to know about enrollment, payments, Telegram bot access, and lifetime mentorship.</p>
+      </div>
+
+      <div class="faq-accordion" id="faq-accordion">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="support-banner glass-card">
+        <div class="support-info">
+          <i data-lucide="headset"></i>
+          <div>
+            <h3>Need Immediate Help with Enrollment?</h3>
+            <p>Our team is available on Telegram to guide your registration & payment choices.</p>
+          </div>
+        </div>
+        <div class="support-actions">
+          <a href="https://t.me/founderssupport" target="_blank" class="btn btn-primary" id="telegram-support-btn">
+            <i data-lucide="send"></i> Message @founderssupport
+          </a>
+          <a href="courses.html" class="btn btn-outline">
+            <i data-lucide="book-open"></i> Join Courses
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col brand-col">
+        <a href="index.html" class="brand-logo">
+          <div class="logo-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">FOUNDERS</span>
+            <span class="brand-sub">ACADEMY</span>
+          </div>
+        </a>
+        <p>Empowering the next generation of Ethiopian entrepreneurs with world-class digital skills and agency masterclasses.</p>
+        <div class="social-links">
+          <a href="https://t.me/founderssupport" target="_blank" aria-label="Telegram"><i data-lucide="send"></i></a>
+          <a href="https://youtube.com/@yonasmoh" target="_blank" aria-label="YouTube"><i data-lucide="youtube"></i></a>
+          <a href="https://instagram.com/yonasmoh" target="_blank" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+          <a href="#" aria-label="Linkedin"><i data-lucide="linkedin"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Courses</h4>
+        <ul>
+          <li><a href="courses.html">SMMA Accelerator</a></li>
+          <li><a href="courses.html">Video Editing Mastery</a></li>
+          <li><a href="courses.html">Content & Branding</a></li>
+          <li><a href="courses.html">Graphic Design Agency</a></li>
+          <li><a href="courses.html">Free Intro Webinars</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html#personas">Who Is It For?</a></li>
+          <li><a href="index.html#instructors">Our Instructors</a></li>
+          <li><a href="index.html#what-you-get">What You Get Inside</a></li>
+          <li><a href="index.html#success-stories">Success Stories</a></li>
+          <li><a href="courses.html">Join All Courses</a></li>
+          <li><a href="index.html#testimonials">Testimonials</a></li>
+          <li><a href="index.html#faq">FAQ & Support</a></li>
+          <li><a href="https://t.me/founderssupport" target="_blank">Telegram Support @founderssupport</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col newsletter-col">
+        <h4>Stay Updated</h4>
+        <p>Subscribe to receive free tutorials, market reports, and discount alerts.</p>
+        <form class="newsletter-form" id="newsletter-form">
+          <input type="email" placeholder="Enter your email" required aria-label="Email Address">
+          <button type="submit" class="btn btn-primary"><i data-lucide="arrow-right"></i></button>
+        </form>
+        <span class="privacy-note"><i data-lucide="lock"></i> We respect your privacy. No spam.</span>
+      </div>
+    </div>
+
+    <div class="footer-bottom container">
+      <p>&copy; 2026 Founders Academy. All rights reserved. | Developed by Digital Dynamics</p>
+      <div class="legal-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Security & Payments</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cinema Intro Video Modal -->
+  <div class="modal-overlay" id="video-modal">
+    <div class="modal-card video-modal-card">
+      <div class="video-player-header">
+        <h3><i data-lucide="play-circle" style="color: var(--primary-gold);"></i> Founders Academy: Agency Incubator Overview</h3>
+        <button class="modal-close" id="video-modal-close" aria-label="Close Video"><i data-lucide="x"></i></button>
+      </div>
+      <div class="video-player-wrapper">
+        <iframe id="intro-video-frame" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&autoplay=0" title="Founders Academy Intro Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+      <div class="video-modal-body">
+        <div class="video-modal-meta">
+          <h4>Master High-Income Skills & Launch Your 6-Figure Agency</h4>
+          <p>Get instant access to step-by-step masterclasses in SMMA, Video Editing, Content, and Brand Identity.</p>
+        </div>
+        <a href="courses.html" class="btn btn-primary btn-lg">
+          <i data-lucide="rocket"></i> Join All Courses in Courses.html <i data-lucide="arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Detail Modal / Drawer -->
+  <div class="modal-overlay" id="course-modal">
+    <div class="modal-card drawer-card">
+      <button class="modal-close" id="course-modal-close" aria-label="Close Modal"><i data-lucide="x"></i></button>
+      <div class="modal-body" id="course-modal-body">
+        <!-- Content dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Buy & Checkout Modal (Step 1: Contact Info -> Step 2: Payment -> Step 3: Telegram Bot Link) -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="modal-card checkout-card">
+      <button class="modal-close" id="checkout-modal-close" aria-label="Close Checkout"><i data-lucide="x"></i></button>
+      
+      <!-- Checkout Step Indicators -->
+      <div class="checkout-steps-bar">
+        <div class="step-indicator active" id="step-ind-1">
+          <span class="step-num">1</span>
+          <span class="step-label">Your Info</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="step-ind-2">
+          <span class="step-num">2</span>
+          <span class="step-label">Payment</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="step-ind-3">
+          <span class="step-num">3</span>
+          <span class="step-label">Telegram Bot</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: Buyer Info Form -->
+      <div class="checkout-step-panel" id="checkout-step-1">
+        <div class="checkout-header">
+          <h2><i data-lucide="user"></i> Enter Student Details</h2>
+          <p>Enrollment for <strong id="checkout-course-title-step1" style="color: var(--primary-gold);">Course Title</strong></p>
+        </div>
+
+        <form id="buyer-info-form" class="auth-form">
+          <div class="form-group">
+            <label for="buyer-name"><i data-lucide="user"></i> Full Name *</label>
+            <input type="text" id="buyer-name" placeholder="e.g. Kidanewold Hailu" required class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="buyer-phone"><i data-lucide="phone"></i> Phone Number (Telegram Enabled) *</label>
+            <input type="tel" id="buyer-phone" placeholder="e.g. 0911 22 33 44" required class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="buyer-address"><i data-lucide="map-pin"></i> City / Address *</label>
+            <input type="text" id="buyer-address" placeholder="e.g. Addis Ababa, Bole / Hawassa / International" required class="form-input">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+            Proceed to Payment <i data-lucide="arrow-right"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- STEP 2: Payment Details -->
+      <div class="checkout-step-panel hidden" id="checkout-step-2">
+        <div class="checkout-header">
+          <h2><i data-lucide="shield-check"></i> Complete Payment</h2>
+          <p>Select your payment method below</p>
+        </div>
+
+        <div class="checkout-grid">
+          <!-- Order Summary -->
+          <div class="order-summary glass-box">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+              <span>Course:</span>
+              <strong id="summary-course-name">SMMA Accelerator</strong>
+            </div>
+            <div class="summary-row">
+              <span>Regular Price:</span>
+              <span id="summary-original-price">12,500 ETB</span>
+            </div>
+            <div class="summary-row discount">
+              <span>Special Discount (25% OFF):</span>
+              <span id="summary-discount">-2,500 ETB</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Payable:</span>
+              <strong id="summary-final-price">10,000 ETB</strong>
+            </div>
+
+            <div class="promo-input-group">
+              <input type="text" id="promo-code" placeholder="Promo Code (FOUNDER25)" aria-label="Promo Code">
+              <button class="btn btn-outline" id="apply-promo-btn">Apply</button>
+            </div>
+
+            <div class="buyer-summary-preview glass-box" style="margin-top: 14px; font-size: 0.82rem;">
+              <div><strong>Student:</strong> <span id="preview-buyer-name">-</span></div>
+              <div><strong>Phone:</strong> <span id="preview-buyer-phone">-</span></div>
+            </div>
+          </div>
+
+          <!-- Payment Options -->
+          <div class="payment-selection">
+            <h3>Select Payment Method</h3>
+            <div class="payment-methods">
+              <label class="payment-option active">
+                <input type="radio" name="payment-method" value="telebirr" checked>
+                <div class="payment-box">
+                  <div class="payment-logo telebirr-badge">telebirr</div>
+                  <div>
+                    <strong>Telebirr Transfer</strong>
+                    <p>Instant mobile payment</p>
+                  </div>
+                </div>
+              </label>
+
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="cbe">
+                <div class="payment-box">
+                  <div class="payment-logo cbe-badge">CBE Birr</div>
+                  <div>
+                    <strong>Commercial Bank of Ethiopia (CBE)</strong>
+                    <p>Account: 1000492819482</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Payment Instructions Box -->
+            <div class="payment-instructions glass-box" id="payment-instructions">
+              <h4><i data-lucide="smartphone"></i> Telebirr Payment Details:</h4>
+              <p>1. Open Telebirr App -> Select <strong>Pay Merchant / Send Money</strong></p>
+              <p>2. Phone / Merchant ID: <strong>+251 906 769 999</strong></p>
+              <p>3. Enter Amount: <strong id="instruction-price">10,000 ETB</strong></p>
+              <p>4. Input Transaction Ref Number below:</p>
+              
+              <input type="text" id="tx-ref-input" placeholder="e.g. TX129849281" class="form-input" required>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+              <button class="btn btn-outline" id="back-to-step1-btn"><i data-lucide="arrow-left"></i> Back</button>
+              <button class="btn btn-primary btn-block btn-lg" id="confirm-payment-btn">
+                <i data-lucide="check-circle"></i> Complete & Get Bot Link
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Telegram Bot Success Screen -->
+      <div class="checkout-step-panel hidden" id="checkout-step-3" style="text-align: center; padding: 20px 10px;">
+        <div class="success-icon-badge" style="width: 70px; height: 70px; background: rgba(16, 185, 129, 0.15); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+          <i data-lucide="check-circle-2" style="width: 42px; height: 42px;"></i>
+        </div>
+        <h2 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 10px; color: var(--text-main);">
+          Order Received! Launch Telegram Bot 🎉
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 550px; margin: 0 auto 20px;">
+          Your registration for <strong id="success-course-name" style="color: var(--primary-gold);">Course</strong> has been recorded for <strong id="success-buyer-name">Student</strong> (<span id="success-buyer-phone">0911223344</span>).
+        </p>
+
+        <!-- Telegram Delivery 4 Steps Box -->
+        <div class="glass-box" style="max-width: 540px; margin: 0 auto 24px; text-align: left; padding: 20px; border-color: rgba(0, 132, 255, 0.4); background: rgba(0, 132, 255, 0.05);">
+          <h4 style="color: #38bdf8; font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="send"></i> Next Steps to Start Your Course:
+          </h4>
+          <ol style="color: var(--text-main); font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px; padding-left: 20px; line-height: 1.5;">
+            <li><strong>Launch Bot:</strong> Click the button below to launch <strong>@founders_academybot</strong>.</li>
+            <li><strong>Verification:</strong> If you are a <strong>new student</strong>, tap <code>Start</code> and share your phone number (<strong><span id="success-phone-confirm">phone number</span></strong>) once to register. If <strong>already registered</strong>, the bot recognizes you automatically and delivers your links!</li>
+            <li><strong>Get 1-Time Links:</strong> Receive your <strong>unique 1-time private channel link</strong> (HD video modules) & <strong>1-time private group link</strong> (mentorship).</li>
+            <li><strong>Quizzes & Certificate:</strong> Take module quizzes directly in Telegram & claim your official Verified Certificate!</li>
+          </ol>
+        </div>
+
+        <div class="telegram-bot-card glass-card" style="max-width: 540px; margin: 0 auto 24px; padding: 24px; border-color: rgba(0, 132, 255, 0.5); background: rgba(0, 132, 255, 0.08);">
+          <div class="bot-avatar" style="width: 60px; height: 60px; background: #0084ff; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 0 25px rgba(0, 132, 255, 0.4);">
+            <i data-lucide="bot" style="width: 32px; height: 32px;"></i>
+          </div>
+          <h3 style="font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 8px; color: var(--text-main);">Founders Academy Telegram Bot</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 18px;">
+            Tap below to open Telegram and claim your unique private access links!
+          </p>
+
+          <a href="https://t.me/founders_academybot" target="_blank" class="btn btn-primary btn-lg btn-block" style="background: linear-gradient(135deg, #0084ff 0%, #0055ff 100%); color: #fff; box-shadow: 0 4px 20px rgba(0, 132, 255, 0.4);">
+            <i data-lucide="send"></i> Launch @founders_academybot Now
+          </a>
+        </div>
+
+        <button class="btn btn-outline" id="finish-checkout-btn">
+          <i data-lucide="x"></i> Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

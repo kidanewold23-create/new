@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Maintenance Mode | Founders Academy Admin</title>
+  <meta name="description" content="Manage Founders Academy system maintenance mode, scheduled downtime, and public maintenance notice.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .maintenance-banner-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(20, 24, 40, 0.9), rgba(10, 12, 24, 0.95));
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      transition: border-color 0.3s ease;
+    }
+
+    .maintenance-banner-card.active-mode {
+      border-color: rgba(239, 68, 68, 0.6);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+    }
+
+    .maintenance-banner-card.inactive-mode {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Toggle Switch Large */
+    .switch-wrap-lg {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-switch-lg {
+      position: relative;
+      width: 56px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 99px;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch-lg::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .switch-wrap-lg.active .toggle-switch-lg {
+      background: #ef4444;
+    }
+
+    .switch-wrap-lg.active .toggle-switch-lg::after {
+      transform: translateX(26px);
+    }
+
+    .switch-label-lg {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .switch-wrap-lg.active .switch-label-lg {
+      color: #ef4444;
+    }
+
+    .switch-wrap-lg:not(.active) .switch-label-lg {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn active">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <h1 class="dash-title">System Maintenance Mode</h1>
+          <p class="dash-subtitle">Toggle global maintenance mode, configure public notice banners, and control downtime</p>
+        </div>
+
+        <div class="topbar-actions">
+          <a href="maintenance.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> Preview Maintenance Page
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Maintenance Status Banner -->
+      <div class="maintenance-banner-card inactive-mode" id="maintenance-banner-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <span class="badge-status active" id="status-live-badge"><i data-lucide="activity"></i> System Operational (OFF)</span>
+              <span style="font-size: 0.8rem; color: var(--text-dim);" id="status-live-desc">Public site & bot are currently LIVE</span>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin: 0 0 6px 0;" id="banner-title">Global Maintenance Status</h2>
+            <p style="color: var(--text-dim); margin: 0; font-size: 0.92rem;" id="banner-desc">Turning ON Maintenance Mode locks public student pages, redirects visitors to the maintenance screen, and pauses the Telegram bot.</p>
+          </div>
+
+          <!-- Large Toggle Switch -->
+          <div class="switch-wrap-lg" id="maintenance-toggle-switch" onclick="toggleGlobalMaintenance(this)" title="Click to Toggle Maintenance Mode">
+            <div class="toggle-switch-lg"></div>
+            <span class="switch-label-lg">OFF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration Form Panel -->
+      <div class="dash-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <i data-lucide="settings-2" style="color: var(--primary-gold);"></i> Maintenance Configuration & Announcement
+          </h2>
+        </div>
+
+        <form id="form-maintenance-settings">
+          <!-- Status Mode Selector Cards -->
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label class="form-label" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: block;">Select System Operating Mode</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              
+              <!-- Mode: Live Operational (OFF) -->
+              <label id="label-mode-off" style="display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px; border-radius: 14px; border: 2px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.06); cursor: pointer; transition: all 0.2s ease;">
+                <input type="radio" name="maint-status-radio" id="radio-mode-off" value="OFF" checked style="margin-top: 4px; accent-color: #10b981; width: 18px; height: 18px;">
+                <div>
+                  <div style="font-weight: 800; color: #10b981; font-size: 1rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i> System Live & Operational (OFF)
+                  </div>
+                  <div style="font-size: 0.84rem; color: var(--text-dim); line-height: 1.4;">
+                    Public website and Telegram bot are fully accessible to all students. No maintenance screen.
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode: Maintenance Active (ON) -->
+              <label id="label-mode-on" style="display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px; border-radius: 14px; border: 2px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02); cursor: pointer; transition: all 0.2s ease;">
+                <input type="radio" name="maint-status-radio" id="radio-mode-on" value="ON" style="margin-top: 4px; accent-color: #ef4444; width: 18px; height: 18px;">
+                <div>
+                  <div style="font-weight: 800; color: #ef4444; font-size: 1rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i> Maintenance Mode Active (ON)
+                  </div>
+                  <div style="font-size: 0.84rem; color: var(--text-dim); line-height: 1.4;">
+                    Locks public website, redirects students to maintenance notice, and pauses Telegram bot commands.
+                  </div>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="maint-notice-title">Public Notice Heading *</label>
+            <input 
+              type="text" 
+              id="maint-notice-title" 
+              class="form-input" 
+              value="System Under Scheduled Upgrades & Maintenance" 
+              placeholder="e.g. System Under Scheduled Upgrades & Maintenance"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="maint-notice-message">Public Announcement Message *</label>
+            <textarea 
+              id="maint-notice-message" 
+              class="form-input" 
+              style="height: 100px; padding: 12px 16px; line-height: 1.5;" 
+              placeholder="Enter the message displayed to visitors on the maintenance screen and bot..."
+              required
+            >We are currently upgrading Founders Academy infrastructure and database performance for upcoming masterclass cohorts. Public student access will resume shortly.</textarea>
+          </div>
+
+          <div style="display: flex; gap: 14px; align-items: center; margin-top: 24px; flex-wrap: wrap;">
+            <button type="submit" id="btn-save-maintenance-notice" class="btn-auth-submit" style="max-width: 320px; margin: 0;">
+              <span>Save & Apply Maintenance Settings</span>
+              <i data-lucide="check"></i>
+            </button>
+            <a href="maintenance.html" target="_blank" class="btn-dash-action btn-dash-secondary" style="padding: 12px 20px; font-size: 0.9rem; text-decoration: none;">
+              <i data-lucide="external-link"></i> Preview Maintenance Screen
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js"></script>
+  <script>
+    let currentMaintenanceState = {
+      status: "OFF",
+      title: "System Under Scheduled Upgrades & Maintenance",
+      message: "We are currently upgrading Founders Academy infrastructure and database performance. Access will resume shortly."
+    };
+
+    function updateMaintenanceUI(state) {
+      if (!state) return;
+      const isON = state.status === "ON";
+      const bannerCard = document.getElementById("maintenance-banner-card");
+      const toggleSwitch = document.getElementById("maintenance-toggle-switch");
+      const liveBadge = document.getElementById("status-live-badge");
+      const liveDesc = document.getElementById("status-live-desc");
+      const titleInput = document.getElementById("maint-notice-title");
+      const msgInput = document.getElementById("maint-notice-message");
+      const radioOn = document.getElementById("radio-mode-on");
+      const radioOff = document.getElementById("radio-mode-off");
+      const labelOn = document.getElementById("label-mode-on");
+      const labelOff = document.getElementById("label-mode-off");
+
+      if (titleInput && state.title) titleInput.value = state.title;
+      if (msgInput && state.message) msgInput.value = state.message;
+
+      // Radio & Card Styling
+      if (radioOn && radioOff) {
+        radioOn.checked = isON;
+        radioOff.checked = !isON;
+      }
+      if (labelOn && labelOff) {
+        if (isON) {
+          labelOn.style.borderColor = "rgba(239, 68, 68, 0.7)";
+          labelOn.style.background = "rgba(239, 68, 68, 0.12)";
+          labelOff.style.borderColor = "rgba(255, 255, 255, 0.1)";
+          labelOff.style.background = "rgba(255, 255, 255, 0.02)";
+        } else {
+          labelOff.style.borderColor = "rgba(16, 185, 129, 0.7)";
+          labelOff.style.background = "rgba(16, 185, 129, 0.12)";
+          labelOn.style.borderColor = "rgba(255, 255, 255, 0.1)";
+          labelOn.style.background = "rgba(255, 255, 255, 0.02)";
+        }
+      }
+
+      // Top Banner Toggle
+      if (toggleSwitch && bannerCard) {
+        const label = toggleSwitch.querySelector(".switch-label-lg");
+        if (isON) {
+          toggleSwitch.classList.add("active");
+          if (label) label.textContent = "ON";
+          bannerCard.className = "maintenance-banner-card active-mode";
+          if (liveBadge) {
+            liveBadge.className = "badge-status pending";
+            liveBadge.innerHTML = `<i data-lucide="alert-triangle"></i> Maintenance Active (ON)`;
+          }
+          if (liveDesc) liveDesc.textContent = "Public site is LOCKED & bot is PAUSED";
+        } else {
+          toggleSwitch.classList.remove("active");
+          if (label) label.textContent = "OFF";
+          bannerCard.className = "maintenance-banner-card inactive-mode";
+          if (liveBadge) {
+            liveBadge.className = "badge-status active";
+            liveBadge.innerHTML = `<i data-lucide="activity"></i> System Operational (OFF)`;
+          }
+          if (liveDesc) liveDesc.textContent = "Public site & bot are currently LIVE";
+        }
+      }
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    async function persistMaintenance(payload) {
+      const submitBtn = document.getElementById("btn-save-maintenance-notice");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span>Saving & Applying...</span> <i data-lucide="loader-2" class="spin"></i>`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch("/api/maintenance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Save & Apply Maintenance Settings</span> <i data-lucide="check"></i>`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+
+        if (data.success && data.data) {
+          currentMaintenanceState = { ...currentMaintenanceState, ...data.data };
+          localStorage.setItem("founders_maintenance", currentMaintenanceState.status);
+          localStorage.setItem("maint_title", currentMaintenanceState.title);
+          localStorage.setItem("maint_msg", currentMaintenanceState.message);
+          updateMaintenanceUI(currentMaintenanceState);
+
+          if (currentMaintenanceState.status === "ON") {
+            showToast("🚨 Maintenance Mode is now ACTIVE! Public web traffic & bot are paused.", "error");
+          } else {
+            showToast("✅ Maintenance Mode DEACTIVATED! Public site & Telegram bot are now LIVE.", "success");
+          }
+        } else {
+          showToast(data.error || "Failed to update maintenance settings.", "error");
+        }
+      } catch (err) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Save & Apply Maintenance Settings</span> <i data-lucide="check"></i>`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+        currentMaintenanceState = { ...currentMaintenanceState, ...payload };
+        localStorage.setItem("founders_maintenance", payload.status);
+        updateMaintenanceUI(currentMaintenanceState);
+        showToast("Maintenance settings saved locally!", "info");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const radioOn = document.getElementById("radio-mode-on");
+      const radioOff = document.getElementById("radio-mode-off");
+      const titleInput = document.getElementById("maint-notice-title");
+      const msgInput = document.getElementById("maint-notice-message");
+
+      // 1. Fetch live maintenance status from Database API
+      fetch("/api/maintenance")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            currentMaintenanceState = { ...currentMaintenanceState, ...data.data };
+            localStorage.setItem("founders_maintenance", currentMaintenanceState.status);
+            updateMaintenanceUI(currentMaintenanceState);
+          }
+        })
+        .catch(() => {
+          const isMaint = localStorage.getItem("founders_maintenance") === "ON";
+          currentMaintenanceState.status = isMaint ? "ON" : "OFF";
+          if (localStorage.getItem("maint_title")) currentMaintenanceState.title = localStorage.getItem("maint_title");
+          if (localStorage.getItem("maint_msg")) currentMaintenanceState.message = localStorage.getItem("maint_msg");
+          updateMaintenanceUI(currentMaintenanceState);
+        });
+
+      // 2. Radio Button Change Listeners
+      if (radioOn) {
+        radioOn.addEventListener("change", () => {
+          if (radioOn.checked) {
+            currentMaintenanceState.status = "ON";
+            updateMaintenanceUI(currentMaintenanceState);
+          }
+        });
+      }
+      if (radioOff) {
+        radioOff.addEventListener("change", () => {
+          if (radioOff.checked) {
+            currentMaintenanceState.status = "OFF";
+            updateMaintenanceUI(currentMaintenanceState);
+          }
+        });
+      }
+
+      // 3. Form Submit Handler
+      const form = document.getElementById("form-maintenance-settings");
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const title = titleInput ? titleInput.value.trim() : "";
+          const message = msgInput ? msgInput.value.trim() : "";
+          const selectedStatus = (radioOn && radioOn.checked) ? "ON" : "OFF";
+
+          if (!title || !message) {
+            showToast("Please provide both notice title and announcement message.", "error");
+            return;
+          }
+
+          persistMaintenance({
+            status: selectedStatus,
+            title,
+            message
+          });
+        });
+      }
+    });
+
+    // Top Banner Toggle Switch Click Handler
+    function toggleGlobalMaintenance(el) {
+      const isCurrentlyActive = el.classList.contains("active");
+      const nextStatus = isCurrentlyActive ? "OFF" : "ON";
+      currentMaintenanceState.status = nextStatus;
+      updateMaintenanceUI(currentMaintenanceState);
+
+      const titleInput = document.getElementById("maint-notice-title");
+      const msgInput = document.getElementById("maint-notice-message");
+
+      persistMaintenance({
+        status: nextStatus,
+        title: titleInput ? titleInput.value.trim() : currentMaintenanceState.title,
+        message: msgInput ? msgInput.value.trim() : currentMaintenanceState.message
+      });
+    }
+  </script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

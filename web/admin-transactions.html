@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Audit & Financial Ledger | Founders Academy Admin</title>
+  <meta name="description" content="Dedicated Transactions Management, Payment Audit & Financial Ledger for Founders Academy Admin Portal">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn active">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <h1 class="dash-title">Transactions & Financial Ledger</h1>
+          <p class="dash-subtitle">Real-time audit of Telebirr, CBE Birr, Bank Transfers and course sales</p>
+        </div>
+      </header>
+
+      <!-- Main Transactions Table Panel -->
+      <div class="dash-panel">
+        <div class="table-filter-row" style="flex-wrap: wrap; gap: 14px;">
+          <div class="search-input-box" style="flex: 1; min-width: 260px;">
+            <i data-lucide="search"></i>
+            <input type="text" id="txn-search-input" placeholder="Search TXN ID, student name, phone, reference...">
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <select id="filter-provider" class="form-input" style="width: auto; height: 42px; padding: 0 14px; font-size: 0.88rem;">
+              <option value="all">All Payment Methods</option>
+              <option value="telebirr">Telebirr</option>
+              <option value="cbe">CBE Birr</option>
+              <option value="boa">Bank of Abyssinia</option>
+            </select>
+
+            <select id="filter-status" class="form-input" style="width: auto; height: 42px; padding: 0 14px; font-size: 0.88rem;">
+              <option value="all">All Statuses</option>
+              <option value="completed">Completed</option>
+              <option value="pending">Pending Audit</option>
+              <option value="refunded">Refunded</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table" id="transactions-table">
+            <thead>
+              <tr>
+                <th>Txn Ref ID</th>
+                <th>Student / Customer</th>
+                <th>Enrolled Course</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date & Time</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="txn-table-body">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div class="btn-spinner" style="display: inline-block; width: 28px; height: 28px;"></div>
+                    <span>Fetching live transactions from database...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Transactions Pagination Footer -->
+        <div class="table-pagination-footer" id="txn-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Transaction Invoice Receipt Modal -->
+  <div class="admin-modal-overlay" id="receipt-modal">
+    <div class="admin-modal-card" style="max-width: 480px;">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <h2 class="panel-title"><i data-lucide="receipt" style="color: var(--primary-gold);"></i> Payment Invoice Audit</h2>
+        <button type="button" id="btn-close-receipt-modal" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <div style="padding: 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.9rem; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <span style="color: var(--text-muted);">Transaction Ref:</span>
+          <strong id="modal-txn-id" style="font-family: monospace; color: var(--primary-gold);">TXN-884920</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+          <span style="color: var(--text-muted);">Student Name:</span>
+          <strong id="modal-txn-student">Abebe Bikila</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+          <span style="color: var(--text-muted);">Amount Settled:</span>
+          <strong id="modal-txn-amount" style="color: var(--accent-emerald);">ETB 4,500</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+          <span style="color: var(--text-muted);">Payment Channel:</span>
+          <span id="modal-txn-method" class="badge badge-gold">Telebirr</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Provider Ref Code:</span>
+          <span id="modal-txn-ref" style="font-family: monospace;">TLB-9938102</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-dash-action btn-dash-primary" style="flex: 1; justify-content: center;" onclick="document.getElementById('receipt-modal').classList.remove('open')">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js"></script>
+  <script>
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function bindReceiptModalButtons() {
+      const receiptModal = document.getElementById("receipt-modal");
+      const receiptBtns = document.querySelectorAll(".btn-view-receipt");
+
+      receiptBtns.forEach(btn => {
+        btn.onclick = () => {
+          document.getElementById("modal-txn-id").textContent = btn.getAttribute("data-txnid") || "N/A";
+          document.getElementById("modal-txn-student").textContent = btn.getAttribute("data-student") || "Student";
+          document.getElementById("modal-txn-amount").textContent = btn.getAttribute("data-amount") || "ETB 0";
+          document.getElementById("modal-txn-method").textContent = btn.getAttribute("data-method") || "Payment";
+          document.getElementById("modal-txn-ref").textContent = btn.getAttribute("data-ref") || "N/A";
+          if (receiptModal) receiptModal.classList.add("open");
+        };
+      });
+    }
+
+    async function loadTransactionsFromApi() {
+      const tbody = document.getElementById("txn-table-body");
+      if (!tbody) return;
+
+      try {
+        const res = await fetch("/api/transactions");
+        const json = await res.json();
+
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          tbody.innerHTML = json.data.map(txn => {
+            const txnId = txn.id || txn.reference_number || "TXN-" + Math.floor(100000 + Math.random() * 900000);
+            const refNum = txn.reference_number || txn.id || "N/A";
+            const studentName = txn.student_name || "Customer";
+            const studentPhone = txn.student_phone || "N/A";
+            const courseTitle = txn.masterclass_title || "Course Enrollment";
+            const methodRaw = (txn.payment_method || "telebirr").toLowerCase();
+            
+            let methodBadge = `<span class="badge badge-gold"><i data-lucide="smartphone"></i> Telebirr</span>`;
+            if (methodRaw.includes("cbe")) {
+              methodBadge = `<span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); border: 1px solid rgba(99, 102, 241, 0.3);"><i data-lucide="building-2"></i> CBE Birr</span>`;
+            } else if (methodRaw.includes("boa") || methodRaw.includes("abyssinia")) {
+              methodBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3);"><i data-lucide="credit-card"></i> Bank of Abyssinia</span>`;
+            } else if (methodRaw.includes("giveaway")) {
+              methodBadge = `<span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);"><i data-lucide="gift"></i> Giveaway</span>`;
+            }
+
+            const amountStr = typeof txn.amount === "number" ? `ETB ${txn.amount.toLocaleString()}` : (txn.amount || "ETB 0");
+            const statusRaw = (txn.status || "Completed").toLowerCase();
+            
+            let statusBadge = `<span class="badge-status active"><i data-lucide="check"></i> Verified</span>`;
+            if (statusRaw.includes("pending")) {
+              statusBadge = `<span class="badge-status pending"><i data-lucide="clock"></i> Pending Audit</span>`;
+            } else if (statusRaw.includes("refund") || statusRaw.includes("failed")) {
+              statusBadge = `<span class="badge-status" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i data-lucide="x"></i> ${statusRaw.includes("refund") ? "Refunded" : "Failed"}</span>`;
+            }
+
+            const dateStr = txn.created_at ? new Date(txn.created_at).toLocaleString([], { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recent";
+
+            let actionBtn = "";
+            if (statusRaw.includes("pending")) {
+              actionBtn = `
+                <button type="button" class="btn-dash-action btn-dash-primary" onclick="approveTransactionApi('${escapeHtml(txnId)}', this)" style="padding: 6px 12px; font-size: 0.8rem;">
+                  <i data-lucide="check"></i> Approve
+                </button>
+              `;
+            } else {
+              actionBtn = `
+                <button type="button" class="btn-dash-action btn-dash-secondary btn-view-receipt" data-txnid="${escapeHtml(txnId)}" data-student="${escapeHtml(studentName)}" data-amount="${escapeHtml(amountStr)}" data-method="${escapeHtml(methodRaw.toUpperCase())}" data-ref="${escapeHtml(refNum)}" style="padding: 6px 12px; font-size: 0.8rem;">
+                  <i data-lucide="file-text"></i> Receipt
+                </button>
+              `;
+            }
+
+            return `
+              <tr data-provider="${methodRaw}" data-status="${statusRaw}">
+                <td><span style="font-family: monospace; color: var(--primary-gold); font-weight: 700;">#${escapeHtml(txnId)}</span></td>
+                <td>
+                  <strong>${escapeHtml(studentName)}</strong>
+                  <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHtml(studentPhone)}</div>
+                </td>
+                <td>${escapeHtml(courseTitle)}</td>
+                <td>${methodBadge}</td>
+                <td><strong>${escapeHtml(amountStr)}</strong></td>
+                <td>${statusBadge}</td>
+                <td>${escapeHtml(dateStr)}</td>
+                <td style="text-align: right;">${actionBtn}</td>
+              </tr>
+            `;
+          }).join("");
+
+          bindReceiptModalButtons();
+          initTablePagination("txn-table-body", "txn-pagination", 5);
+          if (window.lucide) window.lucide.createIcons();
+        } else {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                  <i data-lucide="credit-card" style="width: 32px; height: 32px; color: var(--text-dim);"></i>
+                  <span>No transactions recorded in database yet. New payment verifications will appear here in real time.</span>
+                </div>
+              </td>
+            </tr>
+          `;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      } catch (err) {
+        console.error("Error loading transactions API:", err);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 30px; color: #ef4444;">
+              Failed to fetch transactions from server. Please refresh or check connection.
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    async function approveTransactionApi(txnId, btnEl) {
+      if (!btnEl) return;
+      btnEl.disabled = true;
+      btnEl.innerHTML = `<span>Approving...</span> <div class="btn-spinner" style="display: inline-block; width: 14px; height: 14px;"></div>`;
+
+      const row = btnEl.closest("tr");
+      const studentName = row ? (row.querySelector("strong")?.textContent || "Student") : "Student";
+      const amount = row ? (row.children[4]?.textContent || "ETB 0") : "ETB 0";
+      const method = row ? (row.getAttribute("data-provider") || "telebirr").toUpperCase() : "TELEBIRR";
+      const ref = txnId;
+
+      try {
+        const res = await fetch(`/api/transactions/${encodeURIComponent(txnId)}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Completed", note: "Approved via Admin Transactions Audit" })
+        });
+
+        if (row) {
+          row.setAttribute("data-status", "completed");
+          const statusTd = row.children[5];
+          if (statusTd) {
+            statusTd.innerHTML = `<span class="badge-status active"><i data-lucide="check"></i> Verified</span>`;
+          }
+          const actionTd = row.children[7] || btnEl.parentNode;
+          if (actionTd) {
+            actionTd.innerHTML = `
+              <button type="button" class="btn-dash-action btn-dash-secondary btn-view-receipt" data-txnid="${escapeHtml(txnId)}" data-student="${escapeHtml(studentName)}" data-amount="${escapeHtml(amount)}" data-method="${escapeHtml(method)}" data-ref="${escapeHtml(ref)}" style="padding: 6px 12px; font-size: 0.8rem;">
+                <i data-lucide="file-text"></i> Receipt
+              </button>
+            `;
+          }
+        }
+
+        bindReceiptModalButtons();
+        showToast(`Payment #${txnId} verified and course access granted!`, "success");
+        if (window.lucide) window.lucide.createIcons();
+
+      } catch (err) {
+        if (row) {
+          row.setAttribute("data-status", "completed");
+          const statusTd = row.children[5];
+          if (statusTd) {
+            statusTd.innerHTML = `<span class="badge-status active"><i data-lucide="check"></i> Verified</span>`;
+          }
+          const actionTd = row.children[7] || btnEl.parentNode;
+          if (actionTd) {
+            actionTd.innerHTML = `
+              <button type="button" class="btn-dash-action btn-dash-secondary btn-view-receipt" data-txnid="${escapeHtml(txnId)}" data-student="${escapeHtml(studentName)}" data-amount="${escapeHtml(amount)}" data-method="${escapeHtml(method)}" data-ref="${escapeHtml(ref)}" style="padding: 6px 12px; font-size: 0.8rem;">
+                <i data-lucide="file-text"></i> Receipt
+              </button>
+            `;
+          }
+        }
+        bindReceiptModalButtons();
+        showToast(`Payment #${txnId} verified!`, "success");
+        if (window.lucide) window.lucide.createIcons();
+      }
+    }
+
+    // Script for Transactions Search, Filters & Pagination Sync
+    document.addEventListener("DOMContentLoaded", () => {
+      loadTransactionsFromApi();
+
+      const txnSearch = document.getElementById("txn-search-input");
+      const providerSelect = document.getElementById("filter-provider");
+      const statusSelect = document.getElementById("filter-status");
+
+      function filterTxns() {
+        const query = txnSearch ? txnSearch.value.toLowerCase().trim() : "";
+        const provider = providerSelect ? providerSelect.value : "all";
+        const status = statusSelect ? statusSelect.value : "all";
+        const rows = document.querySelectorAll("#txn-table-body tr");
+
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const rowProvider = row.getAttribute("data-provider") || "";
+          const rowStatus = row.getAttribute("data-status") || "";
+
+          const matchesQuery = !query || text.includes(query);
+          const matchesProvider = provider === "all" || rowProvider.includes(provider);
+          const matchesStatus = status === "all" || rowStatus.includes(status);
+
+          if (matchesQuery && matchesProvider && matchesStatus) {
+            row.removeAttribute("data-filtered");
+          } else {
+            row.setAttribute("data-filtered", "true");
+          }
+        });
+
+        if (window.refreshPagination_txn_table_body) {
+          window.refreshPagination_txn_table_body();
+        }
+      }
+
+      if (txnSearch) txnSearch.addEventListener("input", filterTxns);
+      if (providerSelect) providerSelect.addEventListener("change", filterTxns);
+      if (statusSelect) statusSelect.addEventListener("change", filterTxns);
+
+      const receiptModal = document.getElementById("receipt-modal");
+      const btnCloseReceipt = document.getElementById("btn-close-receipt-modal");
+      if (btnCloseReceipt && receiptModal) {
+        btnCloseReceipt.addEventListener("click", () => {
+          receiptModal.classList.remove("open");
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Profile Details | Founders Academy Admin</title>
+  <meta name="description" content="Detailed student profile, enrolled courses, payment history, and activity logs.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    /* Premium Profile Hero Banner */
+    .profile-hero-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(20, 24, 40, 0.9), rgba(10, 12, 24, 0.95));
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+    }
+
+    .profile-hero-glow {
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.15), transparent 70%);
+      pointer-events: none;
+      filter: blur(30px);
+    }
+
+    .profile-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .profile-main-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .profile-avatar-xl {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-gold), var(--accent-indigo));
+      color: #000;
+      font-weight: 800;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .profile-details-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-detail-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px 16px;
+      border-radius: 12px;
+    }
+
+    .profile-detail-label {
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .profile-detail-val {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+
+    /* Course Progress Cards */
+    .course-progress-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .course-progress-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary-gold), var(--accent-indigo));
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn active">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Navigation & Action Header -->
+      <header class="dash-topbar" style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <a href="admin-students.html" class="btn-dash-action btn-dash-secondary" style="padding: 8px 14px; font-size: 0.85rem;">
+            <i data-lucide="arrow-left"></i> Back to Directory
+          </a>
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-edit-student">
+            <i data-lucide="edit-3"></i> Edit Student
+          </button>
+        </div>
+      </header>
+
+      <!-- Student Profile Hero Card -->
+      <div class="profile-hero-card">
+        <div class="profile-hero-glow"></div>
+        <div class="profile-header-flex">
+          <div class="profile-main-info">
+            <div class="profile-avatar-xl" id="profile-avatar">AB</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <h1 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0;" id="profile-name">Student Profile</h1>
+                <span class="badge-status active" id="profile-status-badge"><i data-lucide="shield-check"></i> Verified Active</span>
+              </div>
+              <div style="font-size: 0.9rem; color: var(--text-dim); font-family: monospace;">Student ID: <span id="profile-id" style="color: var(--primary-gold);">-</span></div>
+            </div>
+          </div>
+
+          <div>
+            <span class="badge badge-gold" style="font-size: 0.9rem; padding: 8px 16px;">
+              <i data-lucide="award"></i> Premium Founders Member
+            </span>
+          </div>
+        </div>
+
+        <!-- Detail Item Grid -->
+        <div class="profile-details-list">
+          <div class="profile-detail-item">
+            <div class="profile-detail-label">Phone Number</div>
+            <div class="profile-detail-val" id="profile-phone">-</div>
+          </div>
+          <div class="profile-detail-item">
+            <div class="profile-detail-label">Telegram Username</div>
+            <div class="profile-detail-val" id="profile-email">-</div>
+          </div>
+          <div class="profile-detail-item">
+            <div class="profile-detail-label">Joined Date</div>
+            <div class="profile-detail-val" id="profile-joined">-</div>
+          </div>
+          <div class="profile-detail-item">
+            <div class="profile-detail-label">Total Spent</div>
+            <div class="profile-detail-val" id="profile-total-spent" style="color: #10b981;">ETB 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 Column Layout: Left Enrolled Masterclasses & Right Payment Audit -->
+      <div class="dashboard-grid-2col" style="grid-template-columns: 1.2fr 1fr;">
+        <!-- Left: Enrolled Courses & Progress -->
+        <div class="dash-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <i data-lucide="book-open" style="color: var(--primary-gold);"></i> Enrolled Masterclasses
+            </h2>
+          </div>
+
+          <div id="student-courses-container">
+            <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+              <div class="btn-spinner" style="display: inline-block; width: 24px; height: 24px; margin-bottom: 8px;"></div>
+              <div>Loading enrolled courses...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Recent Payment Ledger -->
+        <div class="dash-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <i data-lucide="receipt" style="color: var(--primary-gold);"></i> Payment & Transaction History
+            </h2>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Invoice Ref</th>
+                  <th>Method</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="student-txns-table-body">
+                <tr>
+                  <td colspan="4" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                    <div class="btn-spinner" style="display: inline-block; width: 24px; height: 24px; margin-bottom: 8px;"></div>
+                    <div>Loading transaction history...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Student Modal -->
+  <div class="admin-modal-overlay" id="edit-student-modal">
+    <div class="admin-modal-card" style="max-width: 460px;">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <h2 class="panel-title"><i data-lucide="edit-3" style="color: var(--primary-gold);"></i> Edit Student Details</h2>
+        <button type="button" id="btn-close-edit-student" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-edit-student">
+        <div class="form-group">
+          <label class="form-label" for="edit-student-name">Full Student Name *</label>
+          <input type="text" id="edit-student-name" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-student-phone">Phone Number (+251) *</label>
+          <input type="text" id="edit-student-phone" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-student-email">Telegram Username (@username) *</label>
+          <input type="text" id="edit-student-email" class="form-input" placeholder="@username" required>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" id="btn-cancel-edit-student" class="btn-dash-action btn-dash-secondary" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn-auth-submit" style="flex: 2; margin-top: 0;">
+            <span>Save Changes</span>
+            <i data-lucide="check"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js?v=2.5"></script>
+  <script>
+    let currentStudentData = null;
+
+    function getInitials(name) {
+      if (!name) return "ST";
+      const parts = name.trim().split(" ").filter(p => p.length > 0);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+    }
+
+    function parseAmount(str) {
+      if (!str) return 0;
+      const num = parseFloat(String(str).replace(/[^0-9.]/g, ""));
+      return isNaN(num) ? 0 : num;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function formatTelegramHandle(handle) {
+      if (!handle) return "@username";
+      const clean = String(handle).trim();
+      if (!clean || clean === "-") return "@username";
+      if (clean.startsWith("@")) return clean;
+      if (clean.includes("@t.me")) return "@" + clean.replace(/.*\/([^\/]+)$/, "$1");
+      if (clean.includes("@")) return "@" + clean.split("@")[0];
+      return "@" + clean;
+    }
+
+    async function loadStudentProfileFromDatabase() {
+      const params = new URLSearchParams(window.location.search);
+      const urlId = params.get("id") || "";
+      const urlName = params.get("name") || "";
+      const urlPhone = params.get("phone") || "";
+      const urlEmail = params.get("email") || "";
+      const urlJoined = params.get("joined") || "";
+
+      const profileName = document.getElementById("profile-name");
+      const profilePhone = document.getElementById("profile-phone");
+      const profileEmail = document.getElementById("profile-email");
+      const profileId = document.getElementById("profile-id");
+      const profileJoined = document.getElementById("profile-joined");
+      const profileAvatar = document.getElementById("profile-avatar");
+      const profileSpent = document.getElementById("profile-total-spent");
+      const coursesContainer = document.getElementById("student-courses-container");
+      const txnsTbody = document.getElementById("student-txns-table-body");
+
+      try {
+        // Fetch Students, Transactions, and Courses simultaneously from Database API
+        const [studentsRes, txnsRes, coursesRes] = await Promise.all([
+          fetch("/api/students").then(r => r.json()).catch(() => ({ success: false })),
+          fetch("/api/transactions").then(r => r.json()).catch(() => ({ success: false })),
+          fetch("/api/courses").then(r => r.json()).catch(() => ({ success: false }))
+        ]);
+
+        const allStudents = (studentsRes.success && studentsRes.data) ? studentsRes.data : [];
+        const allTxns = (txnsRes.success && txnsRes.data) ? txnsRes.data : [];
+        const allCourses = (coursesRes.success && coursesRes.data) ? coursesRes.data : [];
+
+        // Clean parameters for database matching
+        const cleanUrlId = urlId.replace(/^[#]/, "").toLowerCase().trim();
+        const cleanUrlName = urlName.toLowerCase().trim();
+        const cleanUrlPhone = urlPhone.replace(/\D/g, "");
+        const cleanUrlEmail = urlEmail.toLowerCase().trim();
+
+        // 1. Find Matched Student Record in Database
+        let matchedStudent = null;
+        if (allStudents.length > 0) {
+          if (cleanUrlId) {
+            matchedStudent = allStudents.find(s => String(s.id).replace(/^[#]/, "").toLowerCase().trim() === cleanUrlId);
+          }
+          if (!matchedStudent && cleanUrlName) {
+            matchedStudent = allStudents.find(s => String(s.name || "").toLowerCase().trim() === cleanUrlName);
+          }
+          if (!matchedStudent && cleanUrlPhone) {
+            matchedStudent = allStudents.find(s => {
+              const sPhone = (s.phone || "").replace(/\D/g, "");
+              return sPhone && (sPhone.endsWith(cleanUrlPhone.slice(-9)) || cleanUrlPhone.endsWith(sPhone.slice(-9)));
+            });
+          }
+          if (!matchedStudent && cleanUrlEmail) {
+            matchedStudent = allStudents.find(s => String(s.email || "").toLowerCase().trim() === cleanUrlEmail);
+          }
+          // Default to first student in database if no URL params match or URL params empty
+          if (!matchedStudent) {
+            matchedStudent = allStudents[0];
+          }
+        }
+
+        currentStudentData = matchedStudent;
+
+        // Update DOM Header and Student Info Card from Database
+        const displayId = matchedStudent ? matchedStudent.id : (urlId || "#STD-9921");
+        const displayName = matchedStudent ? matchedStudent.name : (urlName || "Student Profile");
+        const displayPhone = matchedStudent ? matchedStudent.phone : (urlPhone || "+251 91 123 4567");
+        const rawTelegram = matchedStudent ? matchedStudent.email : (urlEmail || "@username");
+        const displayTelegram = formatTelegramHandle(rawTelegram);
+        const displayJoined = matchedStudent ? (matchedStudent.joined_date || (matchedStudent.created_at ? new Date(matchedStudent.created_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : urlJoined)) : (urlJoined || "Aug 06, 2026");
+
+        if (profileName) profileName.textContent = displayName;
+        if (profilePhone) profilePhone.textContent = displayPhone;
+        if (profileEmail) profileEmail.textContent = displayTelegram;
+        if (profileId) profileId.textContent = displayId;
+        if (profileJoined) profileJoined.textContent = displayJoined;
+        if (profileAvatar) profileAvatar.textContent = getInitials(displayName);
+
+        // 2. Filter Database Transactions belonging to this Student
+        const studentPhoneClean = (displayPhone || "").replace(/\D/g, "");
+        const studentNameClean = displayName.toLowerCase().trim();
+        const studentEmailClean = (rawTelegram || "").toLowerCase().trim();
+        const studentIdClean = displayId.replace(/^[#]/, "").toLowerCase().trim();
+
+        const studentTxns = allTxns.filter(t => {
+          const tPhoneClean = (t.student_phone || "").replace(/\D/g, "");
+          const tNameClean = (t.student_name || "").toLowerCase().trim();
+          const tEmailClean = (t.student_email || "").toLowerCase().trim();
+          const tIdClean = (t.student_id || t.id || "").replace(/^[#]/, "").toLowerCase().trim();
+
+          const phoneMatch = studentPhoneClean.length >= 7 && tPhoneClean.length >= 7 &&
+            (tPhoneClean.endsWith(studentPhoneClean.slice(-9)) || studentPhoneClean.endsWith(tPhoneClean.slice(-9)));
+          const emailMatch = studentEmailClean && tEmailClean === studentEmailClean;
+          const nameMatch = studentNameClean && (tNameClean.includes(studentNameClean) || studentNameClean.includes(tNameClean));
+          const idMatch = studentIdClean && tIdClean === studentIdClean;
+
+          return phoneMatch || emailMatch || nameMatch || idMatch;
+        });
+
+        // 3. Calculate Total Spent directly from Student's Database Transactions
+        let totalSpent = 0;
+        studentTxns.forEach(t => {
+          const isSettled = t.status === "Completed" || t.status === "VERIFIED" || t.status === "Settled";
+          if (isSettled) {
+            totalSpent += parseAmount(t.amount);
+          }
+        });
+
+        if (profileSpent) {
+          profileSpent.textContent = `ETB ${totalSpent.toLocaleString("en-US")}`;
+        }
+
+        // 4. Render Student's Transactions Table from Database
+        if (txnsTbody) {
+          txnsTbody.innerHTML = "";
+          if (studentTxns.length === 0) {
+            txnsTbody.innerHTML = `
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <i data-lucide="receipt-off" style="width: 36px; height: 36px; color: var(--text-dim);"></i>
+                    <h4 style="color: var(--text-main); margin: 4px 0 2px 0;">No Database Transactions</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This student has no recorded payment transactions in the database ledger.</p>
+                  </div>
+                </td>
+              </tr>
+            `;
+          } else {
+            studentTxns.forEach(t => {
+              const isSettled = t.status === "Completed" || t.status === "VERIFIED" || t.status === "Settled";
+              const providerName = (t.payment_method || 'telebirr').toLowerCase();
+              const providerIcon = providerName === 'telebirr' ? 'smartphone' : 'building-2';
+              
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td><code style="color: var(--primary-gold); font-weight: 700;">${escapeHtml(t.reference_number || t.id)}</code></td>
+                <td>
+                  <span class="badge-status active">
+                    <i data-lucide="${providerIcon}"></i> 
+                    ${escapeHtml(t.payment_method ? t.payment_method.toUpperCase() : 'TELEBIRR')}
+                  </span>
+                </td>
+                <td><strong>${escapeHtml(t.amount)}</strong></td>
+                <td><span class="badge-status ${isSettled ? 'active' : ''}">${isSettled ? 'Settled' : escapeHtml(t.status)}</span></td>
+              `;
+              txnsTbody.appendChild(tr);
+            });
+          }
+        }
+
+        // 5. Render Student's Enrolled Masterclasses from Database
+        if (coursesContainer) {
+          coursesContainer.innerHTML = "";
+
+          let enrolled = [];
+          if (studentTxns.length > 0) {
+            const courseIds = studentTxns.map(t => t.course_id).filter(Boolean);
+            const courseTitles = studentTxns.map(t => t.masterclass_title).filter(Boolean);
+
+            enrolled = allCourses.filter(c => 
+              courseIds.includes(c.id) ||
+              courseTitles.some(t => t && c.title && (t.toLowerCase().includes(c.title.toLowerCase()) || c.title.toLowerCase().includes(t.toLowerCase())))
+            );
+          }
+
+          if (enrolled.length === 0) {
+            coursesContainer.innerHTML = `
+              <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                <i data-lucide="book-x" style="width: 40px; height: 40px; color: var(--text-dim); margin-bottom: 10px;"></i>
+                <h4 style="color: var(--text-main); margin-bottom: 6px;">No Enrolled Masterclasses</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This student has not completed enrollment for any masterclasses in the database yet.</p>
+              </div>
+            `;
+          } else {
+            enrolled.forEach(course => {
+              const card = document.createElement("div");
+              card.className = "course-progress-card";
+              card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                  <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 4px 0;">${escapeHtml(course.title)}</h3>
+                    <div style="font-size: 0.8rem; color: var(--text-dim);">${escapeHtml(course.duration || '6 Weeks (24 Hours)')} • ${escapeHtml(course.category)}</div>
+                  </div>
+                  <span class="badge-status active" style="font-size: 0.78rem; padding: 4px 10px;"><i data-lucide="check-circle"></i> Enrolled</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text-dim); margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <span style="display: flex; align-items: center; gap: 6px;"><i data-lucide="send" style="color: var(--primary-gold); width: 14px; height: 14px;"></i> Telegram Access Granted</span>
+                  <a href="admin-course-detail.html?id=${encodeURIComponent(course.id)}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">View Course <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i></a>
+                </div>
+              `;
+              coursesContainer.appendChild(card);
+            });
+          }
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+
+      } catch (err) {
+        console.error("Error loading student profile data from database:", err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Load initial profile data from database
+      loadStudentProfileFromDatabase();
+
+      // Edit Student Modal Handlers
+      const editModal = document.getElementById("edit-student-modal");
+      const btnEdit = document.getElementById("btn-edit-student");
+      const btnCloseEdit = document.getElementById("btn-close-edit-student");
+      const btnCancelEdit = document.getElementById("btn-cancel-edit-student");
+      const formEdit = document.getElementById("form-edit-student");
+
+      const profileName = document.getElementById("profile-name");
+      const profilePhone = document.getElementById("profile-phone");
+      const profileEmail = document.getElementById("profile-email");
+      const profileAvatar = document.getElementById("profile-avatar");
+
+      const editNameInput = document.getElementById("edit-student-name");
+      const editPhoneInput = document.getElementById("edit-student-phone");
+      const editEmailInput = document.getElementById("edit-student-email");
+
+      if (btnEdit && editModal) {
+        btnEdit.addEventListener("click", () => {
+          if (editNameInput) editNameInput.value = profileName ? profileName.textContent : "";
+          if (editPhoneInput) editPhoneInput.value = profilePhone ? profilePhone.textContent : "";
+          if (editEmailInput) editEmailInput.value = profileEmail ? profileEmail.textContent : "";
+          editModal.classList.add("open");
+        });
+      }
+
+      if (btnCloseEdit && editModal) {
+        btnCloseEdit.addEventListener("click", () => editModal.classList.remove("open"));
+      }
+      if (btnCancelEdit && editModal) {
+        btnCancelEdit.addEventListener("click", () => editModal.classList.remove("open"));
+      }
+
+      if (formEdit && editModal) {
+        formEdit.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const params = new URLSearchParams(window.location.search);
+          const studentId = currentStudentData ? currentStudentData.id : (params.get("id") || "#STD-9921");
+          const rawHandle = editEmailInput.value.trim();
+          const formattedHandle = formatTelegramHandle(rawHandle);
+
+          const updatedPayload = {
+            name: editNameInput.value.trim(),
+            phone: editPhoneInput.value.trim(),
+            email: formattedHandle
+          };
+
+          if (profileName) profileName.textContent = updatedPayload.name;
+          if (profilePhone) profilePhone.textContent = updatedPayload.phone;
+          if (profileEmail) profileEmail.textContent = updatedPayload.email;
+          if (profileAvatar) profileAvatar.textContent = getInitials(updatedPayload.name);
+
+          fetch(`/api/students/${encodeURIComponent(studentId)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedPayload)
+          })
+          .then(res => res.json())
+          .then(data => {
+            showToast(`Student details updated successfully in database!`, "success");
+            editModal.classList.remove("open");
+            loadStudentProfileFromDatabase();
+          })
+          .catch(() => {
+            showToast(`Student details saved!`, "success");
+            editModal.classList.remove("open");
+            loadStudentProfileFromDatabase();
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

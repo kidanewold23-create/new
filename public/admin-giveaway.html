@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1-Time Giveaway Codes | Founders Academy Admin</title>
+  <meta name="description" content="Generate single-use 1-time giveaway codes for instant student course enrollment.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .giveaway-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .giveaway-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .code-badge-active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .code-badge-redeemed {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .code-badge-revoked {
+      background: rgba(156, 163, 175, 0.15);
+      color: #9ca3af;
+      border: 1px solid rgba(156, 163, 175, 0.3);
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn active">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Sign Out">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Bar -->
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" aria-label="Toggle Sidebar">
+            <i data-lucide="menu"></i>
+          </button>
+          <div>
+            <h1 class="topbar-title" style="display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="gift" style="color: var(--primary-gold);"></i> 1-Time Course Giveaway Codes
+            </h1>
+            <p class="topbar-subtitle" id="admin-welcome-sub">Generate single-use promo codes that grant 100% free course access when redeemed in Telegram Bot.</p>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <a href="courses.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> View Website
+          </a>
+        </div>
+      </header>
+
+      <!-- Dashboard Body -->
+      <div class="admin-content-container">
+        
+        <!-- Summary Stats Mini Cards -->
+        <div class="stat-mini-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
+            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(217, 119, 6, 0.15); color: var(--primary-gold); display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="ticket"></i>
+            </div>
+            <div>
+              <div class="stat-mini-value" id="stat-total-codes" style="font-size: 1.5rem; font-weight: 800; color: #fff;">0</div>
+              <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Total Codes Generated</div>
+            </div>
+          </div>
+
+          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
+            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="check-circle-2"></i>
+            </div>
+            <div>
+              <div class="stat-mini-value" id="stat-active-codes" style="font-size: 1.5rem; font-weight: 800; color: #34d399;">0</div>
+              <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Active (Unused 1-Time)</div>
+            </div>
+          </div>
+
+          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
+            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); color: #f87171; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="user-check"></i>
+            </div>
+            <div>
+              <div class="stat-mini-value" id="stat-redeemed-codes" style="font-size: 1.5rem; font-weight: 800; color: #f87171;">0</div>
+              <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Redeemed (Outdated)</div>
+            </div>
+          </div>
+
+          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
+            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(156, 163, 175, 0.15); color: #9ca3af; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="slash"></i>
+            </div>
+            <div>
+              <div class="stat-mini-value" id="stat-revoked-codes" style="font-size: 1.5rem; font-weight: 800; color: #9ca3af;">0</div>
+              <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Revoked / Cancelled</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="giveaway-grid">
+          
+          <!-- Generator Form Panel -->
+          <div class="dash-panel" style="height: fit-content;">
+            <div class="panel-header" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+              <div>
+                <h2 class="panel-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                  <i data-lucide="sparkles" style="color: var(--primary-gold);"></i> Generate Giveaway Codes
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; margin-bottom: 0;">
+                  Codes are 1-time single-use only. When a student inputs a code in @FoundersAcademyBot, they get enrolled automatically and the code becomes outdated forever.
+                </p>
+              </div>
+            </div>
+
+            <form id="form-generate-giveaway">
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label" for="giveaway-course" style="font-size: 0.84rem;">
+                  <i data-lucide="book-open"></i> Target Course Access Granted
+                </label>
+                <select id="giveaway-course" class="form-input" required style="font-size: 0.9rem;">
+                  <option value="">Loading courses...</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label" for="giveaway-count" style="font-size: 0.84rem;">
+                  <i data-lucide="layers"></i> Quantity to Generate
+                </label>
+                <select id="giveaway-count" class="form-input" style="font-size: 0.9rem;">
+                  <option value="1">1 Single Code</option>
+                  <option value="5">5 Codes (Batch)</option>
+                  <option value="10">10 Codes (Batch)</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" for="giveaway-custom-code" style="font-size: 0.84rem;">
+                  <i data-lucide="edit-3"></i> Custom Code String (Optional)
+                </label>
+                <input type="text" id="giveaway-custom-code" class="form-input" placeholder="e.g. VIP-FOUNDER-2026" style="font-family: monospace; font-size: 0.95rem; text-transform: uppercase;">
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">Leave blank for auto-generated secure code (GIVEAWAY-XXXXX).</p>
+              </div>
+
+              <button type="submit" class="btn-auth-submit" style="margin: 0; width: 100%;">
+                <span class="btn-text">🎟️ Generate 1-Time Code(s)</span>
+                <div class="btn-spinner"></div>
+                <i data-lucide="plus" class="btn-text"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- Codes Directory Table Panel -->
+          <div class="dash-panel">
+            <div class="panel-header" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h2 class="panel-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.15rem;">
+                  <i data-lucide="list" style="color: var(--primary-gold);"></i> Giveaway Codes Directory & Tracker
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; margin-bottom: 0;">
+                  Track unused active codes, redeemed codes, and single-use student enrollment status.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="filter-giveaway-status" class="form-input" style="padding: 6px 12px; font-size: 0.84rem; width: auto;">
+                  <option value="all">All Statuses</option>
+                  <option value="active">🟢 Active (Unused)</option>
+                  <option value="redeemed">🔴 Redeemed (Outdated)</option>
+                  <option value="revoked">⏳ Revoked</option>
+                </select>
+
+                <input type="text" id="search-giveaway-code" class="form-input" placeholder="Search code or course..." style="padding: 6px 12px; font-size: 0.84rem; width: 180px;">
+              </div>
+            </div>
+
+            <!-- Codes Table -->
+            <div style="overflow-x-auto;">
+              <table class="dash-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: var(--text-muted);">
+                    <th style="padding: 12px;">Code</th>
+                    <th style="padding: 12px;">Target Course</th>
+                    <th style="padding: 12px;">Status</th>
+                    <th style="padding: 12px;">Redeemed By Student</th>
+                    <th style="padding: 12px; text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="giveaways-table-body">
+                  <tr>
+                    <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">Loading giveaway codes...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allGiveaways = [];
+
+    function fetchCoursesDropdown() {
+      fetch("/api/courses")
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById("giveaway-course");
+          if (!select) return;
+
+          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+            select.innerHTML = data.data.map(c => `<option value="${c.id}">${c.title} (${c.priceETB || c.price || '10,000 ETB'})</option>`).join('');
+          } else {
+            select.innerHTML = `<option value="course-1">Global Entrepreneurship & Venture Building</option>`;
+          }
+        })
+        .catch(() => {
+          const select = document.getElementById("giveaway-course");
+          if (select) select.innerHTML = `<option value="course-1">Global Entrepreneurship & Venture Building</option>`;
+        });
+    }
+
+    function fetchGiveawayCodes() {
+      fetch("/api/admin/giveaways")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && Array.isArray(data.data)) {
+            allGiveaways = data.data;
+            updateStatsAndRenderTable();
+          }
+        })
+        .catch(() => {});
+    }
+
+    function updateStatsAndRenderTable() {
+      const statusFilter = document.getElementById("filter-giveaway-status") ? document.getElementById("filter-giveaway-status").value : "all";
+      const searchVal = document.getElementById("search-giveaway-code") ? document.getElementById("search-giveaway-code").value.trim().toUpperCase() : "";
+
+      const totalCount = allGiveaways.length;
+      const activeCount = allGiveaways.filter(c => c.status === "active").length;
+      const redeemedCount = allGiveaways.filter(c => c.status === "redeemed").length;
+      const revokedCount = allGiveaways.filter(c => c.status === "revoked").length;
+
+      if (document.getElementById("stat-total-codes")) document.getElementById("stat-total-codes").textContent = totalCount;
+      if (document.getElementById("stat-active-codes")) document.getElementById("stat-active-codes").textContent = activeCount;
+      if (document.getElementById("stat-redeemed-codes")) document.getElementById("stat-redeemed-codes").textContent = redeemedCount;
+      if (document.getElementById("stat-revoked-codes")) document.getElementById("stat-revoked-codes").textContent = revokedCount;
+
+      let filtered = allGiveaways.filter(item => {
+        if (statusFilter !== "all" && item.status !== statusFilter) return false;
+        if (searchVal) {
+          const matchCode = item.code.toUpperCase().includes(searchVal);
+          const matchTitle = (item.courseTitle || "").toUpperCase().includes(searchVal);
+          const matchStudent = item.usedBy ? (item.usedBy.name || "").toUpperCase().includes(searchVal) : false;
+          return matchCode || matchTitle || matchStudent;
+        }
+        return true;
+      });
+
+      const tbody = document.getElementById("giveaways-table-body");
+      if (!tbody) return;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">
+              No giveaway codes match your filter criteria.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        let statusBadge = "";
+        if (item.status === "active") {
+          statusBadge = `<span class="badge code-badge-active"><i data-lucide="check-circle-2" style="width: 12px; height: 12px;"></i> Active (Unused)</span>`;
+        } else if (item.status === "redeemed") {
+          statusBadge = `<span class="badge code-badge-redeemed"><i data-lucide="lock" style="width: 12px; height: 12px;"></i> Redeemed (Outdated)</span>`;
+        } else {
+          statusBadge = `<span class="badge code-badge-revoked"><i data-lucide="slash" style="width: 12px; height: 12px;"></i> Revoked</span>`;
+        }
+
+        let studentDetails = `<span style="color: var(--text-muted); font-size: 0.8rem;">Unclaimed</span>`;
+        if (item.status === "redeemed" && item.usedBy) {
+          const u = item.usedBy;
+          const dateStr = item.usedAt ? new Date(item.usedAt).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "";
+          studentDetails = `
+            <div>
+              <strong style="color: #fff; font-size: 0.86rem;">${u.name}</strong>
+              <div style="font-size: 0.76rem; color: #38bdf8;">${u.username || ('ID: ' + u.chatId)} &bull; ${dateStr}</div>
+            </div>
+          `;
+        }
+
+        return `
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 12px; font-family: monospace; font-weight: 800; font-size: 0.98rem; color: #fff;">
+              ${item.code}
+            </td>
+            <td style="padding: 12px; font-size: 0.88rem; color: #e5e7eb;">
+              ${item.courseTitle}
+            </td>
+            <td style="padding: 12px;">
+              ${statusBadge}
+            </td>
+            <td style="padding: 12px;">
+              ${studentDetails}
+            </td>
+            <td style="padding: 12px; text-align: right;">
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                <button type="button" onclick="copyTextToClipboard('${item.code}', 'Giveaway Code', this)" class="btn-dash-action btn-dash-secondary" style="padding: 4px 8px; font-size: 0.75rem;" title="Copy Code">
+                  <i data-lucide="copy"></i>
+                </button>
+                ${item.status === 'active' ? `
+                  <button type="button" onclick="revokeGiveawayCode('${item.code}')" class="btn-dash-action btn-dash-secondary" style="padding: 4px 8px; font-size: 0.75rem; color: #f59e0b; border-color: rgba(245,158,11,0.3);" title="Revoke Code">
+                    <i data-lucide="slash"></i> Revoke
+                  </button>
+                ` : ''}
+                <button type="button" onclick="deleteGiveawayCode('${item.code}')" class="btn-dash-action btn-dash-secondary" style="padding: 4px 8px; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" title="Delete Permanent">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function revokeGiveawayCode(code) {
+      if (!confirm(`Are you sure you want to revoke 1-time giveaway code "${code}"?`)) return;
+
+      fetch("/api/admin/giveaways/revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showToast(`Giveaway code ${code} revoked successfully!`, "success");
+          fetchGiveawayCodes();
+        } else {
+          showToast(data.error || "Failed to revoke code.", "error");
+        }
+      })
+      .catch(() => showToast("Error revoking code.", "error"));
+    }
+
+    function deleteGiveawayCode(code) {
+      if (!confirm(`Permanently delete giveaway code "${code}"?`)) return;
+
+      fetch("/api/admin/giveaways/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showToast(`Giveaway code ${code} deleted permanently!`, "success");
+          fetchGiveawayCodes();
+        } else {
+          showToast(data.error || "Failed to delete code.", "error");
+        }
+      })
+      .catch(() => showToast("Error deleting code.", "error"));
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchCoursesDropdown();
+      fetchGiveawayCodes();
+
+      if (document.getElementById("filter-giveaway-status")) {
+        document.getElementById("filter-giveaway-status").addEventListener("change", updateStatsAndRenderTable);
+      }
+      if (document.getElementById("search-giveaway-code")) {
+        document.getElementById("search-giveaway-code").addEventListener("input", updateStatsAndRenderTable);
+      }
+
+      const form = document.getElementById("form-generate-giveaway");
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const courseSelect = document.getElementById("giveaway-course");
+          const courseId = courseSelect ? courseSelect.value : "course-1";
+          const courseTitle = courseSelect ? courseSelect.options[courseSelect.selectedIndex].text : "Global Entrepreneurship";
+          const count = document.getElementById("giveaway-count") ? document.getElementById("giveaway-count").value : "1";
+          const customCode = document.getElementById("giveaway-custom-code") ? document.getElementById("giveaway-custom-code").value.trim() : "";
+
+          const submitBtn = form.querySelector("button[type='submit']");
+          let origHtml = "";
+          if (submitBtn) {
+            origHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>Generating...</span>`;
+          }
+
+          fetch("/api/admin/giveaways/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ courseId, courseTitle, count, customCode })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = origHtml;
+            }
+
+            if (data.success) {
+              showToast(`🎉 Generated ${data.generated.length} 1-time giveaway code(s) successfully!`, "success");
+              if (document.getElementById("giveaway-custom-code")) document.getElementById("giveaway-custom-code").value = "";
+              fetchGiveawayCodes();
+            } else {
+              showToast(data.error || "Failed to generate giveaway codes.", "error");
+            }
+          })
+          .catch(err => {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = origHtml;
+            }
+            showToast("Error generating codes: " + err.message, "error");
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

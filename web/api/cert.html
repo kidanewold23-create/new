@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate of Completion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #e2e8f0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Pixel-perfect fixed size canvas */
+    .certificate-container {
+      position: relative;
+      width: 1000px;
+      height: 750px;
+      background-color: #ffffff;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    /* SVG Decorative Background Layers */
+    .bg-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1000px;
+      height: 750px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Content Box Container inside the Frame Border */
+    .border-frame {
+      position: absolute;
+      top: 42px;
+      left: 42px;
+      width: 916px;
+      height: 666px;
+      border: 3px solid #1a0b5e;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 40px 30px 40px;
+    }
+
+    /* 1. Corrected Header Logo Section */
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 2px;
+      margin-bottom: 22px;
+    }
+
+    .logo-svg {
+      width: 90px;
+      height: 55px;
+      margin-bottom: 4px;
+    }
+
+    .logo-text-top {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #00A2E8 0%, #1F1062 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 0.9;
+    }
+
+    .logo-text-bottom {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 3.2px;
+      color: #e6005c;
+      margin-top: 3px;
+      line-height: 1;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* 2. Certificate Title Section */
+    .title-certificate {
+      font-size: 67px;
+      font-weight: 900;
+      letter-spacing: 0px;
+      line-height: 0.95;
+      background: linear-gradient(90deg, #00c6ff 0%, #0072ff 30%, #4a00e0 70%, #2d006b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .title-completion {
+      font-size: 22px;
+      font-weight: 900;
+      color: #000000;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      display: inline-block;
+      border-bottom: 2px solid #111111;
+      padding-bottom: 3px;
+      line-height: 1;
+      margin-bottom: 40px;
+    }
+
+    /* 3. Awardee Subtitle & Name */
+    .award-text {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: #4a4a4a;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .recipient-name {
+      font-size: 34px;
+      font-weight: 800;
+      color: #e6005c;
+      letter-spacing: 0.2px;
+      margin-bottom: 24px;
+    }
+
+    /* 4. Description Paragraph */
+    .description {
+      text-align: center;
+      max-width: 820px;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #1a1a1a;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+    }
+
+    .description-highlight {
+      color: #e6005c;
+      font-weight: 700;
+    }
+
+    /* 5. Footer Layout */
+    .footer-section {
+      margin-top: auto;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 5px;
+    }
+
+    /* Left Side: Issued On & Signature */
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 300px;
+    }
+
+    .issued-on {
+      font-size: 17px;
+      font-weight: 800;
+      color: #2b1190;
+      margin-bottom: 45px;
+    }
+
+    .issued-on span {
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .signature-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 200px;
+      margin-left: 20px;
+    }
+
+    .signature-line {
+      width: 100%;
+      height: 1.5px;
+      background-color: #000000;
+      margin-bottom: 6px;
+    }
+
+    .instructor-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.1;
+    }
+
+    .instructor-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #2b1190;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    /* Center: Badge Seal */
+    .footer-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .badge-container {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Right Side: Certificate ID */
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 220px;
+      margin-bottom: 28px;
+    }
+
+    .cert-id-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #2b1190;
+      line-height: 1.1;
+    }
+
+    .cert-id-value {
+      font-size: 17px;
+      font-weight: 500;
+      color: #1a1a1a;
+      line-height: 1.1;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="certificate-container">
+
+    <!-- Background Curved Swooshes -->
+    <svg class="bg-svg" viewBox="0 0 1000 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="top-outer" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0066ff" />
+          <stop offset="60%" stop-color="#00cdff" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+        </linearGradient>
+
+        <linearGradient id="top-inner" x1="0" y1="0" x2="450" y2="450" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#1e00a3" />
+          <stop offset="45%" stop-color="#2d0a8f" />
+          <stop offset="75%" stop-color="#143ebd" />
+          <stop offset="100%" stop-color="#0099ff" />
+        </linearGradient>
+
+        <linearGradient id="bottom-inner" x1="1000" y1="750" x2="600" y2="450" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0055ff" />
+          <stop offset="40%" stop-color="#2e08a6" />
+          <stop offset="80%" stop-color="#6010b2" />
+        </linearGradient>
+
+        <linearGradient id="bottom-outer" x1="1000" y1="750" x2="650" y2="600" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#00d8ff" />
+          <stop offset="50%" stop-color="#0088ff" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+
+      <path d="M 0 0 L 620 0 C 440 20, 240 70, 140 220 C 40 370, 0 580, 0 660 Z" fill="url(#top-outer)" opacity="0.85" />
+      <path d="M 0 0 L 460 0 C 350 0, 210 50, 120 180 C 20 330, 0 520, 0 580 Z" fill="url(#top-inner)" />
+
+      <path d="M 1000 750 L 650 750 C 760 740, 880 670, 950 540 C 990 460, 1000 350, 1000 280 Z" fill="url(#bottom-outer)" />
+      <path d="M 1000 750 L 720 750 C 810 730, 910 650, 960 540 C 995 460, 1000 380, 1000 330 Z" fill="url(#bottom-inner)" />
+    </svg>
+
+    <!-- Certificate Frame -->
+    <div class="border-frame">
+
+      <!-- 1. ACCURATE LOGO RECREATION -->
+      <div class="logo-container">
+        <svg class="logo-svg" viewBox="0 0 120 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Blue to Dark Violet Gradient for Mountain Lines -->
+            <linearGradient id="mountain-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00a8ea" />
+              <stop offset="50%" stop-color="#0d51b2" />
+              <stop offset="100%" stop-color="#24125f" />
+            </linearGradient>
+
+            <!-- Clip path defining the triangular mountain peak silhouette -->
+            <clipPath id="mountain-shape">
+              <polygon points="60,18 96,65 24,65" />
+            </clipPath>
+          </defs>
+
+          <!-- Top Flagpole & Flag -->
+          <line x1="60" y1="18" x2="60" y2="2" stroke="#0080ff" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M60 2 L80 8 L60 14 Z" fill="#0080ff" />
+
+          <!-- Mountain Peak composed of parallel diagonal hatched stripes -->
+          <g clip-path="url(#mountain-shape)">
+            <g stroke="url(#mountain-gradient)" stroke-width="3" stroke-linecap="square">
+              <line x1="10" y1="80" x2="50" y2="0" />
+              <line x1="16" y1="80" x2="56" y2="0" />
+              <line x1="22" y1="80" x2="62" y2="0" />
+              <line x1="28" y1="80" x2="68" y2="0" />
+              <line x1="34" y1="80" x2="74" y2="0" />
+              <line x1="40" y1="80" x2="80" y2="0" />
+              <line x1="46" y1="80" x2="86" y2="0" />
+              <line x1="52" y1="80" x2="92" y2="0" />
+              <line x1="58" y1="80" x2="98" y2="0" />
+              <line x1="64" y1="80" x2="104" y2="0" />
+              <line x1="70" y1="80" x2="110" y2="0" />
+              <line x1="76" y1="80" x2="116" y2="0" />
+            </g>
+          </g>
+        </svg>
+
+        <div class="logo-text-top">FOUNDERS</div>
+        <div class="logo-text-bottom">ACADEMY</div>
+      </div>
+
+      <!-- 2. Titles -->
+      <div class="title-certificate">CERTIFICATE</div>
+      <div class="title-completion">OF COMPLETION</div>
+
+      <!-- 3. Awardee Subtitle & Name -->
+      <div class="award-text">THIS CERIFICATE IS PROUDLY AWARDED TO</div>
+      <div class="recipient-name">Seblewongel Girma</div>
+
+      <!-- 4. Body Description Text -->
+      <div class="description">
+        For successfully completing <span class="description-highlight">Meta Ads Engineering,</span> demonstrating expert mastery<br>
+        in Full-Funnel Campaign Architecture, Conversion Tracking, Direct-Response<br>
+        Creative Strategy, and High-ROAS Scaling Systems.
+      </div>
+
+      <!-- 5. Bottom Footer Items -->
+      <div class="footer-section">
+
+        <!-- Left: Issue Date & Signature -->
+        <div class="footer-left">
+          <div class="issued-on">Issued On: <span>August 3, 2026</span></div>
+          <div class="signature-block">
+            <div class="signature-line"></div>
+            <div class="instructor-name">Yonatan Amsalu</div>
+            <div class="instructor-title">Instructor</div>
+          </div>
+        </div>
+
+        <!-- Center: Pink Sunburst Certified Badge -->
+        <div class="footer-center">
+          <div class="badge-container">
+            <svg width="150" height="150" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="pink-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ff3385" />
+                  <stop offset="100%" stop-color="#e6005c" />
+                </linearGradient>
+              </defs>
+
+              <!-- Ribbon Tails -->
+              <path d="M38 80 L20 112 L42 102 L58 115 L50 80 Z" fill="#e6005c" />
+              <path d="M82 80 L100 112 L78 102 L62 115 L70 80 Z" fill="#b30047" />
+
+              <!-- Scalloped Seal -->
+              <path d="
+                M 60 12 
+                L 64 16 L 70 13 L 73 18 L 79 17 L 81 22 L 87 23 L 87 28 L 92 31 L 91 36 L 95 40 L 93 45 
+                L 96 50 L 93 55 L 95 60 L 91 64 L 92 69 L 87 72 L 87 77 L 81 78 L 79 83 L 73 82 L 70 87 
+                L 64 84 L 60 88 L 56 84 L 50 87 L 47 82 L 41 83 L 39 78 L 33 77 L 33 72 L 28 69 L 29 64 
+                L 25 60 L 27 55 L 24 50 L 27 45 L 25 40 L 29 36 L 28 31 L 33 28 L 33 23 L 39 22 L 41 17 
+                L 47 18 L 50 13 L 56 16 Z" 
+                fill="url(#pink-grad)" />
+
+              <!-- Inner Dashed Ring -->
+              <circle cx="60" cy="50" r="32" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3 2" />
+
+              <!-- Badge Text -->
+              <text x="60" y="46" font-family="'Montserrat', sans-serif" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">Certified</text>
+              <text x="60" y="59" font-family="'Montserrat', sans-serif" font-size="11.5" font-weight="800" fill="#ffffff" text-anchor="middle">Expert</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Right: ID Number -->
+        <div class="footer-right">
+          <div class="cert-id-title">Certificate ID</div>
+          <div class="cert-id-value">FA-META- 00001</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

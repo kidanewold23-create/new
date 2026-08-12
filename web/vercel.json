@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0" },
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
+      ]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0" },
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/style.css", "destination": "/css/styles.css" },
+    { "source": "/css/style.css", "destination": "/css/styles.css" },
+    { "source": "/css/auth.css", "destination": "/css/styles.css" },
+    { "source": "/styles.css", "destination": "/css/styles.css" },
+    { "source": "/api/:match*", "destination": "/api/index.ts" },
+    { "source": "/admin", "destination": "/admin-dashboard.html" },
+    { "source": "/admin/login", "destination": "/admin-login.html" },
+    { "source": "/admin/dashboard", "destination": "/admin-dashboard.html" },
+    { "source": "/admin/courses", "destination": "/admin-courses.html" },
+    { "source": "/admin/categories", "destination": "/admin-categories.html" },
+    { "source": "/admin/students", "destination": "/admin-students.html" },
+    { "source": "/admin/transactions", "destination": "/admin-transactions.html" },
+    { "source": "/admin/settings", "destination": "/admin-settings.html" },
+    { "source": "/courses", "destination": "/courses.html" },
+    { "source": "/student-login", "destination": "/student-login.html" },
+    { "source": "/login", "destination": "/student-login.html" }
+  ]
+}

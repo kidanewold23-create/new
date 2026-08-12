@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructors & Brands | Landing Customizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="stylesheet" href==2>
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    .cms-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .cms-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .mentor-cms-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .sticky-actions-bar {
+      position: sticky;
+      top: 70px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn active">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <div id="cms-section-nav"></div>
+
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <a href="admin-landing-customizer.html" style="color: var(--primary-gold); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+              &larr; Landing Customizer Hub
+            </a>
+          </div>
+          <h1 class="dash-title"><i data-lucide="award" style="color: #a855f7;"></i> Section 4: Instructors & Trusted Brands</h1>
+          <p class="dash-subtitle">Add, remove, enable/disable instructors, edit founder credentials, and update brand logo partners</p>
+        </div>
+
+        <div class="topbar-actions" style="display: flex; gap: 10px;">
+          <a href="index.html" target="_blank" class="btn-dash-action btn-dash-secondary">
+            <i data-lucide="external-link"></i> Live Preview
+          </a>
+        </div>
+      </header>
+
+      <!-- Sticky Action Bar -->
+      <div class="sticky-actions-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;"><i data-lucide="award"></i> Instructors & Brands</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Changes publish immediately to index.html</span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-save-section" style="padding: 10px 24px;">
+            <i data-lucide="save"></i> Save Instructors Changes
+          </button>
+        </div>
+      </div>
+
+      <form id="form-instructors-cms">
+        <!-- Section Headers -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="layout" style="color: var(--primary-gold);"></i> Section Headlines
+          </div>
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label" for="inst-tag">Section Tag</label>
+              <input type="text" id="inst-tag" class="form-input" placeholder="WORLD-CLASS MENTORS">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label" for="inst-title">Section Title</label>
+              <input type="text" id="inst-title" class="form-input" placeholder="Learn Directly From 7-Figure Agency Founders">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="inst-sub">Section Subtitle</label>
+            <input type="text" id="inst-sub" class="form-input" placeholder="Not academics. Real practitioners managing international agency accounts, scaling video teams, and building AI workflows daily.">
+          </div>
+        </div>
+
+        <!-- Trusted Brand Logos -->
+        <div class="cms-card">
+          <div class="cms-card-title">
+            <i data-lucide="building" style="color: #3b82f6;"></i> Trusted Brand & Employer Logos
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="inst-logos">Partner Brand Names (Comma Separated)</label>
+            <input type="text" id="inst-logos" class="form-input" placeholder="Telebirr, CBE Birr, Dashen Bank, Awash Media, Addis Media, Upwork Top Rated, Fiverr Pro">
+            <span style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: block;">Separate each partner or employer brand name with a comma.</span>
+          </div>
+        </div>
+
+        <!-- Mentors List with Add / Remove / ON-OFF Toggle -->
+        <div class="cms-card">
+          <div class="cms-card-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="users" style="color: #a855f7;"></i> Instructors & Lead Mentors
+            </div>
+            <button type="button" class="btn-dash-action btn-dash-primary" id="btn-add-instructor" style="font-size: 0.85rem; padding: 6px 14px;">
+              <i data-lucide="plus-circle"></i> ➕ Add New Instructor
+            </button>
+          </div>
+
+          <div id="mentors-cms-container">
+            <!-- Dynamic Mentor Boxes -->
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="js/landing-cms-helper.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    function renderMentorBox(m, index) {
+      const isEnabled = m.status !== "disabled" && m.status !== "OFF";
+      const mentorId = m.id || `ins-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+      const box = document.createElement("div");
+      box.className = "mentor-cms-box";
+      box.dataset.id = mentorId;
+      if (!isEnabled) {
+        box.style.opacity = "0.65";
+        box.style.borderColor = "rgba(239, 68, 68, 0.4)";
+      } else {
+        box.style.opacity = "1";
+        box.style.borderColor = "rgba(168, 85, 247, 0.3)";
+      }
+
+      box.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <strong class="mentor-box-title" style="color: #c084fc; font-size: 0.98rem;">Instructor #${index + 1}: ${m.name || 'New Instructor'}</strong>
+            <span class="badge mentor-status-badge" style="${isEnabled ? 'background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);' : 'background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);'} font-size: 0.75rem;">
+              ${isEnabled ? '🟢 Active (ON)' : '🔴 Disabled (OFF)'}
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+              <input type="checkbox" class="m-enabled-checkbox" ${isEnabled ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #a855f7; cursor: pointer;">
+              <span>${isEnabled ? 'ON' : 'OFF'}</span>
+            </label>
+
+            <button type="button" class="btn-dash-action btn-dash-secondary btn-remove-mentor" style="padding: 4px 10px; font-size: 0.76rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" title="Remove Instructor">
+              <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Remove
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 10px;">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-input m-name" value="${m.name || ''}" placeholder="e.g. Yonatan T.">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role / Specialization *</label>
+            <input type="text" class="form-input m-role" value="${m.role || ''}" placeholder="e.g. Lead SMMA Strategist">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Photo URL *</label>
+            <input type="text" class="form-input m-photo" value="${m.photo || ''}" placeholder="photo_2026-06-11_09-14-03.jpg or URL">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label class="form-label">Instructor Bio</label>
+          <textarea class="form-input m-bio" style="height: 60px; padding: 10px 14px;" placeholder="Brief bio or experience summary...">${m.bio || ''}</textarea>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 0;">
+          <div class="form-group">
+            <label class="form-label">Key Stat 1</label>
+            <input type="text" class="form-input m-stat1" value="${m.stat1 || ''}" placeholder="e.g. 6+ Years Exp">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Key Stat 2</label>
+            <input type="text" class="form-input m-stat2" value="${m.stat2 || ''}" placeholder="e.g. 18.5M+ Generated">
+          </div>
+        </div>
+      `;
+
+      // Event listener for ON/OFF Toggle
+      const checkbox = box.querySelector(".m-enabled-checkbox");
+      const badge = box.querySelector(".mentor-status-badge");
+      const toggleLabel = checkbox ? checkbox.nextElementSibling : null;
+
+      checkbox.addEventListener("change", () => {
+        const active = checkbox.checked;
+        if (active) {
+          box.style.opacity = "1";
+          box.style.borderColor = "rgba(168, 85, 247, 0.3)";
+          if (badge) {
+            badge.className = "badge mentor-status-badge";
+            badge.style.cssText = "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem;";
+            badge.textContent = "🟢 Active (ON)";
+          }
+          if (toggleLabel) toggleLabel.textContent = "ON";
+        } else {
+          box.style.opacity = "0.65";
+          box.style.borderColor = "rgba(239, 68, 68, 0.4)";
+          if (badge) {
+            badge.className = "badge mentor-status-badge";
+            badge.style.cssText = "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.75rem;";
+            badge.textContent = "🔴 Disabled (OFF)";
+          }
+          if (toggleLabel) toggleLabel.textContent = "OFF";
+        }
+      });
+
+      // Event listener for Name change -> Update box header title live
+      const nameInput = box.querySelector(".m-name");
+      const titleElem = box.querySelector(".mentor-box-title");
+      nameInput.addEventListener("input", () => {
+        if (titleElem) titleElem.textContent = `Instructor #${index + 1}: ${nameInput.value.trim() || 'New Instructor'}`;
+      });
+
+      // Event listener for Remove Button
+      const removeBtn = box.querySelector(".btn-remove-mentor");
+      removeBtn.addEventListener("click", () => {
+        const instName = nameInput.value.trim() || `Instructor #${index + 1}`;
+        if (confirm(`Are you sure you want to remove ${instName}?`)) {
+          box.remove();
+          reindexMentorBoxes();
+          showToast(`Removed ${instName}`, "info");
+        }
+      });
+
+      return box;
+    }
+
+    function reindexMentorBoxes() {
+      const boxes = document.querySelectorAll(".mentor-cms-box");
+      boxes.forEach((box, idx) => {
+        const titleElem = box.querySelector(".mentor-box-title");
+        const nameVal = box.querySelector(".m-name")?.value.trim() || 'Instructor';
+        if (titleElem) titleElem.textContent = `Instructor #${idx + 1}: ${nameVal}`;
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      renderCmsNavTabs("instructors");
+
+      const config = await getLandingConfig();
+      if (config && config.instructors) {
+        document.getElementById("inst-tag").value = config.instructors.sectionTag || "";
+        document.getElementById("inst-title").value = config.instructors.sectionTitle || "";
+        document.getElementById("inst-sub").value = config.instructors.sectionSubtitle || "";
+        document.getElementById("inst-logos").value = Array.isArray(config.instructors.partnerLogos) ? config.instructors.partnerLogos.join(", ") : "";
+      }
+
+      const defaultMentors = [
+        { id: "ins-1", name: "Yonatan T.", role: "Founder & Lead SMMA Strategist", photo: "photo_2026-06-11_09-14-03.jpg", bio: "Scaled 3 digital agencies past $50k/mo. Mentored 1,800+ students in client acquisition.", stat1: "$500k+ Client Revenue", stat2: "1,800+ Students", status: "active" },
+        { id: "ins-2", name: "Amanuel K.", role: "Director of Video & Visual FX", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb", bio: "Commercial director for global brands. Expert in Premiere, After Effects, and sound design.", stat1: "50M+ Organic Views", stat2: "Top Rated Plus Editor", status: "active" },
+        { id: "ins-3", name: "Blen S.", role: "Head of AI Automation & Operations", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", bio: "Built custom AI outreach pipelines and CRM automations for 40+ international agency clients.", stat1: "40+ Agency Deployments", stat2: "AI Systems Architect", status: "active" }
+      ];
+
+      const mentors = (config && config.instructors && Array.isArray(config.instructors.mentors) && config.instructors.mentors.length > 0) ? config.instructors.mentors : defaultMentors;
+
+      const container = document.getElementById("mentors-cms-container");
+      container.innerHTML = "";
+
+      mentors.forEach((m, idx) => {
+        const box = renderMentorBox(m, idx);
+        container.appendChild(box);
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+
+      // Add New Instructor Button Event Handler
+      const addBtn = document.getElementById("btn-add-instructor");
+      if (addBtn) {
+        addBtn.addEventListener("click", () => {
+          const currentCount = container.children.length;
+          const newMentor = {
+            id: `ins-${Date.now()}`,
+            name: "New Instructor",
+            role: "Digital Marketing Mentor",
+            photo: "photo_2026-06-11_09-14-03.jpg",
+            bio: "Expert mentor specializing in digital skills and agency growth.",
+            stat1: "5+ Years Exp",
+            stat2: "100+ Students",
+            status: "active"
+          };
+          const box = renderMentorBox(newMentor, currentCount);
+          container.appendChild(box);
+          if (window.lucide) window.lucide.createIcons();
+          box.scrollIntoView({ behavior: "smooth", block: "center" });
+          box.querySelector(".m-name")?.focus();
+          showToast("➕ Added new instructor card! Fill in details and click Save.", "success");
+        });
+      }
+
+      // Save Instructors Handler
+      document.getElementById("btn-save-section")?.addEventListener("click", () => {
+        const rawLogos = document.getElementById("inst-logos").value;
+        const logosArr = rawLogos.split(",").map(l => l.trim()).filter(Boolean);
+
+        const boxes = document.querySelectorAll(".mentor-cms-box");
+        const mentorsList = [];
+        boxes.forEach((box, idx) => {
+          const isEnabled = box.querySelector(".m-enabled-checkbox")?.checked;
+          mentorsList.push({
+            id: box.dataset.id || `ins-${idx + 1}`,
+            name: box.querySelector(".m-name")?.value.trim() || "",
+            role: box.querySelector(".m-role")?.value.trim() || "",
+            photo: box.querySelector(".m-photo")?.value.trim() || "",
+            bio: box.querySelector(".m-bio")?.value.trim() || "",
+            stat1: box.querySelector(".m-stat1")?.value.trim() || "",
+            stat2: box.querySelector(".m-stat2")?.value.trim() || "",
+            status: isEnabled ? "active" : "disabled"
+          });
+        });
+
+        const payload = {
+          instructors: {
+            sectionTag: document.getElementById("inst-tag").value.trim(),
+            sectionTitle: document.getElementById("inst-title").value.trim(),
+            sectionSubtitle: document.getElementById("inst-sub").value.trim(),
+            partnerLogos: logosArr,
+            mentors: mentorsList
+          }
+        };
+
+        saveLandingSection(payload, "Instructors & Brands Section");
+      });
+    });
+  </script>
+</body>
+</html>

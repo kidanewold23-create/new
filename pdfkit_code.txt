@@ -1,0 +1,157 @@
+async function generateCertificatePdf(name: string, regDate: string, finishDate: string, name2?: string): Promise<Uint8Array> {
+  const actualName2 = name2 || name;
+  let settings: any = {};
+  try {
+    const { data: adminRec } = await supabase
+      .from("admins")
+      .select("verification_code")
+      .eq("username", "payment_settings")
+      .maybeSingle();
+    if (adminRec && adminRec.verification_code) {
+      settings = JSON.parse(adminRec.verification_code);
+    }
+  } catch (err: any) {
+    console.error("Deno cert fetch settings failed:", err.message);
+  }
+
+  const programAm  = settings.cert_program_am  || "የእጅ ሥራና ጥበብ";
+  const programEn  = settings.cert_program_en  || "Hand Craft & Art";
+  const durationAm = settings.cert_duration_am || "4";
+  const durationEn = settings.cert_duration_en || "4";
+
+  const fontRegularBytes = await getFontRegular();
+  const fontBoldBytes = await getFontBold();
+  const { logoBase64 } = await import('./assets.ts');
+
+  return new Promise((resolve) => {
+    // Standard A4 Landscape: 841.89 x 595.28 points
+    const doc = new PDFDocument({ layout: "landscape", size: "A4", margin: 0 });
+    const chunks: any[] = [];
+    doc.on("data", (chunk: any) => chunks.push(chunk));
+    doc.on("end", () => {
+      const result = new Uint8Array(Buffer.concat(chunks));
+      resolve(result);
+    });
+
+    const forestGreen = "#008751";
+    const darkGreen = "#005a36";
+
+    const ethFont  = (bold: boolean) => bold ? "Ethiopic-Bold" : "Ethiopic";
+    const latFont  = (bold: boolean) => bold ? "Helvetica-Bold" : "Helvetica";
+
+    doc.registerFont("Ethiopic",      fontRegularBytes);
+    doc.registerFont("Ethiopic-Bold", fontBoldBytes);
+
+    const pdfWidth = 841.89;
+    const pdfHeight = 595.28;
+    const centerX = pdfWidth / 2;
+
+    // Logo centered at top
+    try {
+      if (logoBase64) {
+        const logoB64Data = logoBase64.split(",")[1] || logoBase64;
+        const logoBuf = Buffer.from(logoB64Data, "base64");
+        doc.image(logoBuf, centerX - 45, 25, { fit: [90, 90], align: "center" });
+      }
+    } catch (e) { console.error("Error drawing logo:", e); }
+
+    // Titles
+    let cy = 120;
+    doc.fillColor(forestGreen).font(ethFont(true)).fontSize(26).text("ፋውንደርስ አካዳሚ", 0, cy, { align: "center", width: pdfWidth });
+    cy += 34;
+    doc.fillColor(darkGreen).font(latFont(true)).fontSize(18).text("FOUNDERS ACADEMY", 0, cy, { align: "center", width: pdfWidth });
+    cy += 28;
+    doc.fillColor(forestGreen).font(ethFont(true)).fontSize(22).text("የአጭር ጊዜ ስልጠና የምስክር ወረቀት", 0, cy, { align: "center", width: pdfWidth });
+    cy += 30;
+    doc.fillColor(darkGreen).font(latFont(true)).fontSize(16).text("CERTIFICATE OF SHORT TERM TRAINING", 0, cy, { align: "center", width: pdfWidth });
+
+    cy += 45; // ~257
+
+    // Triple Pillar Divider
+    doc.lineWidth(1).strokeColor(darkGreen);
+    doc.moveTo(centerX - 3, cy).lineTo(centerX - 3, cy + 150).stroke();
+    doc.moveTo(centerX, cy - 8).lineTo(centerX, cy + 158).stroke();
+    doc.moveTo(centerX + 3, cy).lineTo(centerX + 3, cy + 150).stroke();
+
+    // LEFT COLUMN (Amharic)
+    const leftX = 60;
+    const leftW = 320;
+    
+    // ለ _____
+    doc.fillColor(darkGreen).font(ethFont(true)).fontSize(16).text("ለ", leftX, cy);
+    const nameWidth = doc.font(ethFont(true)).fontSize(14).widthOfString(name);
+    doc.text(name, leftX + 25 + (295/2) - (nameWidth/2), cy + 2);
+    doc.lineWidth(1).moveTo(leftX + 25, cy + 18).lineTo(leftX + leftW, cy + 18).stroke();
+
+    let lcy = cy + 32;
+    const amhLine = (txt: string) => {
+      doc.fillColor(darkGreen).font(ethFont(true)).fontSize(11.5).text(txt, leftX, lcy, { width: leftW, align: "center" });
+      lcy += 24;
+    };
+    amhLine("በፋውንደርስ አካዳሚ");
+    amhLine(`በአጭር ጊዜ ስልጠና ፕሮግራም ለ ${durationAm} ሳምንት`);
+    amhLine(`የተሰጠውን የ ${programAm} ሙያ ስልጠና`);
+    amhLine("ተከታትለው ስላጠናቀቁ ይህ የምስክር ወረቀት");
+    amhLine("ተሰጥቷቸዋል::");
+
+    // RIGHT COLUMN (English)
+    const rightX = 460;
+    const rightW = 320;
+    
+    // To _____
+    doc.fillColor(darkGreen).font(latFont(true)).fontSize(16).text("To", rightX, cy);
+    const name2Width = doc.font(latFont(true)).fontSize(14).widthOfString(actualName2);
+    doc.text(actualName2, rightX + 30 + (290/2) - (name2Width/2), cy + 2);
+    doc.lineWidth(1).moveTo(rightX + 30, cy + 18).lineTo(rightX + rightW, cy + 18).stroke();
+
+    let rcy = cy + 32;
+    const engLine = (txt: string) => {
+      doc.fillColor(darkGreen).font(latFont(true)).fontSize(9.5).text(txt, rightX, rcy, { width: rightW, align: "center" });
+      rcy += 24;
+    };
+    engLine("THIS CERTIFICATE IS PROUDLY PRESENTED FOR");
+    engLine("SUCCESSFULLY COMPLETING A SHORT-TERM TRAINING");
+    engLine(`PROGRAM IN ${programEn.toUpperCase()} AT FOUNDERS ACADEMY.`);
+    engLine(`THE TRAINING WAS CONDUCTED FOR ${durationEn} WEEK.`);
+
+    // FOOTER
+    let fy = 485;
+    
+    // Date Left (Use Helvetica-Bold for Latin ASCII digits/slashes in Ethiopian date string so numbers display clearly!)
+    doc.fillColor(darkGreen).font(ethFont(true)).fontSize(11).text("ቀን", leftX, fy);
+    const ethDate = gregorianToEthiopianString(finishDate);
+    const ethDateW = doc.font(latFont(true)).fontSize(11).widthOfString(ethDate);
+    doc.fillColor(darkGreen).font(latFont(true)).fontSize(11).text(ethDate, leftX + 28 + (115/2) - (ethDateW/2), fy + 1);
+    doc.lineWidth(1).moveTo(leftX + 28, fy + 14).lineTo(leftX + 143, fy + 14).stroke();
+    doc.fillColor(darkGreen).font(ethFont(true)).fontSize(11).text("ዓ.ም", leftX + 148, fy);
+
+    // Date Right
+    doc.fillColor(darkGreen).font(latFont(true)).fontSize(9.5).text("DATE:", rightX + 130, fy + 1);
+    const fDateW = doc.font(latFont(true)).fontSize(10).widthOfString(finishDate);
+    doc.font(latFont(true)).text(finishDate, rightX + 170 + (140/2) - (fDateW/2), fy + 1);
+    doc.lineWidth(1).moveTo(rightX + 170, fy + 14).lineTo(rightX + 310, fy + 14).stroke();
+
+    // Signature Center
+    doc.font(latFont(true)).fontSize(10).text("SIGNED:", centerX - 80, fy);
+    doc.lineWidth(1).moveTo(centerX - 30, fy + 13).lineTo(centerX + 80, fy + 13).stroke();
+
+    // Signature and Seal Images
+    if (settings.signature_base64) {
+      try {
+        const b64 = settings.signature_base64.split(",")[1] || settings.signature_base64;
+        const sigBuf = Buffer.from(b64, "base64");
+        doc.image(sigBuf, centerX - 25, fy - 22, { fit: [90, 35] });
+      } catch (e: any) { console.error("Failed to embed sig:", e.message); }
+    }
+
+    if (settings.seal_base64) {
+      try {
+        const b64 = settings.seal_base64.split(",")[1] || settings.seal_base64;
+        const sealBuf = Buffer.from(b64, "base64");
+        doc.image(sealBuf, centerX - 90, fy - 110, { fit: [180, 180] });
+      } catch (e: any) { console.error("Failed to embed seal:", e.message); }
+    }
+
+    doc.end();
+  });
+}

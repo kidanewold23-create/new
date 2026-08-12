@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Management | Founders Academy Admin</title>
+  <meta name="description" content="Create and manage course categories with ON/OFF status, edit, and delete options.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+
+  <style>
+    /* Toggle Switch Styling */
+    .switch-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 99px;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .switch-wrap.active .toggle-switch {
+      background: #10b981;
+    }
+
+    .switch-wrap.active .toggle-switch::after {
+      transform: translateX(20px);
+    }
+
+    .switch-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .switch-wrap.active .switch-label {
+      color: #10b981;
+    }
+
+    .switch-wrap:not(.active) .switch-label {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn active">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+        <a href="admin-landing-customizer.html" class="nav-item-btn">
+          <i data-lucide="sliders"></i> Landing Page Customizer
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Bank Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile-card">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-profile-avatar">AD</div>
+            <div>
+              <div class="admin-name" id="admin-profile-name">Administrator</div>
+              <div class="admin-role">Super Admin</div>
+            </div>
+          </div>
+          <button type="button" class="btn-admin-logout" id="btn-admin-logout" title="Log Out Admin">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Top Header Bar -->
+      <header class="dash-topbar">
+        <div>
+          <h1 class="dash-title">Course Category Management</h1>
+          <p class="dash-subtitle">Manage categories, ON/OFF visibility, editing, and deletion</p>
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-create-category-modal">
+            <i data-lucide="plus-circle"></i> Create New Category
+          </button>
+        </div>
+      </header>
+
+      <!-- Categories Directory Table Panel -->
+      <div class="dash-panel">
+        <div class="table-filter-row">
+          <h2 class="panel-title">
+            <i data-lucide="list" style="color: var(--primary-gold);"></i> Course Categories List
+          </h2>
+
+          <div class="search-input-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="category-search-input" placeholder="Search category name...">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th>Status (ON / OFF)</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="categories-table-body">
+              <tr>
+                <td colspan="3" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div class="btn-spinner" style="display: inline-block; width: 28px; height: 28px;"></div>
+                    <span>Fetching categories from database...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Categories Table Pagination Footer -->
+        <div class="table-pagination-footer" id="categories-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create New Category Modal Window -->
+  <div class="admin-modal-overlay" id="create-category-modal">
+    <div class="admin-modal-card" style="max-width: 440px;">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <h2 class="panel-title"><i data-lucide="folder-plus" style="color: var(--primary-gold);"></i> Create Category</h2>
+        <button type="button" id="btn-close-category-modal" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-modal-create-category">
+        <div class="form-group">
+          <label class="form-label" for="modal-category-name">Category Name *</label>
+          <input 
+            type="text" 
+            id="modal-category-name" 
+            class="form-input" 
+            placeholder="e.g. Digital Marketing / SMMA" 
+            required
+            autofocus
+          >
+        </div>
+
+        <button type="submit" class="btn-auth-submit" style="margin-top: 24px;">
+          <span>Create Category</span>
+          <i data-lucide="check"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Category Modal Window -->
+  <div class="admin-modal-overlay" id="edit-category-modal">
+    <div class="admin-modal-card" style="max-width: 440px;">
+      <div class="panel-header" style="margin-bottom: 16px;">
+        <h2 class="panel-title"><i data-lucide="edit-2" style="color: var(--primary-gold);"></i> Edit Category</h2>
+        <button type="button" id="btn-close-edit-category-modal" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-modal-edit-category">
+        <input type="hidden" id="edit-category-id">
+        <div class="form-group">
+          <label class="form-label" for="edit-category-name">Category Name *</label>
+          <input 
+            type="text" 
+            id="edit-category-name" 
+            class="form-input" 
+            placeholder="e.g. AI & Automation" 
+            required
+          >
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" id="btn-cancel-edit-category" class="btn-dash-action btn-dash-secondary" style="flex: 1; justify-content: center; height: 44px;">
+            Cancel
+          </button>
+          <button type="submit" class="btn-dash-action btn-dash-primary" style="flex: 1; justify-content: center; height: 44px;">
+            <span>Save Changes</span>
+            <i data-lucide="check"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js?v=2.2"></script>
+</body>
+</html>
