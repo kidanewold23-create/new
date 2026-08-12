@@ -46,7 +46,19 @@ if (typeof globalThis !== "undefined") {
 
 export default async function handler(req: Request) {
   const url = new URL(req.url);
-  const pathname = url.pathname;
+  let pathname = url.pathname;
+
+  const pathParam = url.searchParams.get("path");
+  if (pathParam) {
+    pathname = pathParam.startsWith("/api") ? pathParam : (pathParam.startsWith("/") ? `/api${pathParam}` : `/api/${pathParam}`);
+  } else {
+    const xUrl = req.headers.get("x-url") || req.headers.get("x-rewrite-url");
+    if (xUrl) {
+      try {
+        pathname = new URL(xUrl, "http://localhost").pathname;
+      } catch (_e) {}
+    }
+  }
 
   if (pathname.endsWith(".css") || pathname.includes(".css")) {
     try {
