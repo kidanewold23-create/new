@@ -1045,10 +1045,10 @@ export const dbStore = {
       return dbStore.verifyStudentTelegramOtp(identifier, code);
     }
 
-    const rawId = data.id || data.telegram_id || data.user_id || data.username || data.phone || data.phone_number || identifier;
+    const rawId = data.id || data.telegram_id || data.user_id || data.username || data.phone || data.phone_number || data.first_name || identifier || ("tg_" + Date.now());
 
-    if (!data || (!rawId && !data.first_name && !data.last_name)) {
-      return { success: false, error: "Invalid Telegram authentication payload." };
+    if (!data || (typeof data !== "object") || Object.keys(data).length === 0) {
+      return { success: false, error: "Invalid Telegram authentication payload. Empty or invalid payload." };
     }
 
     const tgIdStr = String(rawId).trim();
