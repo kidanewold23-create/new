@@ -83,12 +83,30 @@ function initAdminFormController() {
       const submitBtn = formAdminLogin.querySelector(".btn-auth-submit");
       submitBtn.classList.add("loading");
 
-      fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: userVal, password: passVal })
-      })
-      .then(res => res.json())
+      const getApiBaseUrl = () => (window.location.protocol === "file:" || window.location.origin === "null" || !window.location.host) ? "http://localhost:3000" : "";
+      const apiBase = getApiBaseUrl();
+
+      const doLoginFetch = (url) => {
+        return fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: userVal, password: passVal })
+        });
+      };
+
+      (async () => {
+        let res;
+        try {
+          res = await doLoginFetch("/api/admin/login");
+        } catch (_e) {
+          if (apiBase) {
+            res = await doLoginFetch(apiBase + "/api/admin/login");
+          } else {
+            throw _e;
+          }
+        }
+        return await res.json();
+      })()
       .then(data => {
         submitBtn.classList.remove("loading");
         if (data.success) {
@@ -117,15 +135,9 @@ function initAdminFormController() {
           showToast(data.error || "Invalid Admin username or password.", "error");
         }
       })
-      .catch(() => {
+      .catch(err => {
         submitBtn.classList.remove("loading");
-        showToast("Connected via fallback mode.", "info");
-        // Fallback transition
-        if (adminUserDisplay) adminUserDisplay.textContent = currentUsername;
-        step1.classList.remove("active");
-        step2.classList.add("active");
-        if (otpFields.length > 0) otpFields[0].focus();
-        startResendTimer();
+        showToast("Unable to connect to backend server. Ensure 'node server.js' is running at http://localhost:3000", "error");
       });
     });
   }
@@ -250,12 +262,30 @@ function initAdminFormController() {
     const submitBtn = formAdminOtp.querySelector(".btn-auth-submit");
     submitBtn.classList.add("loading");
 
-    fetch("/api/admin/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp: code })
-    })
-    .then(res => res.json())
+    const getApiBaseUrl = () => (window.location.protocol === "file:" || window.location.origin === "null" || !window.location.host) ? "http://localhost:3000" : "";
+    const apiBase = getApiBaseUrl();
+
+    const doVerifyFetch = (url) => {
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp: code })
+      });
+    };
+
+    (async () => {
+      let res;
+      try {
+        res = await doVerifyFetch("/api/admin/verify-otp");
+      } catch (_e) {
+        if (apiBase) {
+          res = await doVerifyFetch(apiBase + "/api/admin/verify-otp");
+        } else {
+          throw _e;
+        }
+      }
+      return await res.json();
+    })()
     .then(data => {
       submitBtn.classList.remove("loading");
       if (data.success) {

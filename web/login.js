@@ -1,6 +1,13 @@
 let savedUsername = "";
 let savedPassword = "";
 
+function getApiBaseUrl() {
+  if (window.location.protocol === "file:" || window.location.origin === "null" || !window.location.host) {
+    return "http://localhost:3000";
+  }
+  return "";
+}
+
 // Form 1 Submit (Credentials Verification & Automated Telegram OTP Send)
 document.getElementById("step1Form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -15,15 +22,33 @@ document.getElementById("step1Form").addEventListener("submit", async (e) => {
   btnStep1.classList.add("loading");
   btnStep1.disabled = true;
   
+  const apiBase = getApiBaseUrl();
+
   try {
-    const response = await fetch("/api/login/step1", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usernameInput.value.trim(),
-        password: passwordInput.value.trim()
-      })
-    });
+    let response;
+    try {
+      response = await fetch("/api/login/step1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: usernameInput.value.trim(),
+          password: passwordInput.value.trim()
+        })
+      });
+    } catch (_err) {
+      if (apiBase) {
+        response = await fetch(apiBase + "/api/login/step1", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: usernameInput.value.trim(),
+            password: passwordInput.value.trim()
+          })
+        });
+      } else {
+        throw _err;
+      }
+    }
     
     const data = await response.json();
     
@@ -50,7 +75,7 @@ document.getElementById("step1Form").addEventListener("submit", async (e) => {
       errorMsg.style.display = "block";
     }
   } catch (err) {
-    errorMsg.textContent = "Unable to connect to server. Please try again.";
+    errorMsg.textContent = "Unable to connect to server. Ensure server is running at http://localhost:3000";
     errorMsg.classList.add("visible");
     errorMsg.style.display = "block";
   } finally {
@@ -72,17 +97,37 @@ document.getElementById("step2Form").addEventListener("submit", async (e) => {
   btnStep2.classList.add("loading");
   btnStep2.disabled = true;
   
+  const apiBase = getApiBaseUrl();
+
   try {
-    const response = await fetch("/api/login/step2", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: savedUsername,
-        password: savedPassword,
-        code: codeInput.value.trim(),
-        otp: codeInput.value.trim()
-      })
-    });
+    let response;
+    try {
+      response = await fetch("/api/login/step2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: savedUsername,
+          password: savedPassword,
+          code: codeInput.value.trim(),
+          otp: codeInput.value.trim()
+        })
+      });
+    } catch (_err) {
+      if (apiBase) {
+        response = await fetch(apiBase + "/api/login/step2", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: savedUsername,
+            password: savedPassword,
+            code: codeInput.value.trim(),
+            otp: codeInput.value.trim()
+          })
+        });
+      } else {
+        throw _err;
+      }
+    }
     
     const data = await response.json();
     
