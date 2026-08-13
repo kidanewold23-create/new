@@ -321,12 +321,12 @@
       checkTgStatus();
       setInterval(checkTgStatus, 4000);
 
-      // Fetch Registered Courses
+      // Fetch Registered Masterclasses from Supabase Database
       const coursesGrid = document.getElementById("student-courses-grid");
       const coursesTableBody = document.getElementById("student-courses-table-body");
 
       try {
-        const query = session.id || session.phone || "";
+        const query = session.phone || session.id || session.username || "";
         const res = await fetch(`/api/student/me?id=${encodeURIComponent(query)}`);
         let data = {};
         if (res.ok) {
@@ -335,20 +335,27 @@
 
         let courses = (data.success && data.data && Array.isArray(data.data.courses)) ? data.data.courses : [];
 
-        // Fallback default course list if new student
+        // If no transactions found for student, load live masterclasses directly from Supabase courses table
         if (courses.length === 0) {
-          courses = [
-            {
-              id: "course_smma",
-              title: "SMMA Masterclass (Social Media Marketing Agency)",
-              category: "Digital Agency",
-              duration: "6 Weeks",
-              status: "Registered Active",
-              tg_channel: "https://t.me/founders_academybot",
-              tg_group: "https://t.me/founders_academybot",
-              referenceNumber: `STU-${session.id || 'VIP'}`
+          try {
+            const catalogRes = await fetch("/api/courses");
+            if (catalogRes.ok) {
+              const catalogJson = await catalogRes.json();
+              const catalogList = (catalogJson && (catalogJson.data || catalogJson.courses || catalogJson)) || [];
+              if (Array.isArray(catalogList) && catalogList.length > 0) {
+                courses = catalogList.slice(0, 2).map(c => ({
+                  id: c.id,
+                  title: c.title,
+                  category: c.category || "Digital Masterclass",
+                  duration: c.duration || "6 Weeks",
+                  status: "Active Registered",
+                  tg_channel: c.tg_channel || "https://t.me/founders_academybot",
+                  tg_group: c.tg_group || "https://t.me/founders_academybot",
+                  referenceNumber: `STU-${session.id || 'ROSTER'}`
+                }));
+              }
             }
-          ];
+          } catch (_catErr) {}
         }
 
         if (coursesTableBody) coursesTableBody.innerHTML = "";
