@@ -23,7 +23,7 @@
     { "source": "/css/style.css", "destination": "/css/styles.css" },
     { "source": "/css/auth.css", "destination": "/css/styles.css" },
     { "source": "/styles.css", "destination": "/css/styles.css" },
-    { "source": "/api/(.*)", "destination": "/api?path=$1" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/admin", "destination": "/admin-dashboard.html" },
     { "source": "/admin/login", "destination": "/admin-login.html" },
     { "source": "/admin/dashboard", "destination": "/admin-dashboard.html" },
