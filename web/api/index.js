@@ -127,15 +127,21 @@ export default async function handler(req, res) {
     const url = new URL(rawUrl);
     let pathname = url.pathname;
 
-    const pathParam = url.searchParams.get("path");
-    if (pathParam) {
-      pathname = pathParam;
-    } else if (pathname === "/api" || pathname === "/api/" || pathname === "/api/index" || pathname === "/api/index.js" || pathname === "/api/index.ts" || pathname === "/api/[...path]") {
-      const xUrl = getHeader("x-url") || getHeader("x-invoke-path") || getHeader("x-forwarded-uri") || getHeader("x-original-url") || getHeader("x-rewrite-url") || getHeader("x-matched-path");
+    const pathQuery = req.query?.path || url.searchParams.get("path");
+    if (pathQuery) {
+      if (Array.isArray(pathQuery)) {
+        pathname = "/api/" + pathQuery.join("/");
+      } else if (typeof pathQuery === "string" && !pathQuery.includes("$1")) {
+        pathname = pathQuery;
+      }
+    }
+
+    if (pathname === "/api" || pathname === "/api/" || pathname === "/api/index" || pathname === "/api/index.js" || pathname === "/api/index.ts" || pathname === "/api/[...path]" || pathname.includes("$1")) {
+      const xUrl = getHeader("x-invoke-path") || getHeader("x-forwarded-uri") || getHeader("x-original-url") || getHeader("x-rewrite-url") || getHeader("x-url");
       if (xUrl) {
         try {
           const parsed = new URL(xUrl.startsWith("http") ? xUrl : `http://localhost${xUrl.startsWith("/") ? "" : "/"}${xUrl}`).pathname;
-          if (parsed && parsed !== "/" && parsed !== "/api/index.js" && parsed !== "/api/index.ts") {
+          if (parsed && parsed !== "/" && parsed !== "/api/index.js" && parsed !== "/api/index.ts" && parsed !== "/api/[...path]") {
             pathname = parsed;
           }
         } catch (_e) {}
