@@ -476,10 +476,11 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     }
 
     // Student Auth API
-    if (pathname === "/api/student/signup" && reqMethod === "POST") {
+    if ((pathname === "/api/student/register" || pathname === "/api/student/signup") && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
-        const result = await dbStore.registerStudentAccount(body);
+        const fn = dbStore.registerStudent || dbStore.registerStudentAccount;
+        const result = await fn(body);
         return sendRes(result, result.success ? 200 : 400);
       } catch (err) {
         return sendRes({ success: false, error: err.message }, 500);

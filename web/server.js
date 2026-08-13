@@ -874,6 +874,36 @@ app.delete("/api/students/:id", async (req, res) => {
   }
 });
 
+// --- Student Account Registration & Login API Endpoints ---
+app.post("/api/student/register", async (req, res) => {
+  try {
+    const fn = dbStore.registerStudent || dbStore.registerStudentAccount;
+    const result = await fn(req.body || {});
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/student/signup", async (req, res) => {
+  try {
+    const fn = dbStore.registerStudent || dbStore.registerStudentAccount;
+    const result = await fn(req.body || {});
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/student/login", async (req, res) => {
+  try {
+    const result = await dbStore.authenticateStudent(req.body || {});
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // --- Student Telegram Authentication API Endpoints ---
 app.post("/api/student/telegram-auth/request-code", async (req, res) => {
   try {

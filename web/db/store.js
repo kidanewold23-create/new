@@ -892,6 +892,7 @@ export const dbStore = {
     return { banned: false };
   },
 
+  registerStudent: async (data) => dbStore.registerStudentAccount(data || {}),
   registerStudentAccount: async ({ name, phone, email, username, password }) => {
     const rawPhone = String(phone || "").trim();
     const rawEmail = String(email || "").trim();
