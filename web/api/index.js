@@ -326,8 +326,13 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
 
     if (pathname === "/api/admin/security/set-chat-id" && reqMethod === "POST") {
       const body = await getJsonBody();
-      const result = await dbStore.setAdminChatId(body.chatId);
-      return sendRes(result, result.success ? 200 : 400);
+      const { chatId, username, name } = body;
+      if (!chatId) return sendRes({ success: false, error: "Telegram Chat ID is required" }, 400);
+      const updated = await dbStore.setAdminChatId(chatId, username, name);
+      try {
+        await sendTelegramMessage(String(chatId).trim(), `✅ <b>Telegram Admin 2FA Authenticator Linked!</b>\n\nHello <b>${name || 'Admin'}</b>,\nThis chat is now configured to receive live Founders Academy Admin 2FA login OTP codes!`, "HTML");
+      } catch (_e) {}
+      return sendRes({ success: true, message: "Telegram Admin Chat ID saved successfully!", data: updated });
     }
 
     if (pathname === "/api/admin/login" && reqMethod === "POST") {

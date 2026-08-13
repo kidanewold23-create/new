@@ -1958,6 +1958,18 @@ export const dbStore = {
 
     return sec;
   },
+  setAdminChatId: async (chatId, username, name) => {
+    return await dbStore.setTelegramAdminChatId(chatId, username, name);
+  },
+  pairAdminTelegram: async (code, chatId, username, name) => {
+    return await dbStore.setTelegramAdminChatId(chatId, username, name);
+  },
+  unlinkAdminTelegram: async (chatId) => {
+    if (chatId) {
+      return await dbStore.unlinkSingleAdminChat(chatId);
+    }
+    return await dbStore.unlinkTelegramAdmin();
+  },
   unlinkSingleAdminChat: async (chatId) => {
     const chatIdStr = String(chatId).trim();
     const sec = await dbStore.getAdminSecurity();
@@ -2206,16 +2218,7 @@ export const dbStore = {
 
     return { valid: false, error: "Invalid promo or coupon code" };
   },
-  setTelegramAdminChatId: async (chatId, username, name) => {
-    inMemoryAdminSecurity.telegramAdminChatId = String(chatId).trim();
-    if (username) inMemoryAdminSecurity.telegramAdminUsername = username;
-    if (name) inMemoryAdminSecurity.telegramAdminName = name;
-    inMemoryAdminSecurity.linkedAt = new Date().toISOString();
-    try {
-      await supabase.from("admin_security").upsert([{ id: 1, config: inMemoryAdminSecurity, updated_at: new Date().toISOString() }]);
-    } catch (_e) { /* fallback */ }
-    return inMemoryAdminSecurity;
-  },
+
 
 
 
