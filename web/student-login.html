@@ -17,20 +17,20 @@
     :root {
       --primary-gold: #f59e0b;
       --primary-gold-hover: #d97706;
+      --telegram-blue: #0088cc;
+      --telegram-blue-glow: #38bdf8;
       --bg-dark: #060911;
       --bg-card: rgba(13, 19, 33, 0.85);
       --text-main: #ffffff;
       --text-muted: #94a3b8;
-      --accent-indigo: #6366f1;
-      --accent-emerald: #10b981;
     }
 
     body {
       min-height: 100vh;
       background: #060911;
       background-image: 
-        radial-gradient(at 10% 10%, rgba(245, 158, 11, 0.15) 0px, transparent 45%),
-        radial-gradient(at 90% 90%, rgba(99, 102, 241, 0.18) 0px, transparent 45%),
+        radial-gradient(at 10% 10%, rgba(0, 136, 204, 0.18) 0px, transparent 45%),
+        radial-gradient(at 90% 90%, rgba(245, 158, 11, 0.15) 0px, transparent 45%),
         radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
       display: flex;
       flex-direction: column;
@@ -47,12 +47,11 @@
       position: relative;
     }
 
-    /* Ambient Background Glow */
     .ambient-glow {
       position: absolute;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(0, 136, 204, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -66,7 +65,7 @@
       z-index: 1;
       width: 100%;
       max-width: 480px;
-      background: rgba(13, 19, 33, 0.85);
+      background: rgba(13, 19, 33, 0.88);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -74,7 +73,7 @@
       padding: 40px 36px;
       box-shadow: 
         0 30px 60px -12px rgba(0, 0, 0, 0.7),
-        0 0 40px rgba(245, 158, 11, 0.12);
+        0 0 40px rgba(0, 136, 204, 0.15);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -84,80 +83,55 @@
     }
 
     .brand-avatar-badge {
-      width: 72px;
-      height: 72px;
+      width: 76px;
+      height: 76px;
       margin: 0 auto 16px;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 3px;
-      background: linear-gradient(135deg, var(--primary-gold) 0%, #6366f1 100%);
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+      background: linear-gradient(135deg, var(--telegram-blue) 0%, var(--primary-gold) 100%);
+      box-shadow: 0 10px 25px rgba(0, 136, 204, 0.35);
     }
 
     .brand-avatar-badge img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 17px;
+      border-radius: 19px;
     }
 
     .auth-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.75rem;
+      font-size: 1.8rem;
       font-weight: 800;
       color: #fff;
       letter-spacing: -0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .auth-desc {
-      font-size: 0.92rem;
+      font-size: 0.93rem;
       color: var(--text-muted);
       line-height: 1.5;
     }
 
-    /* Segmented Tab Switcher */
-    .tab-segmented {
-      display: flex;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 5px;
-      border-radius: 16px;
-      margin-bottom: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      position: relative;
-    }
-
-    .tab-segmented-btn {
-      flex: 1;
-      padding: 12px 16px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-weight: 700;
-      font-size: 0.9rem;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
+    .telegram-badge-pill {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      z-index: 1;
-    }
-
-    .tab-segmented-btn.active {
-      color: #000;
-      background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%);
-      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+      gap: 6px;
+      background: rgba(0, 136, 204, 0.12);
+      border: 1px solid rgba(0, 136, 204, 0.3);
+      color: var(--telegram-blue-glow);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 16px;
     }
 
     .auth-form-body {
       display: flex;
       flex-direction: column;
       gap: 18px;
-    }
-
-    .auth-form-body.hidden {
-      display: none;
     }
 
     .input-icon-group {
@@ -178,7 +152,7 @@
 
     .input-icon-group input {
       width: 100%;
-      padding: 14px 44px 14px 44px;
+      padding: 15px 16px 15px 46px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
@@ -189,31 +163,13 @@
 
     .input-icon-group input:focus {
       outline: none;
-      border-color: var(--primary-gold);
-      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+      border-color: var(--telegram-blue);
+      box-shadow: 0 0 0 4px rgba(0, 136, 204, 0.2);
       background: rgba(255, 255, 255, 0.08);
     }
 
     .input-icon-group input:focus ~ i.left-icon {
-      color: var(--primary-gold);
-    }
-
-    .toggle-password-btn {
-      position: absolute;
-      right: 14px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.2s;
-    }
-
-    .toggle-password-btn:hover {
-      color: #fff;
+      color: var(--telegram-blue-glow);
     }
 
     .form-label-custom {
@@ -224,13 +180,13 @@
       display: block;
     }
 
-    .btn-glow-gold {
+    .btn-glow-telegram {
       width: 100%;
       padding: 15px;
       border: none;
       border-radius: 14px;
-      background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%);
-      color: #000;
+      background: linear-gradient(135deg, #0088cc 0%, #0055ff 100%);
+      color: #fff;
       font-size: 1.02rem;
       font-weight: 800;
       cursor: pointer;
@@ -238,20 +194,78 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 10px 25px -5px rgba(0, 136, 204, 0.45);
       transition: all 0.25s ease;
       margin-top: 6px;
     }
 
-    .btn-glow-gold:hover {
+    .btn-glow-telegram:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.6);
+      box-shadow: 0 15px 30px -5px rgba(0, 136, 204, 0.6);
     }
 
-    .btn-glow-gold:disabled {
+    .btn-glow-telegram:disabled {
       opacity: 0.7;
       cursor: not-allowed;
       transform: none;
+    }
+
+    .verification-card {
+      background: rgba(0, 136, 204, 0.06);
+      border: 1px solid rgba(0, 136, 204, 0.25);
+      border-radius: 18px;
+      padding: 20px;
+      margin-top: 10px;
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .verification-card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .code-display-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      margin: 14px 0;
+    }
+
+    .code-digits {
+      font-family: monospace;
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: 6px;
+      color: #38bdf8;
+    }
+
+    .bot-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 18px;
+      background: #0088cc;
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(0, 136, 204, 0.35);
+      margin-bottom: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .bot-link-btn:hover {
+      background: #0077b5;
     }
 
     .auth-footer-help {
@@ -264,13 +278,18 @@
     }
 
     .auth-footer-help a {
-      color: var(--primary-gold);
+      color: var(--telegram-blue-glow);
       text-decoration: none;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 4px;
     }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
   <link rel="stylesheet" href="/css/styles.css?v=3.0">
 </head>
@@ -305,102 +324,63 @@
         <div class="brand-avatar-badge">
           <img src="/photo_2026-06-11_09-14-03.jpg" alt="Logo">
         </div>
-        <h1 class="auth-title">Student Portal Access</h1>
-        <p class="auth-desc">Log in to access your masterclasses, 1-time Telegram classroom links, and learning certificates.</p>
-      </div>
-
-      <!-- Segmented Tabs -->
-      <div class="tab-segmented">
-        <button type="button" class="tab-segmented-btn active" id="btn-login-tab">
-          <i data-lucide="log-in" style="width:17px;height:17px;"></i> Student Login
-        </button>
-        <button type="button" class="tab-segmented-btn" id="btn-signup-tab">
-          <i data-lucide="user-plus" style="width:17px;height:17px;"></i> Create Account
-        </button>
-      </div>
-
-      <!-- TELEGRAM 1-TAP QUICK AUTH SECTION -->
-      <div style="margin-bottom: 20px; text-align: center; background: rgba(0, 136, 204, 0.08); border: 1px solid rgba(0, 136, 204, 0.3); border-radius: 18px; padding: 18px; position: relative;">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.95rem; color: #38bdf8; margin-bottom: 12px;">
-          <i data-lucide="send" style="width: 18px; height: 18px;"></i> Instant Telegram 1-Tap Auth
+        <div class="telegram-badge-pill">
+          <i data-lucide="shield-check" style="width:15px;height:15px;"></i> Telegram Authentication Only
         </div>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px;">
-          <button type="button" id="page-telegram-quick-auth-btn" class="btn btn-block" style="background: linear-gradient(135deg, #0088cc 0%, #0055ff 100%); color: #fff; border: none; padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 15px rgba(0, 136, 204, 0.35); cursor: pointer; transition: transform 0.2s ease;">
-            <i data-lucide="send"></i> Log In / Sign Up with Telegram
+        <h1 class="auth-title">Student Portal Access</h1>
+        <p class="auth-desc">Fast, passwordless login & account creation via your verified Telegram identity.</p>
+      </div>
+
+      <!-- TELEGRAM FORM -->
+      <form id="telegram-auth-form" class="auth-form-body">
+        <div>
+          <label class="form-label-custom" for="inp-tg-identifier">Phone Number or Telegram @Username *</label>
+          <div class="input-icon-group">
+            <i data-lucide="send" class="left-icon"></i>
+            <input type="text" id="inp-tg-identifier" placeholder="e.g. 0912345678 or @selam_tadesse" required autofocus>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-tg" class="btn-glow-telegram">
+          <i data-lucide="send" style="width:18px;height:18px;"></i>
+          <span>Continue with Telegram 1-Tap</span>
+        </button>
+      </form>
+
+      <!-- VERIFICATION & BOT POLL CARD -->
+      <div id="verification-card" class="verification-card">
+        <div style="text-align: center; margin-bottom: 10px;">
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 4px;">⚡ Authorization Required</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Tap the link below to authorize with 1-click in Telegram, or enter code.</p>
+        </div>
+
+        <div class="code-display-box">
+          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; font-weight: 700;">Your Verification Code</div>
+          <div id="disp-code" class="code-digits">------</div>
+        </div>
+
+        <a id="btn-open-tg-bot" href="#" target="_blank" class="bot-link-btn">
+          <i data-lucide="external-link" style="width: 18px; height: 18px;"></i>
+          <span>Open Telegram Bot (1-Tap Authorize)</span>
+        </a>
+
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+          <input type="text" id="inp-otp-code" maxlength="6" placeholder="Enter 6-digit code" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; text-align: center; font-size: 1rem; font-weight: 700; letter-spacing: 2px;">
+          <button type="button" id="btn-verify-otp" style="padding: 12px 18px; background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); border: none; border-radius: 10px; color: #000; font-weight: 800; cursor: pointer;">
+            Verify
           </button>
         </div>
-        <div id="telegram-login-widget-wrapper" style="display: flex; justify-content: center; margin-top: 4px;"></div>
-        <p style="font-size: 0.78rem; color: var(--text-muted, #94a3b8); margin-top: 8px; margin-bottom: 0;">Instant passwordless access via verified Telegram identity.</p>
+
+        <div style="text-align: center; margin-top: 12px; font-size: 0.8rem; color: #38bdf8; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Waiting for Telegram Bot authorization...
+        </div>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--text-muted); font-size: 0.78rem;">
-        <span style="flex:1; height: 1px; background: rgba(255,255,255,0.1);"></span>
-        <span>OR USE PASSWORD</span>
-        <span style="flex:1; height: 1px; background: rgba(255,255,255,0.1);"></span>
-      </div>
-
-      <!-- LOGIN FORM -->
-      <form id="student-login-form" class="auth-form-body">
-        <div>
-          <label class="form-label-custom" for="inp-login-id">Phone Number or Telegram Handle *</label>
-          <div class="input-icon-group">
-            <i data-lucide="phone" class="left-icon"></i>
-            <input type="text" id="inp-login-id" placeholder="e.g. +251 906 769 999 or @selam_tadesse" required>
-          </div>
-        </div>
-
-        <div>
-          <label class="form-label-custom" for="inp-login-pass">Password *</label>
-          <div class="input-icon-group">
-            <i data-lucide="lock" class="left-icon"></i>
-            <input type="password" id="inp-login-pass" placeholder="Enter your password" required>
-            <button type="button" class="toggle-password-btn" onclick="togglePassVisibility('inp-login-pass', this)" title="Toggle password visibility">
-              <i data-lucide="eye" style="width:18px;height:18px;"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-glow-gold">
-          <span>Log In to Dashboard</span> <i data-lucide="arrow-right"></i>
-        </button>
-      </form>
-
-      <!-- SIGNUP FORM -->
-      <form id="student-signup-form" class="auth-form-body hidden">
-        <div>
-          <label class="form-label-custom" for="inp-signup-name">Full Name *</label>
-          <div class="input-icon-group">
-            <i data-lucide="user" class="left-icon"></i>
-            <input type="text" id="inp-signup-name" placeholder="e.g. Selam Tadesse" required>
-          </div>
-        </div>
-
-        <div>
-          <label class="form-label-custom" for="inp-signup-phone">Phone Number or Telegram Handle *</label>
-          <div class="input-icon-group">
-            <i data-lucide="phone-call" class="left-icon"></i>
-            <input type="text" id="inp-signup-phone" placeholder="e.g. +251 906 769 999 or @selam_tadesse" required>
-          </div>
-        </div>
-
-        <div>
-          <label class="form-label-custom" for="inp-signup-pass">Create Password *</label>
-          <div class="input-icon-group">
-            <i data-lucide="key" class="left-icon"></i>
-            <input type="password" id="inp-signup-pass" placeholder="Minimum 4 characters" required minlength="4">
-            <button type="button" class="toggle-password-btn" onclick="togglePassVisibility('inp-signup-pass', this)" title="Toggle password visibility">
-              <i data-lucide="eye" style="width:18px;height:18px;"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-glow-gold">
-          <span>Create Student Account</span> <i data-lucide="sparkles"></i>
-        </button>
-      </form>
+      <!-- Telegram Widget Wrapper fallback -->
+      <div id="telegram-login-widget-wrapper" style="display: flex; justify-content: center; margin-top: 20px;"></div>
 
       <div class="auth-footer-help">
-        Need assistance or account support? <a href="https://t.me/foundersupport" target="_blank"><i data-lucide="send" style="width:15px;height:15px;"></i> Contact Support</a>
+        Need help logging in? <a href="https://t.me/foundersupport" target="_blank"><i data-lucide="send" style="width:15px;height:15px;"></i> Contact Support Bot</a>
       </div>
     </div>
   </div>
@@ -419,7 +399,7 @@
       }
       const toast = document.createElement("div");
       toast.className = `toast toast-${type}`;
-      toast.style.cssText = "background: rgba(13, 19, 33, 0.95); color: #fff; border: 1px solid " + (type === "error" ? "rgba(239,68,68,0.5)" : "rgba(245, 158, 11, 0.5)") + "; padding: 12px 18px; border-radius: 12px; margin-top: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; z-index: 10000;";
+      toast.style.cssText = "background: rgba(13, 19, 33, 0.95); color: #fff; border: 1px solid " + (type === "error" ? "rgba(239,68,68,0.5)" : "rgba(56, 189, 248, 0.5)") + "; padding: 12px 18px; border-radius: 12px; margin-top: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; z-index: 10000;";
       toast.innerHTML = `<span>${message}</span>`;
       toastContainer.appendChild(toast);
       setTimeout(() => {
@@ -428,24 +408,22 @@
       }, 3500);
     };
 
-    function togglePassVisibility(inputId, btn) {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      const isPass = input.type === "password";
-      input.type = isPass ? "text" : "password";
-      btn.innerHTML = `<i data-lucide="${isPass ? 'eye-off' : 'eye'}" style="width:18px;height:18px;"></i>`;
-      if (window.lucide) window.lucide.createIcons();
-    }
-
     function getSuccessRedirectUrl() {
       const urlParams = new URLSearchParams(window.location.search);
       const redirectCourse = urlParams.get("redirect_course");
       return redirectCourse ? `courses.html?enroll=${encodeURIComponent(redirectCourse)}` : "student-dashboard.html";
     }
 
+    const getApiBaseUrl = () => {
+      if (window.location.protocol === "file:" || !window.location.hostname || window.location.hostname === "localhost") {
+        return window.location.origin && window.location.origin !== "null" && window.location.origin !== "file://" ? window.location.origin : "http://localhost:3000";
+      }
+      return "";
+    };
+
     window.onTelegramAuth = async (user) => {
       if (!user.phone && !user.phone_number) {
-        const phoneInput = prompt("📱 Complete Registration:\n\nPlease enter your Phone Number (e.g. +251 906 769 999) to link with your Telegram account:", "");
+        const phoneInput = prompt("📱 Complete Telegram Setup:\n\nPlease enter your Phone Number (e.g. 0912345678) to link with your Telegram account:", "");
         if (phoneInput && phoneInput.trim()) {
           user.phone = phoneInput.trim();
         }
@@ -466,121 +444,25 @@
           window.showToast(data.error || "Telegram authentication failed.", "error");
         }
       } catch (err) {
-        window.showToast("Error authenticating with Telegram: " + err.message, "error");
+        window.showToast("Telegram verification notice: " + err.message, "error");
       }
     };
 
     document.addEventListener("DOMContentLoaded", () => {
       if (window.lucide) window.lucide.createIcons();
 
-      const btnLoginTab = document.getElementById("btn-login-tab");
-      const btnSignupTab = document.getElementById("btn-signup-tab");
-      const formLogin = document.getElementById("student-login-form");
-      const formSignup = document.getElementById("student-signup-form");
+      const tgAuthForm = document.getElementById("telegram-auth-form");
+      const btnSubmit = document.getElementById("btn-submit-tg");
+      const verificationCard = document.getElementById("verification-card");
+      const dispCode = document.getElementById("disp-code");
+      const btnOpenBot = document.getElementById("btn-open-tg-bot");
+      const inpOtpCode = document.getElementById("inp-otp-code");
+      const btnVerifyOtp = document.getElementById("btn-verify-otp");
 
-      const getApiBaseUrl = () => {
-        if (window.location.protocol === "file:" || !window.location.hostname || window.location.hostname === "localhost") {
-          return window.location.origin && window.location.origin !== "null" && window.location.origin !== "file://" ? window.location.origin : "http://localhost:3000";
-        }
-        return "";
-      };
+      let pollTimer = null;
+      let activeIdentifier = "";
 
-      const tgQuickBtn = document.getElementById("page-telegram-quick-auth-btn");
-      if (tgQuickBtn) {
-        tgQuickBtn.onclick = async () => {
-          const handle = prompt("📱 Unified Smart Authentication:\n\nEnter your Phone Number (09...) OR Telegram @username:\n(e.g. 0912345678 or @selam_tadesse)", "");
-          if (!handle || !handle.trim()) return;
-
-          const cleanHandle = handle.trim();
-          window.showToast("Requesting 1-tap Telegram security verification...", "info");
-
-          try {
-            const apiBase = getApiBaseUrl();
-            const reqRes = await fetch(`${apiBase}/api/student/telegram-auth/request-code`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ identifier: cleanHandle })
-            });
-
-            const contentType = reqRes.headers.get("content-type") || "";
-            if (!contentType.includes("application/json")) {
-              throw new Error("Server returned HTML response instead of JSON API response.");
-            }
-
-            const reqData = await reqRes.json();
-
-            if (!reqData.success) {
-              window.showToast(reqData.error || "Failed to generate verification code.", "error");
-              return;
-            }
-
-            // Start live background polling for 1-tap Telegram Bot tap
-            let pollTimer = null;
-            if (reqData.demoCode) {
-              pollTimer = setInterval(async () => {
-                try {
-                  const pRes = await fetch(`${apiBase}/api/student/telegram-auth/poll-status?code=${encodeURIComponent(reqData.demoCode)}`);
-                  if (pRes.headers.get("content-type")?.includes("application/json")) {
-                    const pData = await pRes.json();
-                    if (pData.verified && pData.student) {
-                      clearInterval(pollTimer);
-                      localStorage.setItem("founders_student_session", JSON.stringify(pData.student));
-                      window.showToast("🎉 Telegram 1-Tap Authentication Authorized!", "success");
-                      setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 500);
-                    }
-                  }
-                } catch (_e) {}
-              }, 1200);
-            }
-
-            // Prompt user for 6-digit verification code or 1-tap Telegram open
-            const codeInput = prompt(
-              `⚡ UNIFIED TELEGRAM AUTHENTICATION:\n\n` +
-              `Verification Code for ${reqData.identifier}:\n` +
-              `🔑 Code: ${reqData.demoCode}\n\n` +
-              `👉 Tap link to authorize with 1-click in Telegram:\n${reqData.botUrl}\n\n` +
-              `Or enter 6-digit verification code below:`,
-              reqData.demoCode || ""
-            );
-
-            if (pollTimer) clearInterval(pollTimer);
-
-            if (!codeInput || !codeInput.trim()) {
-              window.showToast("Authentication canceled.", "info");
-              return;
-            }
-
-            window.showToast("Verifying code...", "info");
-
-            const verifyRes = await fetch(`${apiBase}/api/student/telegram-auth/verify-code`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                identifier: reqData.identifier,
-                code: codeInput.trim()
-              })
-            });
-
-            const verifyContentType = verifyRes.headers.get("content-type") || "";
-            if (!verifyContentType.includes("application/json")) {
-              throw new Error("Verification server returned HTML error. Please verify server status.");
-            }
-
-            const verifyData = await verifyRes.json();
-
-            if (verifyData.success && verifyData.student) {
-              localStorage.setItem("founders_student_session", JSON.stringify(verifyData.student));
-              window.showToast("🎉 Authenticated successfully!", "success");
-              setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
-            } else {
-              window.showToast(verifyData.error || "Verification code invalid or expired.", "error");
-            }
-          } catch (err) {
-            window.showToast("Telegram verification notice: " + err.message, "error");
-          }
-        };
-      }
-
+      // Mount official Telegram widget script if domain is verified
       const tgWrapper = document.getElementById("telegram-login-widget-wrapper");
       if (tgWrapper && !document.getElementById("tg-widget-script-elem")) {
         const script = document.createElement("script");
@@ -588,119 +470,127 @@
         script.async = true;
         script.src = "https://telegram.org/js/telegram-widget.js?22";
         script.setAttribute("data-telegram-login", "founders_academybot");
-        script.setAttribute("data-size", "large");
+        script.setAttribute("data-size", "medium");
         script.setAttribute("data-radius", "10");
         script.setAttribute("data-onauth", "onTelegramAuth(user)");
         script.setAttribute("data-request-access", "write");
-        script.onload = () => {
-          // Keep quick 1-tap auth button visible at all times
-        };
         tgWrapper.appendChild(script);
       }
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const action = urlParams.get("action") || urlParams.get("tab");
-      if (action === "signup") {
-        switchToSignup();
-      }
-
-      function switchToLogin() {
-        btnLoginTab.classList.add("active");
-        btnSignupTab.classList.remove("active");
-        formLogin.classList.remove("hidden");
-        formSignup.classList.add("hidden");
-      }
-
-      function switchToSignup() {
-        btnSignupTab.classList.add("active");
-        btnLoginTab.classList.remove("active");
-        formSignup.classList.remove("hidden");
-        formLogin.classList.add("hidden");
-      }
-
-      btnLoginTab.addEventListener("click", switchToLogin);
-      btnSignupTab.addEventListener("click", switchToSignup);
-
-      // Submit Login
-      formLogin.addEventListener("submit", async (e) => {
+      tgAuthForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const identifier = document.getElementById("inp-login-id").value.trim();
-        const password = document.getElementById("inp-login-pass").value.trim();
+        const inputVal = document.getElementById("inp-tg-identifier").value.trim();
+        if (!inputVal) return;
 
-        const btn = formLogin.querySelector("button[type='submit']");
-        btn.disabled = true;
-        btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Verifying...</span>`;
+        activeIdentifier = inputVal;
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Connecting Telegram Bot...</span>`;
         if (window.lucide) window.lucide.createIcons();
 
         try {
-          const res = await fetch("/api/student/login", {
+          const apiBase = getApiBaseUrl();
+          const reqRes = await fetch(`${apiBase}/api/student/telegram-auth/request-code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ identifier, password })
+            body: JSON.stringify({ identifier: inputVal })
           });
-          const data = await res.json();
 
-          if (data.success && data.student) {
-            localStorage.setItem("founders_student_session", JSON.stringify(data.student));
-            window.showToast("🎉 Login successful! Welcome to Founders Academy.", "success");
-            setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 800);
-          } else {
-            btn.disabled = false;
-            btn.innerHTML = `<span>Log In to Dashboard</span> <i data-lucide="arrow-right"></i>`;
-            if (window.lucide) window.lucide.createIcons();
-            window.showToast(data.error || "Login failed", "error");
+          const contentType = reqRes.headers.get("content-type") || "";
+          if (!contentType.includes("application/json")) {
+            throw new Error("Server returned HTML response instead of JSON API response.");
           }
-        } catch (_err) {
-          btn.disabled = false;
-          btn.innerHTML = `<span>Log In to Dashboard</span> <i data-lucide="arrow-right"></i>`;
+
+          const reqData = await reqRes.json();
+
+          if (!reqData.success) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `<i data-lucide="send"></i> <span>Continue with Telegram 1-Tap</span>`;
+            if (window.lucide) window.lucide.createIcons();
+            window.showToast(reqData.error || "Failed to generate Telegram code.", "error");
+            return;
+          }
+
+          // Show Verification Card
+          dispCode.textContent = reqData.demoCode || "------";
+          btnOpenBot.href = reqData.botUrl || "#";
+          verificationCard.classList.add("active");
+
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `<i data-lucide="check-circle"></i> <span>Code Sent to Telegram</span>`;
           if (window.lucide) window.lucide.createIcons();
-          window.showToast("Network error logging in", "error");
+
+          window.showToast("🔑 Telegram verification code generated!", "success");
+
+          // Start background polling for 1-tap Telegram Bot tap
+          if (pollTimer) clearInterval(pollTimer);
+          if (reqData.demoCode) {
+            pollTimer = setInterval(async () => {
+              try {
+                const pRes = await fetch(`${apiBase}/api/student/telegram-auth/poll-status?code=${encodeURIComponent(reqData.demoCode)}`);
+                if (pRes.headers.get("content-type")?.includes("application/json")) {
+                  const pData = await pRes.json();
+                  if (pData.verified && pData.student) {
+                    clearInterval(pollTimer);
+                    localStorage.setItem("founders_student_session", JSON.stringify(pData.student));
+                    window.showToast("🎉 Telegram 1-Tap Authorization Successful!", "success");
+                    setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
+                  }
+                }
+              } catch (_e) {}
+            }, 1200);
+          }
+        } catch (err) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `<i data-lucide="send"></i> <span>Continue with Telegram 1-Tap</span>`;
+          if (window.lucide) window.lucide.createIcons();
+          window.showToast("Telegram Error: " + err.message, "error");
         }
       });
 
-      // Submit Signup
-      formSignup.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const name = document.getElementById("inp-signup-name").value.trim();
-        const inputVal = document.getElementById("inp-signup-phone").value.trim();
-        const password = document.getElementById("inp-signup-pass").value.trim();
-        
-        let phone = inputVal;
-        let username = "";
-        if (inputVal.startsWith("@")) {
-          username = inputVal;
-          phone = "";
+      // Manual OTP verification
+      async function doVerifyOtp() {
+        const code = inpOtpCode.value.trim();
+        if (!code) {
+          window.showToast("Please enter the 6-digit code.", "info");
+          return;
         }
 
-        const btn = formSignup.querySelector("button[type='submit']");
-        btn.disabled = true;
-        btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Creating account...</span>`;
-        if (window.lucide) window.lucide.createIcons();
+        btnVerifyOtp.disabled = true;
+        btnVerifyOtp.textContent = "Verifying...";
 
         try {
-          const res = await fetch("/api/student/signup", {
+          const apiBase = getApiBaseUrl();
+          const verifyRes = await fetch(`${apiBase}/api/student/telegram-auth/verify-code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, phone, username, email: username, password })
+            body: JSON.stringify({
+              identifier: activeIdentifier,
+              code: code
+            })
           });
-          const data = await res.json();
 
-          if (data.success && data.student) {
-            localStorage.setItem("founders_student_session", JSON.stringify(data.student));
-            window.showToast("🎉 Account created successfully!", "success");
-            setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 800);
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success && verifyData.student) {
+            if (pollTimer) clearInterval(pollTimer);
+            localStorage.setItem("founders_student_session", JSON.stringify(verifyData.student));
+            window.showToast("🎉 Authenticated successfully!", "success");
+            setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
           } else {
-            btn.disabled = false;
-            btn.innerHTML = `<span>Create Student Account</span> <i data-lucide="sparkles"></i>`;
-            if (window.lucide) window.lucide.createIcons();
-            window.showToast(data.error || "Signup failed", "error");
+            btnVerifyOtp.disabled = false;
+            btnVerifyOtp.textContent = "Verify";
+            window.showToast(verifyData.error || "Verification code invalid or expired.", "error");
           }
-        } catch (_err) {
-          btn.disabled = false;
-          btn.innerHTML = `<span>Create Student Account</span> <i data-lucide="sparkles"></i>`;
-          if (window.lucide) window.lucide.createIcons();
-          window.showToast("Network error creating account", "error");
+        } catch (err) {
+          btnVerifyOtp.disabled = false;
+          btnVerifyOtp.textContent = "Verify";
+          window.showToast("Verification Error: " + err.message, "error");
         }
+      }
+
+      btnVerifyOtp.addEventListener("click", doVerifyOtp);
+      inpOtpCode.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") doVerifyOtp();
       });
     });
   </script>
