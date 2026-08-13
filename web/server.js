@@ -46,6 +46,26 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// TOP-PRIORITY STUDENT AUTH API ENDPOINTS
+app.post(["/api/student/register", "/student/register", "/api/student/signup", "/student/signup", "/register", "/signup"], async (req, res) => {
+  try {
+    const fn = dbStore.registerStudent || dbStore.registerStudentAccount;
+    const result = await fn(req.body || {});
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post(["/api/student/login", "/student/login", "/login"], async (req, res) => {
+  try {
+    const result = await dbStore.authenticateStudent(req.body || {});
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Process Level Safety Handlers
 process.on("unhandledRejection", (reason, promise) => {
   console.error("⚠️ Unhandled Rejection at:", promise, "reason:", reason);
