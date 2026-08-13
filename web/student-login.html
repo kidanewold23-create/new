@@ -589,11 +589,19 @@
 
         try {
           const apiBase = getApiBaseUrl();
-          const res = await fetch(`${apiBase}/api/student/register`, {
+          let res = await fetch(`${apiBase}/api/student/signup`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, phone: phone251, password })
           });
+
+          if (res.status === 404) {
+            res = await fetch(`${apiBase}/api/student/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, phone: phone251, password })
+            });
+          }
 
           const data = await res.json();
           if (res.ok && data.success && data.student) {
