@@ -590,18 +590,6 @@
           window.showToast("Verification code invalid or expired.", "error");
         }
       }
-            setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
-          } else {
-            btnVerifyOtp.disabled = false;
-            btnVerifyOtp.textContent = "Verify";
-            window.showToast(verifyData.error || "Verification code invalid or expired.", "error");
-          }
-        } catch (err) {
-          btnVerifyOtp.disabled = false;
-          btnVerifyOtp.textContent = "Verify";
-          window.showToast("Verification Error: " + err.message, "error");
-        }
-      }
 
       btnVerifyOtp.addEventListener("click", doVerifyOtp);
       inpOtpCode.addEventListener("keypress", (e) => {
