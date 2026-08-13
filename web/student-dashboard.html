@@ -335,31 +335,40 @@
 
         let courses = (data.success && data.data && Array.isArray(data.data.courses)) ? data.data.courses : [];
 
-        // If no transactions found for student, load live masterclasses directly from Supabase courses table
-        if (courses.length === 0) {
-          try {
-            const catalogRes = await fetch("/api/courses");
-            if (catalogRes.ok) {
-              const catalogJson = await catalogRes.json();
-              const catalogList = (catalogJson && (catalogJson.data || catalogJson.courses || catalogJson)) || [];
-              if (Array.isArray(catalogList) && catalogList.length > 0) {
-                courses = catalogList.slice(0, 2).map(c => ({
-                  id: c.id,
-                  title: c.title,
-                  category: c.category || "Digital Masterclass",
-                  duration: c.duration || "6 Weeks",
-                  status: "Active Registered",
-                  tg_channel: c.tg_channel || "https://t.me/founders_academybot",
-                  tg_group: c.tg_group || "https://t.me/founders_academybot",
-                  referenceNumber: `STU-${session.id || 'ROSTER'}`
-                }));
-              }
-            }
-          } catch (_catErr) {}
-        }
-
         if (coursesTableBody) coursesTableBody.innerHTML = "";
         if (coursesGrid) coursesGrid.innerHTML = "";
+
+        // Render Empty State if student has no enrolled masterclasses yet
+        if (courses.length === 0) {
+          if (coursesTableBody) {
+            coursesTableBody.innerHTML = `
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+                  <i data-lucide="book-open" style="width:36px;height:36px;margin-bottom:10px;color:var(--primary-gold);display:block;margin-left:auto;margin-right:auto;"></i>
+                  <div style="font-size: 1rem; color: #fff; font-weight: 600; margin-bottom: 4px;">No Enrolled Masterclasses</div>
+                  <div style="font-size: 0.85rem; margin-bottom: 16px;">You have not enrolled in any masterclasses yet. Explore our programs to start learning.</div>
+                  <a href="courses.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; font-size:0.85rem; padding:8px 18px; text-decoration:none; background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color:#000; font-weight:700;">
+                    <i data-lucide="compass"></i> Browse All Masterclasses
+                  </a>
+                </td>
+              </tr>
+            `;
+          }
+          if (coursesGrid) {
+            coursesGrid.innerHTML = `
+              <div style="grid-column: 1 / -1; text-align: center; padding: 44px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12); border-radius: 14px;">
+                <i data-lucide="book-open" style="width:44px;height:44px;margin-bottom:12px;color:var(--primary-gold);display:block;margin-left:auto;margin-right:auto;"></i>
+                <h4 style="color:#fff; margin:0 0 6px 0; font-size:1.15rem; font-weight:700;">No Enrolled Masterclasses</h4>
+                <p style="color:var(--text-muted); font-size:0.88rem; max-width:440px; margin:0 auto 20px auto;">You haven't enrolled in any masterclasses yet. Browse our live catalog to select a course and unlock full classroom access.</p>
+                <a href="courses.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; font-size:0.88rem; padding:10px 22px; text-decoration:none; background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color:#000; font-weight:700;">
+                  <i data-lucide="compass"></i> Explore All Masterclasses
+                </a>
+              </div>
+            `;
+          }
+          if (window.lucide) window.lucide.createIcons();
+          return;
+        }
 
         for (const c of courses) {
           // Table Row

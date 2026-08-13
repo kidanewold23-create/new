@@ -1351,30 +1351,6 @@ export const dbStore = {
       }
     });
 
-    if (enrolledList.length === 0 && student) {
-      const defaultCourse = courses[0] || {
-        id: "course-1",
-        title: "SMMA & Digital Agency Masterclass",
-        category: "Digital Marketing / SMMA",
-        price: "8,500 ETB",
-        duration: "6 Weeks",
-        tg_channel: "https://t.me/founders_smma_channel",
-        tg_group: "https://t.me/founders_smma_group"
-      };
-      enrolledList.push({
-        id: defaultCourse.id,
-        title: defaultCourse.title,
-        category: defaultCourse.category,
-        price: defaultCourse.price,
-        duration: defaultCourse.duration || "6 Weeks",
-        status: "Verified Active",
-        paymentMethod: "Giveaway / Roster",
-        referenceNumber: `STU-ROSTER-${student.id}`,
-        date: student.joined_date || new Date().toLocaleDateString(),
-        tg_channel: defaultCourse.tg_channel || "https://t.me/founders_smma_channel",
-        tg_group: defaultCourse.tg_group || "https://t.me/founders_smma_group"
-      });
-    }
 
     return {
       student: student || null,
