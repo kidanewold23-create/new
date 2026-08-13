@@ -6,7 +6,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 
-const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") || "8659500401:AAEUvDQTc0pniztDTiIQU65igbuiiM5ZXAc";
+const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "https://icdjgtfiqwwdqtvwuyaw.supabase.co";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "sb_publishable_7SjYAbvNDwTXOVBlkuox-g_wMj58uUK";
 
@@ -76,7 +76,7 @@ function getPhoneRequestKeyboard() {
     keyboard: [
       [
         {
-          text: "📱 Share Phone Number",
+          text: "📱 Share Phone Number & Get Started 🚀",
           request_contact: true
         }
       ]
@@ -96,7 +96,7 @@ function getMainMenuReplyKeyboard() {
       ],
       [
         { text: "📚 Courses" },
-        { text: "📜 Certificate" }
+        { text: "🔑 Forgot Password" }
       ]
     ],
     resize_keyboard: true,
@@ -106,12 +106,15 @@ function getMainMenuReplyKeyboard() {
 
 // Check user registration in Supabase
 async function isUserRegistered(telegramId: number): Promise<boolean> {
-  const tgIdStr = `TG-${telegramId}`;
+  const numericId = Number(telegramId);
+  const stringId = String(telegramId);
+  const tgIdStr = `TG-${stringId}`;
+
   try {
     const { data: student } = await supabase
       .from("students")
-      .select("id, phone")
-      .eq("id", tgIdStr)
+      .select("id, phone, telegram_id, chat_id")
+      .or(`id.eq.${tgIdStr},telegram_id.eq.${numericId},chat_id.eq.${numericId}`)
       .maybeSingle();
 
     if (student && student.phone && student.phone.trim() !== "") {
@@ -121,10 +124,10 @@ async function isUserRegistered(telegramId: number): Promise<boolean> {
     const { data: tgUser } = await supabase
       .from("telegram_users")
       .select("telegram_id, phone_number")
-      .eq("telegram_id", telegramId)
+      .eq("telegram_id", numericId)
       .maybeSingle();
 
-    if (tgUser && tgUser.phone_number) {
+    if (tgUser && tgUser.phone_number && tgUser.phone_number.trim() !== "") {
       return true;
     }
   } catch (err) {
@@ -136,7 +139,7 @@ async function isUserRegistered(telegramId: number): Promise<boolean> {
 // Register user in Supabase
 async function registerBotUser(user: { telegram_id: number; first_name: string; last_name?: string; username?: string; phone_number: string; }) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ").trim() || `User_${user.telegram_id}`;
-  const userEmail = user.username ? `${user.username}@t.me` : `user_${user.telegram_id}@foundersacademy.et`;
+  const userEmail = user.username ? `@${user.username.replace(/^@/, '')}` : `user_${user.telegram_id}@foundersacademy.et`;
   const formattedDate = new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
 
   const studentPayload = {
@@ -144,6 +147,10 @@ async function registerBotUser(user: { telegram_id: number; first_name: string; 
     name: fullName,
     phone: user.phone_number,
     email: userEmail,
+    username: userEmail,
+    telegram_id: user.telegram_id,
+    chat_id: user.telegram_id,
+    telegram_username: user.username || "",
     joined_date: formattedDate
   };
 
@@ -163,6 +170,65 @@ async function registerBotUser(user: { telegram_id: number; first_name: string; 
   } catch (err) {
     console.error("[Supabase Register Error]:", err);
   }
+}
+
+// Handle Forgot Password Command & Input
+async function handleForgotPassword(chatId: number, user: any, text: string) {
+  const telegramId = user.id;
+  const firstName = user.first_name || "Student";
+  const trimmed = (text || "").trim();
+  const upper = trimmed.toUpperCase();
+
+  // Reset password execution (e.g. /resetpassword MyNewPassword123)
+  if (upper.startsWith("/RESETPASSWORD ") || upper.startsWith("/RESET_PASSWORD ") || upper.startsWith("/RESETPASS ")) {
+    const parts = trimmed.split(/\s+/);
+    const newPass = parts.slice(1).join(" ").trim();
+
+    if (!newPass || newPass.length < 4) {
+      await telegramApi("sendMessage", {
+        chat_id: chatId,
+        text: `❌ *Password Too Short*\n\nYour new password must be at least 4 characters long.\n\n*Usage:* \`/resetpassword YourNewPassword123\``,
+        parse_mode: "Markdown"
+      });
+      return;
+    }
+
+    try {
+      const cleanTgId = String(telegramId);
+      const { data: student } = await supabase
+        .from("students")
+        .select("*")
+        .or(`id.eq.TG-${cleanTgId},telegram_id.eq.${cleanTgId},chat_id.eq.${cleanTgId}`)
+        .maybeSingle();
+
+      if (student) {
+        await supabase.from("students").update({ password_hash: newPass }).eq("id", student.id);
+        await telegramApi("sendMessage", {
+          chat_id: chatId,
+          text: `🎉 *Password Reset Successfully!* 🔐\n\nHello *${firstName}*,\nYour student portal password has been updated to:\n🔑 \`${newPass}\`\n\nYou can now log in at:\n👉 https://new-nu-umber.vercel.app/student-login.html`,
+          parse_mode: "Markdown"
+        });
+        return;
+      }
+    } catch (err) {
+      console.error("[Supabase Password Reset Error]:", err);
+    }
+
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `⚠️ *Student Account Not Found*\n\nWe couldn't find a student account linked to your Telegram profile.\n\nPlease tap **📱 Share Phone Number** first to link your account!`,
+      parse_mode: "Markdown",
+      reply_markup: getPhoneRequestKeyboard()
+    });
+    return;
+  }
+
+  // Prompt user with reset instructions
+  await telegramApi("sendMessage", {
+    chat_id: chatId,
+    text: `🔑 *Founders Academy Password Reset* 🔐\n\nHello *${firstName}*,\nTo reset your student portal password, send your new password using this command:\n\n👉 \`/resetpassword your_new_password\`\n\n*Example:*\n\`/resetpassword Founders2026!\`\n\n_Your new password will be updated instantly in your student account!_`,
+    parse_mode: "Markdown"
+  });
 }
 
 // Search Supabase for verified course enrollments by phone number and generate unique invite links
@@ -285,14 +351,19 @@ async function handleWebhookUpdate(update: any) {
   if (!registered) {
     await telegramApi("sendMessage", {
       chat_id: chatId,
-      text: `👋 *Welcome to Founders Academy, ${firstName}!*\n\nTo get started and access courses, links, certificates, and student services, please *share your phone number* using the button below.`,
+      text: `👋 *Welcome to Founders Academy, ${firstName}!*\n\nTo get started and access courses, links, and student services, please *share your phone number* using the button below.`,
       parse_mode: "Markdown",
       reply_markup: getPhoneRequestKeyboard()
     });
     return;
   }
 
-  // 3. Menu Button Handlers
+  // 3. Menu Button & Command Handlers
+  if (text.includes("Forgot Password") || text.includes("Password") || text === "/forgotpassword" || text.startsWith("/resetpassword")) {
+    await handleForgotPassword(chatId, from, text);
+    return;
+  }
+
   if (text.includes("Links") || text === "/links") {
     let linksMsg = `🔗 *Founders Academy Links*\n\n🌐 Website: https://foundersacademy.et\n💬 Support: @foundersupportt`;
     await telegramApi("sendMessage", {
@@ -358,15 +429,6 @@ async function handleWebhookUpdate(update: any) {
           [{ text: "💬 Contact Support", url: "https://t.me/foundersupportt" }]
         ]
       }
-    });
-    return;
-  }
-
-  if (text.includes("Certificate") || text === "/certificate") {
-    await telegramApi("sendMessage", {
-      chat_id: chatId,
-      text: `📜 *Founders Academy Certificate Verification*\n\nCertificates are awarded upon successful completion of your masterclass cohort and final project submission.\n\nTo request or verify your certificate status, please contact support: @foundersupportt`,
-      parse_mode: "Markdown"
     });
     return;
   }
