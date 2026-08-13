@@ -1994,18 +1994,29 @@ export const dbStore = {
   },
   getAdminTelegramChatIds: async () => {
     const chatIds = new Set();
+
+    // 1. Fetch from admin_security table in Supabase
     try {
-      const { data: students } = await supabase.from('students').select('*');
-      if (students && Array.isArray(students)) {
-        students.forEach(s => {
-          if (s.id && String(s.id).startsWith('TG-')) {
-            const cid = String(s.id).replace('TG-', '').trim();
-            if (cid && /^\d+$/.test(cid)) chatIds.add(cid);
+      const { data: sec } = await supabase.from('admin_security').select('*');
+      if (sec && Array.isArray(sec)) {
+        sec.forEach(row => {
+          if (row.config) {
+            if (Array.isArray(row.config.linkedAdminChats)) {
+              row.config.linkedAdminChats.forEach(a => {
+                if (a && a.chatId && /^\d+$/.test(String(a.chatId).trim())) {
+                  chatIds.add(String(a.chatId).trim());
+                }
+              });
+            }
+            if (row.config.telegramAdminChatId && /^\d+$/.test(String(row.config.telegramAdminChatId).trim())) {
+              chatIds.add(String(row.config.telegramAdminChatId).trim());
+            }
           }
         });
       }
     } catch (_e) {}
 
+    // 2. Fetch from in-memory Admin Security configuration
     const sec = await dbStore.getAdminSecurity();
     if (sec && Array.isArray(sec.linkedAdminChats)) {
       sec.linkedAdminChats.forEach(a => {
@@ -2019,6 +2030,13 @@ export const dbStore = {
       chatIds.add(String(sec.telegramAdminChatId).trim());
     }
 
+    // 3. Environment Variable Fallback
+    const envAdminChatId = typeof process !== "undefined" && process.env ? process.env.ADMIN_CHAT_ID : null;
+    if (envAdminChatId && envAdminChatId !== "xxxxxxxxxx" && /^\d+$/.test(String(envAdminChatId).trim())) {
+      chatIds.add(String(envAdminChatId).trim());
+    }
+
+    // 4. Ultimate Fallback Super Admin Chat ID
     if (chatIds.size === 0) {
       chatIds.add("6241860023");
     }
@@ -2199,40 +2217,7 @@ export const dbStore = {
     return inMemoryAdminSecurity;
   },
 
-  getAdminTelegramChatIds: async () => {
-    const chatIds = new Set();
-    // 1. Fetch dynamically from Supabase students table (TG- IDs)
-    try {
-      const { data: students } = await supabase.from('students').select('*');
-      if (students && Array.isArray(students)) {
-        students.forEach(s => {
-          if (s.id && String(s.id).startsWith('TG-')) {
-            const cid = String(s.id).replace('TG-', '').trim();
-            if (cid && /^\d+$/.test(cid)) chatIds.add(cid);
-          }
-        });
-      }
-    } catch (_e) {}
 
-    // 2. Fetch from admin_security table if present
-    try {
-      const { data: sec } = await supabase.from('admin_security').select('*');
-      if (sec && Array.isArray(sec)) {
-        sec.forEach(row => {
-          if (row.config && row.config.telegramAdminChatId) {
-            chatIds.add(String(row.config.telegramAdminChatId).trim());
-          }
-        });
-      }
-    } catch (_e) {}
-
-    // 3. In-memory configuration
-    if (inMemoryAdminSecurity.telegramAdminChatId) {
-      chatIds.add(String(inMemoryAdminSecurity.telegramAdminChatId).trim());
-    }
-
-    return Array.from(chatIds);
-  },
 
   generateAdminLoginOtp: async () => {
     const randomOtp = String(Math.floor(100000 + Math.random() * 900000));

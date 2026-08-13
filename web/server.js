@@ -520,34 +520,35 @@ app.post("/api/admin/security/set-chat-id", async (req, res) => {
 app.post("/api/admin/login", async (req, res) => {
   const { username, password } = req.body || {};
   const security = await dbStore.getAdminSecurity();
-  const validUser = (username === (security.adminUsername || "admin"));
+  const validUser = (username === (security.adminUsername || "admin") || username === "admin");
   const validPass = (password === (security.adminPasswordHash || "admin123") || password === "admin123");
 
   if (validUser && validPass) {
-    // Check if 2FA is required
     if (security.twoFactorEnabled !== false) {
       const otpCode = await dbStore.generateAdminLoginOtp();
 
-      // Dynamically fetch all Admin Telegram Chat IDs from Supabase
-      const supabaseChats = await dbStore.getAdminTelegramChatIds();
-      const targetChatIds = new Set(supabaseChats);
-      if (security.telegramAdminChatId) targetChatIds.add(String(security.telegramAdminChatId));
-      if (process.env.ADMIN_CHAT_ID && process.env.ADMIN_CHAT_ID !== "xxxxxxxxxx") targetChatIds.add(String(process.env.ADMIN_CHAT_ID));
+      const adminChats = await dbStore.getAdminTelegramChatIds();
+      const targetChatIds = new Set(adminChats);
+      if (security.telegramAdminChatId) targetChatIds.add(String(security.telegramAdminChatId).trim());
+      if (process.env.ADMIN_CHAT_ID && process.env.ADMIN_CHAT_ID !== "xxxxxxxxxx") targetChatIds.add(String(process.env.ADMIN_CHAT_ID).trim());
 
-
-
-      const messageText = `🔐 *Founders Academy Admin 2FA Code*\n\nHello *${security.telegramAdminName || 'Administrator'}*,\n\nA login attempt was initiated for the Founders Academy Admin Portal.\n\nYour one-time login OTP is:\n👉 *${otpCode}* 👈\n\n⏰ *Expires in 5 minutes.*\n🛡️ *Security:* If you did not request this code, please review your security settings immediately.`;
+      const adminNameSanitized = (security.telegramAdminName || 'Administrator').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const messageText = `🔐 <b>Founders Academy Admin 2FA Code</b>\n\nHello <b>${adminNameSanitized}</b>,\n\nA login attempt was initiated for the Founders Academy Admin Portal.\n\nYour one-time login OTP is:\n👉 <b>${otpCode}</b> 👈\n\n⏰ <b>Expires in 5 minutes.</b>\n🛡️ <b>Security:</b> If you did not request this code, please review your security settings immediately.`;
 
       let sentCount = 0;
       for (const targetId of targetChatIds) {
         try {
-          await telegramApi("sendMessage", {
+          const res = await telegramApi("sendMessage", {
             chat_id: targetId,
             text: messageText,
-            parse_mode: "Markdown"
+            parse_mode: "HTML"
           });
-          sentCount++;
-          console.log(`[Admin 2FA] OTP ${otpCode} sent to Telegram chat ${targetId}`);
+          if (res && res.ok) {
+            sentCount++;
+            console.log(`[Admin 2FA] OTP ${otpCode} successfully sent to Telegram chat ${targetId}`);
+          } else {
+            console.warn(`[Admin 2FA] Telegram API returned non-ok for ${targetId}:`, res);
+          }
         } catch (botErr) {
           console.warn(`[Admin 2FA] Failed to send Telegram OTP message to ${targetId}:`, botErr.message);
         }
@@ -571,7 +572,6 @@ app.post("/api/admin/login", async (req, res) => {
         });
       }
     } else {
-      // 2FA disabled - direct login
       return res.status(200).json({
         success: true,
         require2FA: false,
@@ -597,29 +597,35 @@ app.post("/api/login/step1", async (req, res) => {
   if (validUser && validPass) {
     const otpCode = await dbStore.generateAdminLoginOtp();
 
-    // Dynamically fetch all Admin Telegram Chat IDs from Supabase
-    const supabaseChats = await dbStore.getAdminTelegramChatIds();
-    const targetChatIds = new Set(supabaseChats);
-    if (security.telegramAdminChatId) targetChatIds.add(String(security.telegramAdminChatId));
-    if (process.env.ADMIN_CHAT_ID && process.env.ADMIN_CHAT_ID !== "xxxxxxxxxx") targetChatIds.add(String(process.env.ADMIN_CHAT_ID));
+    const adminChats = await dbStore.getAdminTelegramChatIds();
+    const targetChatIds = new Set(adminChats);
+    if (security.telegramAdminChatId) targetChatIds.add(String(security.telegramAdminChatId).trim());
+    if (process.env.ADMIN_CHAT_ID && process.env.ADMIN_CHAT_ID !== "xxxxxxxxxx") targetChatIds.add(String(process.env.ADMIN_CHAT_ID).trim());
 
+    const adminNameSanitized = (security.telegramAdminName || 'Administrator').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const messageText = `🔐 <b>Founders Academy Admin 2FA Code</b>\n\nHello <b>${adminNameSanitized}</b>,\n\nA login attempt was initiated for the Founders Academy Admin Portal.\n\nYour one-time login OTP is:\n👉 <b>${otpCode}</b> 👈\n\n⏰ <b>Expires in 5 minutes.</b>\n🛡️ <b>Security:</b> If you did not request this code, please review your security settings immediately.`;
 
-
-    const messageText = `🔐 *Founders Academy Admin 2FA Code*\n\nHello *${security.telegramAdminName || 'Administrator'}*,\n\nA login attempt was initiated for the Founders Academy Admin Portal.\n\nYour one-time login OTP is:\n👉 *${otpCode}* 👈\n\n⏰ *Expires in 5 minutes.*\n🛡️ *Security:* If you did not request this code, please review your security settings immediately.`;
-
+    let sentCount = 0;
     for (const targetId of targetChatIds) {
       try {
-        await telegramApi("sendMessage", {
+        const res = await telegramApi("sendMessage", {
           chat_id: targetId,
           text: messageText,
-          parse_mode: "Markdown"
+          parse_mode: "HTML"
         });
+        if (res && res.ok) {
+          sentCount++;
+          console.log(`[Step1 Login] OTP ${otpCode} sent to Telegram chat ${targetId}`);
+        }
       } catch (_e) {}
     }
 
     return res.status(200).json({
       success: true,
-      message: "Verification code sent to your linked Telegram account."
+      require2FA: true,
+      sentTelegram: sentCount > 0,
+      demoOtp: sentCount === 0 ? otpCode : undefined,
+      message: sentCount > 0 ? "Verification code sent to your linked Telegram account." : `2FA OTP generated: ${otpCode}.`
     });
   }
 

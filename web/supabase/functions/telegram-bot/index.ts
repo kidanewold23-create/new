@@ -111,24 +111,33 @@ async function isUserRegistered(telegramId: number): Promise<boolean> {
   const tgIdStr = `TG-${stringId}`;
 
   try {
-    const { data: student } = await supabase
+    const { data: students } = await supabase
       .from("students")
-      .select("id, phone, telegram_id, chat_id")
-      .or(`id.eq.${tgIdStr},telegram_id.eq.${numericId},chat_id.eq.${numericId}`)
-      .maybeSingle();
+      .select("id, phone, telegram_id, chat_id");
 
-    if (student && student.phone && student.phone.trim() !== "") {
-      return true;
+    if (students && Array.isArray(students)) {
+      const match = students.find((s: any) => {
+        if (!s.phone || s.phone.trim() === "") return false;
+        const sId = String(s.id || "");
+        const sTgId = String(s.telegram_id || "");
+        const sChatId = String(s.chat_id || "");
+        return sId === tgIdStr || sId === stringId || sTgId === stringId || sChatId === stringId;
+      });
+
+      if (match) return true;
     }
 
-    const { data: tgUser } = await supabase
+    const { data: tgUsers } = await supabase
       .from("telegram_users")
       .select("telegram_id, phone_number")
-      .eq("telegram_id", numericId)
-      .maybeSingle();
+      .eq("telegram_id", numericId);
 
-    if (tgUser && tgUser.phone_number && tgUser.phone_number.trim() !== "") {
-      return true;
+    if (tgUsers && Array.isArray(tgUsers)) {
+      const matchTg = tgUsers.find((u: any) => {
+        return u.phone_number && u.phone_number.trim() !== "";
+      });
+
+      if (matchTg) return true;
     }
   } catch (err) {
     console.error("[Supabase Check Error]:", err);
@@ -348,10 +357,31 @@ async function handleWebhookUpdate(update: any) {
   // 2. Check User Registration
   const registered = await isUserRegistered(telegramId);
 
+  // If user typed /start command
+  if (text.toUpperCase() === "/START" || text.toUpperCase().startsWith("/START ")) {
+    if (registered) {
+      await telegramApi("sendMessage", {
+        chat_id: chatId,
+        text: `✨ *Welcome back to Founders Academy, ${firstName}!* 🚀\n\nYour account is active and verified. Choose an option from the menu below:`,
+        parse_mode: "Markdown",
+        reply_markup: getMainMenuReplyKeyboard()
+      });
+      return;
+    } else {
+      await telegramApi("sendMessage", {
+        chat_id: chatId,
+        text: `👋 *Welcome to Founders Academy, ${firstName}!* 🎓\n\nTo get started and access courses, links, and student services, please *share your phone number* using the button below.`,
+        parse_mode: "Markdown",
+        reply_markup: getPhoneRequestKeyboard()
+      });
+      return;
+    }
+  }
+
   if (!registered) {
     await telegramApi("sendMessage", {
       chat_id: chatId,
-      text: `👋 *Welcome to Founders Academy, ${firstName}!*\n\nTo get started and access courses, links, and student services, please *share your phone number* using the button below.`,
+      text: `👋 *Welcome to Founders Academy, ${firstName}!* 🎓\n\nTo get started and access courses, links, and student services, please *share your phone number* using the button below.`,
       parse_mode: "Markdown",
       reply_markup: getPhoneRequestKeyboard()
     });
