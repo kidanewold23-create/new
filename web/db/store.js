@@ -91,16 +91,7 @@ const defaultCourses = [
   }
 ];
 
-const defaultStudents = [
-  { id: "STU-9921", name: "Abebe Bikila", phone: "251911234567", email: "251911234567@founders.et", username: "251911234567", joined_date: "Aug 06, 2026" },
-  { id: "STU-9922", name: "Tigist Haile", phone: "251928889900", email: "251928889900@founders.et", username: "251928889900", joined_date: "Aug 06, 2026" },
-  { id: "STU-9923", name: "Dawit Yilma", phone: "251943332211", email: "251943332211@founders.et", username: "251943332211", joined_date: "Aug 05, 2026" },
-  { id: "STU-9924", name: "Bethlehem Tadesse", phone: "251917774433", email: "251917774433@founders.et", username: "251917774433", joined_date: "Aug 05, 2026" },
-  { id: "STU-9925", name: "Mulugeta Tesfaye", phone: "251984441122", email: "251984441122@founders.et", username: "251984441122", joined_date: "Aug 04, 2026" },
-  { id: "STU-9926", name: "Helen Alemu", phone: "251910007788", email: "251910007788@founders.et", username: "251910007788", joined_date: "Aug 04, 2026" },
-  { id: "STU-9927", name: "Kassahun Worku", phone: "251935558899", email: "251935558899@founders.et", username: "251935558899", joined_date: "Aug 03, 2026" },
-  { id: "STU-9928", name: "Samrawit Bekele", phone: "251921114455", email: "251921114455@founders.et", username: "251921114455", joined_date: "Aug 02, 2026" }
-];
+const defaultStudents = [];
 
 const defaultTransactions = [
   {
@@ -765,7 +756,7 @@ export const dbStore = {
 
     try {
       const { data, error } = await supabase.from("students").select("*");
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data
           .filter(r => r.id && !String(r.id).startsWith("CONFIG_") && !String(r.id).startsWith("STORE_"))
           .map(r => {
