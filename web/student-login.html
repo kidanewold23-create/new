@@ -489,13 +489,22 @@
 
         try {
           const apiBase = getApiBaseUrl();
-          const reqRes = await fetch(`${apiBase}/api/student/telegram-auth/request-code`, {
+          let reqRes = await fetch(`${apiBase}/api/student/telegram-auth/request-code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ identifier: inputVal })
           });
 
-          const contentType = reqRes.headers.get("content-type") || "";
+          let contentType = reqRes.headers.get("content-type") || "";
+          if (!contentType.includes("application/json")) {
+            reqRes = await fetch(`${apiBase}/api/student/telegram-auth`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "request-code", identifier: inputVal })
+            });
+            contentType = reqRes.headers.get("content-type") || "";
+          }
+
           if (!contentType.includes("application/json")) {
             throw new Error("Server returned HTML response instead of JSON API response.");
           }
@@ -560,7 +569,7 @@
 
         try {
           const apiBase = getApiBaseUrl();
-          const verifyRes = await fetch(`${apiBase}/api/student/telegram-auth/verify-code`, {
+          let verifyRes = await fetch(`${apiBase}/api/student/telegram-auth/verify-code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -568,6 +577,24 @@
               code: code
             })
           });
+
+          let verifyContentType = verifyRes.headers.get("content-type") || "";
+          if (!verifyContentType.includes("application/json")) {
+            verifyRes = await fetch(`${apiBase}/api/student/telegram-auth`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "verify-code",
+                identifier: activeIdentifier,
+                code: code
+              })
+            });
+            verifyContentType = verifyRes.headers.get("content-type") || "";
+          }
+
+          if (!verifyContentType.includes("application/json")) {
+            throw new Error("Verification server returned HTML error. Please verify server status.");
+          }
 
           const verifyData = await verifyRes.json();
 

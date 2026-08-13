@@ -230,7 +230,7 @@ app.post("/api/student/logout", (req, res) => {
   return res.status(200).json({ success: true, message: "Student logged out successfully" });
 });
 
-app.post("/api/student/telegram-auth/request-code", async (req, res) => {
+app.post(["/api/student/telegram-auth/request-code", "*/request-code"], async (req, res) => {
   try {
     const { identifier } = req.body || {};
     const result = await dbStore.requestStudentTelegramOtp(identifier);
@@ -243,7 +243,7 @@ app.post("/api/student/telegram-auth/request-code", async (req, res) => {
   }
 });
 
-app.post("/api/student/telegram-auth/verify-code", async (req, res) => {
+app.post(["/api/student/telegram-auth/verify-code", "*/verify-code"], async (req, res) => {
   try {
     const { identifier, code } = req.body || {};
     const result = await dbStore.verifyStudentTelegramOtp(identifier, code);
@@ -256,7 +256,7 @@ app.post("/api/student/telegram-auth/verify-code", async (req, res) => {
   }
 });
 
-app.get("/api/student/telegram-auth/poll-status", async (req, res) => {
+app.get(["/api/student/telegram-auth/poll-status", "*/poll-status"], async (req, res) => {
   try {
     const { code } = req.query || {};
     const result = await dbStore.pollStudentTelegramOtp(code);
@@ -266,9 +266,17 @@ app.get("/api/student/telegram-auth/poll-status", async (req, res) => {
   }
 });
 
-app.post("/api/student/telegram-auth", async (req, res) => {
+app.post(["/api/student/telegram-auth", "*/telegram-auth"], async (req, res) => {
   try {
     const tgData = req.body || {};
+    if (tgData.action === "request-code" || (tgData.identifier && !tgData.id && !tgData.hash && !tgData.code)) {
+      const result = await dbStore.requestStudentTelegramOtp(tgData.identifier);
+      return res.status(result.success ? 200 : 400).json(result);
+    }
+    if (tgData.action === "verify-code" || (tgData.identifier && tgData.code)) {
+      const result = await dbStore.verifyStudentTelegramOtp(tgData.identifier, tgData.code);
+      return res.status(result.success ? 200 : 400).json(result);
+    }
     const result = await dbStore.authenticateTelegramUser(tgData);
     if (result.success) {
       return res.status(200).json(result);

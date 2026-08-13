@@ -457,7 +457,7 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       }
     }
 
-    if (pathname === "/api/student/telegram-auth/request-code" && reqMethod === "POST") {
+    if ((pathname === "/api/student/telegram-auth/request-code" || pathname.endsWith("/request-code")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
         const result = await dbStore.requestStudentTelegramOtp(body.identifier);
@@ -467,7 +467,7 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       }
     }
 
-    if (pathname === "/api/student/telegram-auth/verify-code" && reqMethod === "POST") {
+    if ((pathname === "/api/student/telegram-auth/verify-code" || pathname.endsWith("/verify-code")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
         const result = await dbStore.verifyStudentTelegramOtp(body.identifier, body.code);
@@ -477,7 +477,7 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       }
     }
 
-    if (pathname === "/api/student/telegram-auth/poll-status" && reqMethod === "GET") {
+    if ((pathname === "/api/student/telegram-auth/poll-status" || pathname.endsWith("/poll-status")) && reqMethod === "GET") {
       try {
         const code = url.searchParams.get("code") || "";
         const result = await dbStore.pollStudentTelegramOtp(code);
@@ -487,9 +487,17 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       }
     }
 
-    if (pathname === "/api/student/telegram-auth" && reqMethod === "POST") {
+    if ((pathname === "/api/student/telegram-auth" || pathname.endsWith("/telegram-auth")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
+        if (body.action === "request-code" || (body.identifier && !body.id && !body.hash && !body.code)) {
+          const result = await dbStore.requestStudentTelegramOtp(body.identifier);
+          return sendRes(result, result.success ? 200 : 400);
+        }
+        if (body.action === "verify-code" || (body.identifier && body.code)) {
+          const result = await dbStore.verifyStudentTelegramOtp(body.identifier, body.code);
+          return sendRes(result, result.success ? 200 : 400);
+        }
         const fn = dbStore.telegramAuthLogin || dbStore.authenticateTelegramUser;
         if (typeof fn !== "function") {
           return sendRes({ success: false, error: "Telegram auth handler not found" }, 500);
