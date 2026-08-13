@@ -232,7 +232,17 @@ app.post("/api/student/logout", (req, res) => {
 
 app.post(["/api/student/telegram-auth/request-code", "/api/student/telegram-auth", "/api/request-code"], async (req, res) => {
   try {
-    const { identifier, code, action } = req.body || {};
+    let body = req.body || {};
+    if (typeof body === "string") {
+      try { body = JSON.parse(body); } catch (_e) {}
+    }
+    if (Buffer.isBuffer(body)) {
+      try { body = JSON.parse(body.toString("utf-8")); } catch (_e) {}
+    }
+    const identifier = body.identifier || body.phone || body.username || body.handle;
+    const code = body.code || body.otp;
+    const action = body.action;
+
     if (action === "verify-code" || (identifier && code)) {
       const result = await dbStore.verifyStudentTelegramOtp(identifier, code);
       return res.status(result.success ? 200 : 400).json(result);
@@ -241,7 +251,7 @@ app.post(["/api/student/telegram-auth/request-code", "/api/student/telegram-auth
       const result = await dbStore.requestStudentTelegramOtp(identifier);
       return res.status(result.success ? 200 : 400).json(result);
     }
-    const result = await dbStore.authenticateTelegramUser(req.body || {});
+    const result = await dbStore.authenticateTelegramUser(body);
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
