@@ -874,6 +874,60 @@ app.delete("/api/students/:id", async (req, res) => {
   }
 });
 
+// --- Student Telegram Authentication API Endpoints ---
+app.post("/api/student/telegram-auth/request-code", async (req, res) => {
+  try {
+    const { identifier, phone, username, handle, phone_number } = req.body || {};
+    const input = identifier || phone || username || handle || phone_number;
+    const result = await dbStore.requestStudentTelegramOtp(input);
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/student/telegram-auth/verify-code", async (req, res) => {
+  try {
+    const { identifier, phone, username, code, otp } = req.body || {};
+    const input = identifier || phone || username;
+    const submittedCode = code || otp;
+    const result = await dbStore.verifyStudentTelegramOtp(input, submittedCode);
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get("/api/student/telegram-auth/poll-status", async (req, res) => {
+  try {
+    const { code } = req.query || {};
+    const result = await dbStore.pollStudentTelegramOtp(code);
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ verified: false, error: err.message });
+  }
+});
+
+app.post("/api/student/telegram-auth", async (req, res) => {
+  try {
+    const body = req.body || {};
+    if (body.action === "request-code" || (body.identifier && !body.code && !body.id && !body.hash)) {
+      const input = body.identifier || body.phone || body.username || body.phone_number;
+      const result = await dbStore.requestStudentTelegramOtp(input);
+      return res.status(result.success ? 200 : 400).json(result);
+    }
+    if (body.action === "verify-code" || (body.identifier && (body.code || body.otp))) {
+      const input = body.identifier || body.phone || body.username || body.phone_number;
+      const result = await dbStore.verifyStudentTelegramOtp(input, body.code || body.otp);
+      return res.status(result.success ? 200 : 400).json(result);
+    }
+    const result = await dbStore.authenticateTelegramUser(body);
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 app.get("/api/telegram-recipients", async (req, res) => {
   try {
