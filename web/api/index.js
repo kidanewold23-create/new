@@ -218,6 +218,28 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       return sendRes({ success: true, version: "v4.0.0-telegram-otp-fix", timestamp: new Date().toISOString() });
     }
 
+    // Primary Student Auth Endpoints (Register & Login)
+    if ((pathname.includes("register") || pathname.includes("signup")) && reqMethod === "POST") {
+      try {
+        const body = await getJsonBody();
+        const fn = dbStore.registerStudent || dbStore.registerStudentAccount;
+        const result = await fn(body || {});
+        return sendRes(result, result.success ? 200 : 400);
+      } catch (err) {
+        return sendRes({ success: false, error: err.message }, 500);
+      }
+    }
+
+    if (pathname.includes("login") && !pathname.includes("admin") && reqMethod === "POST") {
+      try {
+        const body = await getJsonBody();
+        const result = await dbStore.authenticateStudent(body || {});
+        return sendRes(result, result.success ? 200 : 400);
+      } catch (err) {
+        return sendRes({ success: false, error: err.message }, 500);
+      }
+    }
+
     // 1. Auth & Admin Security API
     if (pathname === "/api/admin/security" && reqMethod === "GET") {
       const security = await dbStore.getAdminSecurity();
