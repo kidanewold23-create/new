@@ -212,6 +212,13 @@
       color: var(--primary-gold);
     }
 
+    .phone-prefix-hint {
+      font-size: 0.78rem;
+      color: #38bdf8;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
     .btn-submit-gold {
       width: 100%;
       padding: 15px;
@@ -296,7 +303,7 @@
           <img src="/photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo">
         </div>
         <h1 class="auth-title">Student Portal Access</h1>
-        <p class="auth-desc">Sign in with your phone number or create a new student account.</p>
+        <p class="auth-desc">Sign in with your phone number or register a new student account.</p>
       </div>
 
       <!-- Tabs: Sign In / Create Account -->
@@ -309,14 +316,15 @@
         </button>
       </div>
 
-      <!-- FORM 1: LOGIN FORM -->
+      <!-- FORM 1: LOGIN FORM (Phone starting with 251 & Password) -->
       <form id="form-login" class="auth-form-panel active">
         <div class="form-group-custom">
-          <label class="form-label-custom" for="login-identifier">Phone Number or Username / Email *</label>
+          <label class="form-label-custom" for="login-phone">Phone Number (Must start with 251) *</label>
           <div class="input-icon-group">
             <i data-lucide="phone" class="left-icon"></i>
-            <input type="text" id="login-identifier" placeholder="e.g. 0912345678 or john@example.com" required autofocus>
+            <input type="tel" id="login-phone" placeholder="251912345678" required autofocus>
           </div>
+          <span class="phone-prefix-hint">💡 Example: 251912345678 (starts with 251)</span>
         </div>
 
         <div class="form-group-custom">
@@ -333,7 +341,7 @@
         </button>
       </form>
 
-      <!-- FORM 2: REGISTRATION FORM -->
+      <!-- FORM 2: REGISTRATION FORM (Name, Phone starting with 251, Password, Confirm Password) -->
       <form id="form-register" class="auth-form-panel">
         <div class="form-group-custom">
           <label class="form-label-custom" for="reg-name">Full Name *</label>
@@ -344,26 +352,27 @@
         </div>
 
         <div class="form-group-custom">
-          <label class="form-label-custom" for="reg-phone">Phone Number *</label>
+          <label class="form-label-custom" for="reg-phone">Phone Number (Must start with 251) *</label>
           <div class="input-icon-group">
             <i data-lucide="phone" class="left-icon"></i>
-            <input type="tel" id="reg-phone" placeholder="e.g. 0912345678" required>
+            <input type="tel" id="reg-phone" placeholder="251912345678" required>
           </div>
-        </div>
-
-        <div class="form-group-custom">
-          <label class="form-label-custom" for="reg-email">Email or Username (Optional)</label>
-          <div class="input-icon-group">
-            <i data-lucide="mail" class="left-icon"></i>
-            <input type="text" id="reg-email" placeholder="e.g. abebe@gmail.com or @abebe">
-          </div>
+          <span class="phone-prefix-hint">💡 Format: 251912345678 (Starts with 251)</span>
         </div>
 
         <div class="form-group-custom">
           <label class="form-label-custom" for="reg-password">Password *</label>
           <div class="input-icon-group">
             <i data-lucide="lock" class="left-icon"></i>
-            <input type="password" id="reg-password" placeholder="Create password (min 6 chars)" required minlength="6">
+            <input type="password" id="reg-password" placeholder="Create Password (min 6 chars)" required minlength="6">
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="reg-confirm-password">Confirm Password *</label>
+          <div class="input-icon-group">
+            <i data-lucide="lock-check" class="left-icon"></i>
+            <input type="password" id="reg-confirm-password" placeholder="Confirm Password" required minlength="6">
           </div>
         </div>
 
@@ -415,6 +424,18 @@
       return window.location.origin;
     };
 
+    // Helper: Normalize & Format Phone Number to start with '251'
+    function formatPhoneStarting251(rawPhone) {
+      let digits = String(rawPhone || "").replace(/[^0-9]/g, "");
+      if (digits.startsWith("0")) {
+        digits = digits.slice(1);
+      }
+      if (!digits.startsWith("251")) {
+        digits = "251" + digits;
+      }
+      return digits;
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       if (window.lucide) window.lucide.createIcons();
 
@@ -425,6 +446,19 @@
 
       const btnSubmitLogin = document.getElementById("btn-submit-login");
       const btnSubmitRegister = document.getElementById("btn-submit-register");
+
+      const loginPhoneInput = document.getElementById("login-phone");
+      const regPhoneInput = document.getElementById("reg-phone");
+
+      // Auto-format phone input on blur to start with '251'
+      [loginPhoneInput, regPhoneInput].forEach(inputElem => {
+        if (!inputElem) return;
+        inputElem.addEventListener("blur", () => {
+          if (inputElem.value.trim()) {
+            inputElem.value = formatPhoneStarting251(inputElem.value);
+          }
+        });
+      });
 
       // Switch Tabs
       tabBtnLogin.addEventListener("click", () => {
@@ -441,14 +475,22 @@
         formLogin.classList.remove("active");
       });
 
-      // 1. LOGIN HANDLER (Phone & Password)
+      // 1. LOGIN HANDLER (Phone starting with 251 & Password)
       formLogin.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const identifier = document.getElementById("login-identifier").value.trim();
+        const rawPhone = loginPhoneInput.value.trim();
         const password = document.getElementById("login-password").value.trim();
 
-        if (!identifier || !password) {
-          window.showToast("Please enter both phone number/username and password.", "error");
+        if (!rawPhone || !password) {
+          window.showToast("Please enter both phone number and password.", "error");
+          return;
+        }
+
+        const phone251 = formatPhoneStarting251(rawPhone);
+        loginPhoneInput.value = phone251;
+
+        if (!phone251.startsWith("251") || phone251.length < 10) {
+          window.showToast("Phone number must start with 251 (e.g. 251912345678).", "error");
           return;
         }
 
@@ -457,14 +499,14 @@
         if (window.lucide) window.lucide.createIcons();
 
         let loggedInStudent = null;
-        let errorMessage = "Invalid phone number or password.";
+        let errorMessage = "Incorrect phone number or password.";
 
         try {
           const apiBase = getApiBaseUrl();
           const res = await fetch(`${apiBase}/api/student/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ identifier, password })
+            body: JSON.stringify({ identifier: phone251, password })
           });
 
           if (res.ok) {
@@ -477,9 +519,8 @@
           }
         } catch (_err) {}
 
-        // Fallback local authentication / session construction if offline
+        // Fallback local authentication session if offline
         if (!loggedInStudent) {
-          const idClean = identifier.replace(/[^0-9]/g, "");
           const storedSession = localStorage.getItem("founders_student_session");
           if (storedSession) {
             try {
@@ -487,13 +528,13 @@
               if (parsed && parsed.name) loggedInStudent = parsed;
             } catch (_e) {}
           }
-          if (!loggedInStudent && identifier.length >= 3) {
+          if (!loggedInStudent) {
             loggedInStudent = {
               id: `STU-${Math.floor(10000 + Math.random() * 90000)}`,
-              name: identifier.includes("@") ? identifier.split("@")[0] : "Student User",
-              phone: idClean ? `+251 ${idClean.slice(-9)}` : identifier,
-              email: identifier.includes("@") ? identifier : `${identifier}@founders`,
-              username: identifier
+              name: `Student_${phone251.slice(-4)}`,
+              phone: `+${phone251}`,
+              email: `${phone251}@founders.et`,
+              username: phone251
             };
           }
         }
@@ -505,22 +546,36 @@
         if (loggedInStudent) {
           localStorage.setItem("founders_student_session", JSON.stringify(loggedInStudent));
           window.showToast("🎉 Welcome back! Logged in successfully.", "success");
-          setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
+          setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 500);
         } else {
           window.showToast(errorMessage, "error");
         }
       });
 
-      // 2. REGISTRATION HANDLER (Name, Phone, Email, Password)
+      // 2. REGISTRATION HANDLER (Name, Phone starting with 251, Password, Confirm Password)
       formRegister.addEventListener("submit", async (e) => {
         e.preventDefault();
         const name = document.getElementById("reg-name").value.trim();
-        const phone = document.getElementById("reg-phone").value.trim();
-        const email = document.getElementById("reg-email").value.trim();
+        const rawPhone = regPhoneInput.value.trim();
         const password = document.getElementById("reg-password").value.trim();
+        const confirmPassword = document.getElementById("reg-confirm-password").value.trim();
 
-        if (!name || !phone || !password) {
-          window.showToast("Please fill in your Full Name, Phone Number, and Password.", "error");
+        if (!name || !rawPhone || !password || !confirmPassword) {
+          window.showToast("Please fill in all fields (Full Name, Phone Number, Password, Confirm Password).", "error");
+          return;
+        }
+
+        // Validate Password Match
+        if (password !== confirmPassword) {
+          window.showToast("Passwords do not match. Please re-enter your password.", "error");
+          return;
+        }
+
+        const phone251 = formatPhoneStarting251(rawPhone);
+        regPhoneInput.value = phone251;
+
+        if (!phone251.startsWith("251") || phone251.length < 10) {
+          window.showToast("Phone number must start with 251 (e.g. 251912345678).", "error");
           return;
         }
 
@@ -536,7 +591,7 @@
           const res = await fetch(`${apiBase}/api/student/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, phone, email, username: email, password })
+            body: JSON.stringify({ name, phone: phone251, password })
           });
 
           if (res.ok) {
@@ -551,13 +606,12 @@
 
         // Fallback local session creation if offline
         if (!createdStudent) {
-          const cleanPhoneDigits = phone.replace(/[^0-9]/g, "");
           createdStudent = {
             id: `STU-${Math.floor(10000 + Math.random() * 90000)}`,
             name: name,
-            phone: cleanPhoneDigits ? `+251 ${cleanPhoneDigits.slice(-9)}` : phone,
-            email: email || `@${cleanPhoneDigits || 'student'}`,
-            username: email || `@${cleanPhoneDigits || 'student'}`,
+            phone: `+${phone251}`,
+            email: `${phone251}@founders.et`,
+            username: phone251,
             joined_date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
           };
         }
@@ -569,7 +623,7 @@
         if (createdStudent) {
           localStorage.setItem("founders_student_session", JSON.stringify(createdStudent));
           window.showToast("🎉 Account created successfully!", "success");
-          setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
+          setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 500);
         } else {
           window.showToast(errorMessage, "error");
         }
