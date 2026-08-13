@@ -807,16 +807,26 @@ export const dbStore = {
   },
   addStudent: async (student) => {
     const newStu = {
-      id: `STU-${Math.floor(8000 + Math.random() * 1000)}`,
+      id: student.id || `STU-${Math.floor(10000 + Math.random() * 90000)}`,
       name: student.name || "New Student",
-      phone: student.phone || "+251 90 000 0000",
-      email: student.email || "student@example.com",
-      joined_date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+      phone: student.phone || "",
+      email: student.email || student.username || "",
+      username: student.username || student.email || "",
+      password_hash: student.password_hash || student.password || "",
+      status: student.status || "Active",
+      joined_date: student.joined_date || new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
     };
     try {
-      await supabase.from("students").insert([newStu]);
-    } catch (_e) { /* fallback */ }
-    inMemoryStudents.push(newStu);
+      await supabase.from("students").upsert([newStu], { onConflict: "id" });
+    } catch (err) {
+      console.error("[dbStore.addStudent Error]:", err.message);
+    }
+    const existingIdx = inMemoryStudents.findIndex(s => s.id === newStu.id);
+    if (existingIdx >= 0) {
+      inMemoryStudents[existingIdx] = newStu;
+    } else {
+      inMemoryStudents.push(newStu);
+    }
     return newStu;
   },
   updateStudent: async (id, data) => {

@@ -165,13 +165,28 @@ ALTER TABLE public.course_quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quiz_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quiz_submissions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public read categories" ON public.categories;
 CREATE POLICY "Allow public read categories" ON public.categories FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public read courses" ON public.courses;
 CREATE POLICY "Allow public read courses" ON public.courses FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public read maintenance" ON public.maintenance;
 CREATE POLICY "Allow public read maintenance" ON public.maintenance FOR SELECT USING (true);
-CREATE POLICY "Allow public all students" ON public.students FOR ALL USING (true);
-CREATE POLICY "Allow public all telegram_users" ON public.telegram_users FOR ALL USING (true);
-CREATE POLICY "Allow public all course_quizzes" ON public.course_quizzes FOR ALL USING (true);
-CREATE POLICY "Allow public all quiz_questions" ON public.quiz_questions FOR ALL USING (true);
-CREATE POLICY "Allow public all quiz_submissions" ON public.quiz_submissions FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow public all students" ON public.students;
+CREATE POLICY "Allow public all students" ON public.students FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all telegram_users" ON public.telegram_users;
+CREATE POLICY "Allow public all telegram_users" ON public.telegram_users FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all course_quizzes" ON public.course_quizzes;
+CREATE POLICY "Allow public all course_quizzes" ON public.course_quizzes FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all quiz_questions" ON public.quiz_questions;
+CREATE POLICY "Allow public all quiz_questions" ON public.quiz_questions FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all quiz_submissions" ON public.quiz_submissions;
+CREATE POLICY "Allow public all quiz_submissions" ON public.quiz_submissions FOR ALL USING (true) WITH CHECK (true);
 
 
