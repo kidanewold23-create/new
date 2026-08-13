@@ -92,14 +92,14 @@ const defaultCourses = [
 ];
 
 const defaultStudents = [
-  { id: "#STD-9921", name: "Abebe Bikila", phone: "+251 91 123 4567", email: "@abebe_bikila", joined_date: "Aug 06, 2026" },
-  { id: "#STD-9922", name: "Tigist Haile", phone: "+251 92 888 9900", email: "@tigist_haile", joined_date: "Aug 06, 2026" },
-  { id: "#STD-9923", name: "Dawit Yilma", phone: "+251 94 333 2211", email: "@dawit_yilma", joined_date: "Aug 05, 2026" },
-  { id: "#STD-9924", name: "Bethlehem Tadesse", phone: "+251 91 777 4433", email: "@bethlehem_t", joined_date: "Aug 05, 2026" },
-  { id: "#STD-9925", name: "Mulugeta Tesfaye", phone: "+251 98 444 1122", email: "@mulugeta_tesfaye", joined_date: "Aug 04, 2026" },
-  { id: "#STD-9926", name: "Helen Alemu", phone: "+251 91 000 7788", email: "@helen_alemu", joined_date: "Aug 04, 2026" },
-  { id: "#STD-9927", name: "Kassahun Worku", phone: "+251 93 555 8899", email: "@kassahun_worku", joined_date: "Aug 03, 2026" },
-  { id: "#STD-9928", name: "Samrawit Bekele", phone: "+251 92 111 4455", email: "@samrawit_bekele", joined_date: "Aug 02, 2026" }
+  { id: "STU-9921", name: "Abebe Bikila", phone: "251911234567", email: "251911234567@founders.et", username: "251911234567", joined_date: "Aug 06, 2026" },
+  { id: "STU-9922", name: "Tigist Haile", phone: "251928889900", email: "251928889900@founders.et", username: "251928889900", joined_date: "Aug 06, 2026" },
+  { id: "STU-9923", name: "Dawit Yilma", phone: "251943332211", email: "251943332211@founders.et", username: "251943332211", joined_date: "Aug 05, 2026" },
+  { id: "STU-9924", name: "Bethlehem Tadesse", phone: "251917774433", email: "251917774433@founders.et", username: "251917774433", joined_date: "Aug 05, 2026" },
+  { id: "STU-9925", name: "Mulugeta Tesfaye", phone: "251984441122", email: "251984441122@founders.et", username: "251984441122", joined_date: "Aug 04, 2026" },
+  { id: "STU-9926", name: "Helen Alemu", phone: "251910007788", email: "251910007788@founders.et", username: "251910007788", joined_date: "Aug 04, 2026" },
+  { id: "STU-9927", name: "Kassahun Worku", phone: "251935558899", email: "251935558899@founders.et", username: "251935558899", joined_date: "Aug 03, 2026" },
+  { id: "STU-9928", name: "Samrawit Bekele", phone: "251921114455", email: "251921114455@founders.et", username: "251921114455", joined_date: "Aug 02, 2026" }
 ];
 
 const defaultTransactions = [
