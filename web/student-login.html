@@ -422,6 +422,10 @@
     };
 
     window.onTelegramAuth = async (user) => {
+      if (!user) {
+        window.showToast("Telegram Error: Empty auth user payload", "error");
+        return;
+      }
       if (!user.phone && !user.phone_number) {
         const phoneInput = prompt("📱 Complete Telegram Setup:\n\nPlease enter your Phone Number (e.g. 0912345678) to link with your Telegram account:", "");
         if (phoneInput && phoneInput.trim()) {
@@ -430,21 +434,33 @@
       }
       window.showToast("Verifying Telegram authentication...", "info");
       try {
-        const res = await fetch("/api/student/telegram-auth", {
+        const apiBase = getApiBaseUrl();
+        const res = await fetch(`${apiBase}/api/student/telegram-auth`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user)
         });
-        const data = await res.json();
+        const contentType = res.headers.get("content-type") || "";
+        let data = {};
+        if (contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          const rawText = await res.text();
+          console.error("❌ Telegram Auth Non-JSON Response:", res.status, rawText);
+          throw new Error(`Server returned HTTP ${res.status}: ${rawText.substring(0, 100)}`);
+        }
+
         if (data.success && data.student) {
           localStorage.setItem("founders_student_session", JSON.stringify(data.student));
           window.showToast(data.message || "🎉 Authenticated via Telegram!", "success");
           setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
         } else {
-          window.showToast(data.error || "Telegram authentication failed.", "error");
+          console.error("❌ Telegram Auth Error:", res.status, data);
+          window.showToast(data.error || `Telegram Auth Failed (Status ${res.status})`, "error");
         }
       } catch (err) {
-        window.showToast("Telegram verification notice: " + err.message, "error");
+        console.error("❌ Telegram Auth Exception:", err);
+        window.showToast("Telegram Notice: " + err.message, "error");
       }
     };
 
@@ -497,6 +513,7 @@
 
           let contentType = reqRes.headers.get("content-type") || "";
           if (!reqRes.ok || !contentType.includes("application/json")) {
+            console.warn(`[Telegram Auth] Primary /request-code status ${reqRes.status}. Trying fallback /telegram-auth...`);
             reqRes = await fetch(`${apiBase}/api/student/telegram-auth`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -505,17 +522,22 @@
             contentType = reqRes.headers.get("content-type") || "";
           }
 
-          if (!contentType.includes("application/json")) {
-            throw new Error("Server returned HTML response instead of JSON API response.");
+          let reqData = {};
+          if (contentType.includes("application/json")) {
+            reqData = await reqRes.json();
+          } else {
+            const rawBody = await reqRes.text();
+            console.error("❌ Request Code Non-JSON Response:", reqRes.status, rawBody);
+            throw new Error(`Server returned HTTP ${reqRes.status}`);
           }
-
-          const reqData = await reqRes.json();
 
           if (!reqData.success) {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = `<i data-lucide="send"></i> <span>Continue with Telegram 1-Tap</span>`;
             if (window.lucide) window.lucide.createIcons();
-            window.showToast(reqData.error || "Failed to generate Telegram code.", "error");
+            const errDetail = reqData.error || (reqData.debug ? `Path '${reqData.debug.pathname}' not found` : "Failed to generate code.");
+            console.error("❌ Request Code Error:", reqRes.status, reqData);
+            window.showToast(`Telegram Code Error (${reqRes.status}): ${errDetail}`, "error");
             return;
           }
 

@@ -1070,7 +1070,18 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       return sendRes(result, result.success ? 200 : 400);
     }
 
-    return sendRes({ error: "Endpoint not found", pathname }, 404);
+    console.warn(`[Vercel API Router 404] Method: ${reqMethod}, Resolved Path: ${pathname}, Raw URL: ${req.url}`);
+    return sendRes({
+      success: false,
+      error: `Endpoint not found: ${reqMethod} ${pathname}`,
+      debug: {
+        pathname,
+        rawUrl: req.url,
+        method: reqMethod,
+        xInvokePath: getHeader("x-invoke-path") || null,
+        xForwardedUri: getHeader("x-forwarded-uri") || null
+      }
+    }, 404);
   } catch (err) {
     console.error("[Vercel Handler Fatal Exception]:", err);
     return sendRes({ success: false, error: err.message || "Internal Server Error" }, 500);
