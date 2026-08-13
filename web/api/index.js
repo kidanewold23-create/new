@@ -476,7 +476,7 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     }
 
     // Student Auth API
-    if ((pathname === "/api/student/register" || pathname === "/api/student/signup") && reqMethod === "POST") {
+    if ((pathname === "/api/student/register" || pathname === "/api/student/signup" || pathname.endsWith("/register") || pathname.endsWith("/signup")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
         const fn = dbStore.registerStudent || dbStore.registerStudentAccount;
@@ -487,7 +487,7 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       }
     }
 
-    if (pathname === "/api/student/login" && reqMethod === "POST") {
+    if ((pathname === "/api/student/login" || pathname.endsWith("/login")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
         const result = await dbStore.authenticateStudent(body);
