@@ -94,26 +94,34 @@ export default async function handler(req, res) {
   };
 
   const getJsonBody = async () => {
-    if (Buffer.isBuffer(req.body)) {
-      try { return JSON.parse(req.body.toString("utf-8")); } catch (_e) { return {}; }
+    if (req && req.body && typeof req.body === "object") {
+      return req.body;
     }
-    if (typeof req.body === "string" && req.body.trim()) {
-      try { return JSON.parse(req.body); } catch (_e) { return {}; }
+    if (req && Buffer.isBuffer(req.body)) {
+      try { return JSON.parse(req.body.toString("utf-8")); } catch (_e) {}
     }
-    if (req.body && typeof req.body === "object") return req.body;
-    if (typeof req.json === "function") {
-      try { return await req.json(); } catch (_e) { return {}; }
+    if (req && typeof req.body === "string" && req.body.trim()) {
+      try { return JSON.parse(req.body); } catch (_e) {}
     }
-    if (typeof req.on === "function") {
-      return new Promise((resolve) => {
-        let data = "";
-        req.on("data", chunk => { data += chunk; });
-        req.on("end", () => {
-          try { resolve(JSON.parse(data || "{}")); } catch (_e) { resolve({}); }
-        });
+    if (req && typeof req.json === "function") {
+      try { return await req.json(); } catch (_e) {}
+    }
+    if (req && typeof req.on === "function" && !req.readableEnded) {
+      const data = await new Promise((resolve) => {
+        let buf = "";
+        let timer = setTimeout(() => resolve(buf), 200);
+        req.on("data", chunk => { buf += chunk; });
+        req.on("end", () => { clearTimeout(timer); resolve(buf); });
+        req.on("error", () => { clearTimeout(timer); resolve(buf); });
       });
+      if (data && data.trim()) {
+        try { return JSON.parse(data); } catch (_e) {}
+      }
     }
-    return {};
+    if (req && req.query && typeof req.query === "object" && Object.keys(req.query).length > 0) {
+      return req.query;
+    }
+    return req?.body || {};
   };
 
   try {
