@@ -1017,7 +1017,17 @@ export const dbStore = {
   },
 
   authenticateTelegramUser: async (tgData) => {
+    if (tgData && (tgData.action === "request-code" || (tgData.identifier && !tgData.id && !tgData.hash && !tgData.code))) {
+      return dbStore.requestStudentTelegramOtp(tgData.identifier || tgData.phone || tgData.username);
+    }
+    if (tgData && (tgData.action === "verify-code" || (tgData.identifier && tgData.code))) {
+      return dbStore.verifyStudentTelegramOtp(tgData.identifier, tgData.code);
+    }
+
     if (!tgData || (!tgData.id && !tgData.telegram_id && !tgData.username && !tgData.phone)) {
+      if (tgData && tgData.identifier) {
+        return dbStore.requestStudentTelegramOtp(tgData.identifier);
+      }
       return { success: false, error: "Invalid Telegram authentication payload." };
     }
 
