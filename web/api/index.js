@@ -94,12 +94,15 @@ export default async function handler(req, res) {
   };
 
   const getJsonBody = async () => {
-    if (req.body && typeof req.body === "object") return req.body;
-    if (typeof req.json === "function") {
-      try { return await req.json(); } catch (_e) { return {}; }
+    if (Buffer.isBuffer(req.body)) {
+      try { return JSON.parse(req.body.toString("utf-8")); } catch (_e) { return {}; }
     }
     if (typeof req.body === "string" && req.body.trim()) {
       try { return JSON.parse(req.body); } catch (_e) { return {}; }
+    }
+    if (req.body && typeof req.body === "object") return req.body;
+    if (typeof req.json === "function") {
+      try { return await req.json(); } catch (_e) { return {}; }
     }
     if (typeof req.on === "function") {
       return new Promise((resolve) => {
@@ -490,8 +493,8 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     if ((pathname === "/api/student/telegram-auth" || pathname.endsWith("/telegram-auth")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
-        if (body.action === "request-code" || (body.identifier && !body.id && !body.hash && !body.code)) {
-          const result = await dbStore.requestStudentTelegramOtp(body.identifier);
+        if (body.action === "request-code" || body.identifier) {
+          const result = await dbStore.requestStudentTelegramOtp(body.identifier || body.phone || body.username);
           return sendRes(result, result.success ? 200 : 400);
         }
         if (body.action === "verify-code" || (body.identifier && body.code)) {
