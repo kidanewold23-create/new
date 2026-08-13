@@ -69,6 +69,10 @@ app.use((req, res, next) => {
 // REST API ROUTER (/api/*)
 // =========================================================================
 
+app.get("/api/version", (req, res) => {
+  return res.status(200).json({ success: true, version: "v4.0.0-telegram-otp-fix", timestamp: new Date().toISOString() });
+});
+
 // 1. Auth & Admin Security 2FA API
 app.get("/api/admin/security", async (req, res) => {
   try {

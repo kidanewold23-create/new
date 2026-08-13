@@ -182,6 +182,10 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       return sendRes(cssFallback, 200);
     }
 
+    if (pathname === "/api/version") {
+      return sendRes({ success: true, version: "v4.0.0-telegram-otp-fix", timestamp: new Date().toISOString() });
+    }
+
     // 1. Auth & Admin Security API
     if (pathname === "/api/admin/security" && reqMethod === "GET") {
       const security = await dbStore.getAdminSecurity();
