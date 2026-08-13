@@ -130,8 +130,8 @@ export default async function handler(req, res) {
     const pathParam = url.searchParams.get("path");
     if (pathParam) {
       pathname = pathParam;
-    } else if (pathname === "/api" || pathname === "/api/" || pathname === "/api/index" || pathname === "/api/index.js" || pathname === "/api/index.ts") {
-      const xUrl = getHeader("x-url") || getHeader("x-rewrite-url") || getHeader("x-matched-path") || getHeader("x-forwarded-uri");
+    } else if (pathname === "/api" || pathname === "/api/" || pathname === "/api/index" || pathname === "/api/index.js" || pathname === "/api/index.ts" || pathname === "/api/[...path]") {
+      const xUrl = getHeader("x-url") || getHeader("x-invoke-path") || getHeader("x-forwarded-uri") || getHeader("x-original-url") || getHeader("x-rewrite-url") || getHeader("x-matched-path");
       if (xUrl) {
         try {
           const parsed = new URL(xUrl.startsWith("http") ? xUrl : `http://localhost${xUrl.startsWith("/") ? "" : "/"}${xUrl}`).pathname;
@@ -467,7 +467,8 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     if ((pathname === "/api/student/telegram-auth/request-code" || pathname.endsWith("/request-code")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
-        const result = await dbStore.requestStudentTelegramOtp(body.identifier);
+        const identifier = body.identifier || body.phone || body.username || body.handle || body.phone_number;
+        const result = await dbStore.requestStudentTelegramOtp(identifier);
         return sendRes(result, result.success ? 200 : 400);
       } catch (err) {
         return sendRes({ success: false, error: err.message }, 500);
@@ -477,7 +478,8 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     if ((pathname === "/api/student/telegram-auth/verify-code" || pathname.endsWith("/verify-code")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
-        const result = await dbStore.verifyStudentTelegramOtp(body.identifier, body.code);
+        const identifier = body.identifier || body.phone || body.username || body.phone_number;
+        const result = await dbStore.verifyStudentTelegramOtp(identifier, body.code || body.otp);
         return sendRes(result, result.success ? 200 : 400);
       } catch (err) {
         return sendRes({ success: false, error: err.message }, 500);
@@ -497,12 +499,14 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
     if ((pathname === "/api/student/telegram-auth" || pathname.endsWith("/telegram-auth")) && reqMethod === "POST") {
       try {
         const body = await getJsonBody();
-        if (body.action === "request-code" || body.identifier) {
-          const result = await dbStore.requestStudentTelegramOtp(body.identifier || body.phone || body.username);
+        if (body.action === "request-code" || (body.identifier && !body.code && !body.id && !body.hash)) {
+          const identifier = body.identifier || body.phone || body.username || body.phone_number;
+          const result = await dbStore.requestStudentTelegramOtp(identifier);
           return sendRes(result, result.success ? 200 : 400);
         }
-        if (body.action === "verify-code" || (body.identifier && body.code)) {
-          const result = await dbStore.verifyStudentTelegramOtp(body.identifier, body.code);
+        if (body.action === "verify-code" || (body.identifier && (body.code || body.otp))) {
+          const identifier = body.identifier || body.phone || body.username || body.phone_number;
+          const result = await dbStore.verifyStudentTelegramOtp(identifier, body.code || body.otp);
           return sendRes(result, result.success ? 200 : 400);
         }
         const fn = dbStore.telegramAuthLogin || dbStore.authenticateTelegramUser;

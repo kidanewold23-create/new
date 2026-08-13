@@ -496,7 +496,7 @@
           });
 
           let contentType = reqRes.headers.get("content-type") || "";
-          if (!contentType.includes("application/json")) {
+          if (!reqRes.ok || !contentType.includes("application/json")) {
             reqRes = await fetch(`${apiBase}/api/student/telegram-auth`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -579,7 +579,7 @@
           });
 
           let verifyContentType = verifyRes.headers.get("content-type") || "";
-          if (!verifyContentType.includes("application/json")) {
+          if (!verifyRes.ok || !verifyContentType.includes("application/json")) {
             verifyRes = await fetch(`${apiBase}/api/student/telegram-auth`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },

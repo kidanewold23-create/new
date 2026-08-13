@@ -9,6 +9,21 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "sb_publishable_7SjYA
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+async function telegramApi(method, params = {}) {
+  const BOT_TOKEN = (typeof Deno !== "undefined" && Deno.env ? Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") : "") || (typeof process !== "undefined" && process.env ? (process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN) : "");
+  if (!BOT_TOKEN) return { ok: false, description: "BOT_TOKEN missing" };
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params)
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, description: err.message };
+  }
+}
+
 // Initial Seed Data Fallbacks
 const defaultCategories = [
   { id: "cat-1", name: "Digital Marketing / SMMA", status: "ON" },
@@ -1017,31 +1032,35 @@ export const dbStore = {
   },
 
   authenticateTelegramUser: async (tgData) => {
-    if (tgData && (tgData.action === "request-code" || (tgData.identifier && !tgData.id && !tgData.hash && !tgData.code))) {
-      return dbStore.requestStudentTelegramOtp(tgData.identifier || tgData.phone || tgData.username);
+    const data = (tgData && tgData.user && typeof tgData.user === "object") ? tgData.user : (tgData || {});
+
+    const action = data.action || tgData?.action;
+    const identifier = data.identifier || tgData?.identifier || data.phone || data.phone_number || data.username || data.handle;
+    const code = data.code || tgData?.code || data.otp;
+
+    if (action === "request-code" || (identifier && !data.id && !data.telegram_id && !data.user_id && !data.hash && !code)) {
+      return dbStore.requestStudentTelegramOtp(identifier);
     }
-    if (tgData && (tgData.action === "verify-code" || (tgData.identifier && tgData.code))) {
-      return dbStore.verifyStudentTelegramOtp(tgData.identifier, tgData.code);
+    if (action === "verify-code" || (identifier && code)) {
+      return dbStore.verifyStudentTelegramOtp(identifier, code);
     }
 
-    if (!tgData || (!tgData.id && !tgData.telegram_id && !tgData.username && !tgData.phone)) {
-      if (tgData && tgData.identifier) {
-        return dbStore.requestStudentTelegramOtp(tgData.identifier);
-      }
+    const rawId = data.id || data.telegram_id || data.user_id || data.username || data.phone || data.phone_number || identifier;
+
+    if (!data || (!rawId && !data.first_name && !data.last_name)) {
       return { success: false, error: "Invalid Telegram authentication payload." };
     }
 
-    const rawId = tgData.id || tgData.telegram_id || tgData.username || tgData.phone || ("tg_" + Date.now());
     const tgIdStr = String(rawId).trim();
     const formattedId = tgIdStr.startsWith("TG-") ? tgIdStr : `TG-${tgIdStr}`;
     const rawNumId = tgIdStr.replace(/^TG-/, "");
 
-    const firstName = String(tgData.first_name || "").trim();
-    const lastName = String(tgData.last_name || "").trim();
-    const fullName = [firstName, lastName].filter(Boolean).join(" ") || tgData.name || tgData.username || `Telegram Student ${rawNumId}`;
-    const username = tgData.username ? `@${String(tgData.username).replace(/^@/, "")}` : "";
-    const photoUrl = tgData.photo_url || tgData.avatar_url || "";
-    const phone = tgData.phone || tgData.phone_number || "";
+    const firstName = String(data.first_name || "").trim();
+    const lastName = String(data.last_name || "").trim();
+    const fullName = [firstName, lastName].filter(Boolean).join(" ") || data.name || data.username || `Telegram Student ${rawNumId}`;
+    const username = data.username ? `@${String(data.username).replace(/^@/, "")}` : "";
+    const photoUrl = data.photo_url || data.avatar_url || "";
+    const phone = data.phone || data.phone_number || "";
 
     const allStudents = await dbStore.getStudents();
     const existing = allStudents.find(s => {
