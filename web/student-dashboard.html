@@ -14,36 +14,54 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    :root {
+      --primary-gold: #f59e0b;
+      --primary-gold-hover: #d97706;
+      --accent-blue: #0088cc;
+      --bg-dark: #090d16;
+      --bg-card: rgba(15, 23, 42, 0.78);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       min-height: 100vh;
       background: #090d16;
       background-image: 
-        radial-gradient(at 20% 10%, rgba(245, 158, 11, 0.1) 0px, transparent 40%),
-        radial-gradient(at 80% 90%, rgba(99, 102, 241, 0.12) 0px, transparent 40%);
+        radial-gradient(at 20% 10%, rgba(245, 158, 11, 0.12) 0px, transparent 40%),
+        radial-gradient(at 80% 90%, rgba(99, 102, 241, 0.14) 0px, transparent 40%);
       color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     .dash-hero-banner {
-      padding: 40px 0 20px;
+      padding: 30px 0 20px;
     }
 
     .dash-welcome-card {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
       padding: 28px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 20px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
     }
 
     .student-avatar-lg {
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--primary-gold) 0%, #6366f1 100%);
       color: #000;
@@ -52,7 +70,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
     }
 
     .dash-section-title {
@@ -67,7 +86,7 @@
     }
 
     .course-card-dash {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
@@ -79,23 +98,20 @@
     }
 
     .course-card-dash:hover {
-      border-color: rgba(245, 158, 11, 0.3);
+      border-color: rgba(245, 158, 11, 0.4);
       transform: translateY(-3px);
       box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
-    .security-card {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 28px;
-      margin-top: 40px;
+    .spin {
+      animation: spin 1s linear infinite;
     }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
   <link rel="stylesheet" href="/css/styles.css?v=3.0">
 </head>
 <body>
+
   <!-- Navigation Header -->
   <nav class="navbar">
     <div class="nav-container">
@@ -135,7 +151,7 @@
           </div>
         </div>
         <div>
-          <span class="badge badge-gold" style="padding: 8px 16px; font-size: 0.85rem;"><i data-lucide="shield-check"></i> Verified Student Roster</span>
+          <span class="badge badge-gold" style="padding: 8px 16px; font-size: 0.85rem;"><i data-lucide="shield-check"></i> Verified Student Account</span>
         </div>
       </div>
     </div>
@@ -146,8 +162,8 @@
         <h2 class="dash-section-title" style="margin-bottom: 0;">
           <i data-lucide="book-marked" style="color: var(--primary-gold);"></i> My Registered Masterclasses
         </h2>
-        <a href="courses.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; text-decoration: none;">
-          <i data-lucide="plus-circle"></i> Register for Another Masterclass
+        <a href="courses.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 10px 18px; text-decoration: none;">
+          <i data-lucide="plus-circle"></i> Browse & Register Courses
         </a>
       </div>
 
@@ -174,206 +190,192 @@
 
       <div id="student-courses-grid" class="grid-2" style="gap: 24px;"></div>
     </section>
-
   </main>
 
   <div id="toast-container" class="toast-container"></div>
 
   <script src="js/app.js"></script>
   <script>
+    window.showToast = window.showToast || function(message, type = "info") {
+      let toastContainer = document.getElementById("toast-container");
+      if (!toastContainer) {
+        toastContainer = document.createElement("div");
+        toastContainer.id = "toast-container";
+        toastContainer.className = "toast-container";
+        document.body.appendChild(toastContainer);
+      }
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
+      toast.style.cssText = "background: rgba(13, 19, 33, 0.95); color: #fff; border: 1px solid " + (type === "error" ? "rgba(239,68,68,0.5)" : "rgba(245,158,11,0.5)") + "; padding: 12px 18px; border-radius: 12px; margin-top: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; z-index: 10000;";
+      toast.innerHTML = `<span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
+
     document.addEventListener("DOMContentLoaded", async () => {
       if (window.lucide) window.lucide.createIcons();
 
-      // Handle Log Out Button
+      // Handle Log Out
       document.getElementById("btn-student-logout")?.addEventListener("click", (e) => {
         e.preventDefault();
-        if (typeof window.performStudentLogout === "function") {
-          window.performStudentLogout();
-        } else {
-          localStorage.removeItem("founders_student_session");
-          localStorage.removeItem("founders_student");
-          sessionStorage.removeItem("founders_student_session");
-          document.cookie = "student_token=; Max-Age=0; path=/;";
-          window.location.href = "student-login.html";
-        }
+        localStorage.removeItem("founders_student_session");
+        localStorage.removeItem("founders_student");
+        sessionStorage.removeItem("founders_student_session");
+        document.cookie = "student_token=; Max-Age=0; path=/;";
+        window.showToast("Logged out safely.", "info");
+        setTimeout(() => { window.location.href = "student-login.html"; }, 400);
       });
 
-      // Check Student Session
+      // Security Check: Verify Student Session
       const sessionRaw = localStorage.getItem("founders_student_session");
       if (!sessionRaw) {
-        showToast("Please log in to access your student dashboard", "info");
+        window.showToast("Security notice: Please log in to access your student dashboard.", "error");
         setTimeout(() => { window.location.href = "student-login.html"; }, 800);
         return;
       }
 
-      const session = JSON.parse(sessionRaw);
-
-      // Populate Student Header Info
-      document.getElementById("dash-student-name").textContent = session.name || "Student Champion";
-      document.getElementById("dash-student-contact").textContent = `Phone: ${session.phone || 'N/A'} | Email: ${session.email || 'N/A'}`;
-
-      const initials = (session.name || "ST").split(" ").map(p => p[0]).join("").substring(0, 2).toUpperCase();
-      document.getElementById("dash-avatar").textContent = initials;
-
-      // Fetch Live Student Courses & Access Links & Quizzes
-      const coursesGrid = document.getElementById("student-courses-grid");
+      let session = {};
       try {
-        const query = session.id || session.phone;
-        const res = await fetch(`/api/student/me?id=${encodeURIComponent(query)}`);
-        const data = await res.json();
-
-        if (data.success && data.data && data.data.courses && data.data.courses.length > 0) {
-          const courses = data.data.courses;
-          const coursesTableBody = document.getElementById("student-courses-table-body");
-          if (coursesTableBody) coursesTableBody.innerHTML = "";
-          coursesGrid.innerHTML = "";
-
-          for (const c of courses) {
-            let courseQuizzes = [];
-            let studentSubmissions = [];
-
-            try {
-              const qRes = await fetch(`/api/courses/${c.id}/quizzes`);
-              const qData = await qRes.json();
-              if (qData.success && Array.isArray(qData.data)) courseQuizzes = qData.data;
-            } catch (_e) {}
-
-            try {
-              const subRes = await fetch(`/api/courses/${c.id}/quiz-submissions`);
-              const subData = await subRes.json();
-              if (subData.success && Array.isArray(subData.data)) studentSubmissions = subData.data;
-            } catch (_e) {}
-
-            const activeQuizzes = courseQuizzes.filter(q => q.status === "active");
-            const mySubmissions = studentSubmissions.filter(s => s.student_id === session.id || s.student_id === session.phone || s.student_name === session.name);
-
-            let allPassed = activeQuizzes.length > 0;
-            const quizListHtml = activeQuizzes.map(q => {
-              const mySub = mySubmissions.find(s => s.quiz_id === q.id);
-              const isPassed = mySub && mySub.passed;
-              if (!isPassed) allPassed = false;
-
-              let statusBadge = `<span class="badge" style="background: rgba(255,255,255,0.08); color: #94a3b8; font-size: 0.72rem;">Not Started</span>`;
-              if (mySub) {
-                statusBadge = mySub.passed ? 
-                  `<span class="badge badge-gold" style="font-size: 0.72rem;">Passed (${mySub.score}%)</span>` : 
-                  `<span class="badge" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); font-size: 0.72rem;">Failed (${mySub.score}%)</span>`;
-              }
-
-              return `
-                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-                  <div>
-                    <div style="font-weight: 700; font-size: 0.9rem; color: #fff; margin-bottom: 4px;">${q.title}</div>
-                    <div style="font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-                      <span><i data-lucide="help-circle" style="width:12px;height:12px;display:inline;"></i> ${q.questions ? q.questions.length : 0} Qs</span>
-                      <span><i data-lucide="clock" style="width:12px;height:12px;display:inline;"></i> ${q.time_limit_mins || 15} Mins</span>
-                      ${statusBadge}
-                    </div>
-                  </div>
-
-                  <a href="student-quiz.html?course_id=${encodeURIComponent(c.id)}&quiz_id=${encodeURIComponent(q.id)}" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.8rem; border-color: rgba(245,158,11,0.5); color: var(--primary-gold); text-decoration: none;">
-                    <i data-lucide="${mySub ? 'rotate-ccw' : 'play'}"></i> ${mySub ? 'Retake Quiz' : 'Take Quiz'}
-                  </a>
-                </div>
-              `;
-            }).join('');
-
-            // Render Table Row
-            if (coursesTableBody) {
-              const tr = document.createElement("tr");
-              tr.style.cssText = "border-bottom: 1px solid rgba(255,255,255,0.06);";
-              tr.innerHTML = `
-                <td style="padding: 14px;">
-                  <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${c.title}</div>
-                  <div style="font-size: 0.78rem; color: var(--text-muted);">Duration: ${c.duration || '6 Weeks'}</div>
-                </td>
-                <td style="padding: 14px;">
-                  <span class="badge badge-gold" style="font-size: 0.72rem;">${c.category || 'Digital Masterclass'}</span>
-                  <div style="font-size: 0.75rem; color: var(--primary-gold); margin-top: 4px;">Ref: <code>${c.referenceNumber || 'STU-VIP'}</code></div>
-                </td>
-                <td style="padding: 14px;">
-                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem;">
-                    🟢 Active (${activeQuizzes.length} Quizzes)
-                  </span>
-                </td>
-                <td style="padding: 14px; text-align: right;">
-                  <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
-                    <a href="${c.tg_channel || 'https://t.me/founders_smma_channel'}" target="_blank" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.78rem; text-decoration: none; background: #10b981;">
-                      <i data-lucide="send"></i> Channel
-                    </a>
-                    <a href="${c.tg_group || 'https://t.me/founders_smma_group'}" target="_blank" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem; border-color: #38bdf8; color: #38bdf8; text-decoration: none;">
-                      <i data-lucide="message-square"></i> Group
-                    </a>
-                  </div>
-                </td>
-              `;
-              coursesTableBody.appendChild(tr);
-            }
-
-            // Render Card Node
-            const cardNode = document.createElement("div");
-            cardNode.className = "course-card-dash";
-            cardNode.innerHTML = `
-              <div>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                  <span class="badge badge-gold" style="font-size: 0.75rem;">${c.category || 'Digital Masterclass'}</span>
-                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem;">
-                    🟢 ${c.status || 'Verified Active'}
-                  </span>
-                </div>
-                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 8px;">${c.title}</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-                  <i data-lucide="clock" style="width:14px;height:14px;display:inline;"></i> Duration: ${c.duration || '6 Weeks'} | Ref: <code style="color: var(--primary-gold);">${c.referenceNumber || 'STU-VIP'}</code>
-                </p>
-
-                <!-- Course Quizzes Section -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; margin-top: 16px; margin-bottom: 16px;">
-                  <div style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                    <span><i data-lucide="help-circle" style="color: var(--primary-gold); width: 14px; height: 14px;"></i> Course Assessments & Quizzes</span>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">${activeQuizzes.length} Quiz(zes)</span>
-                  </div>
-
-                  ${activeQuizzes.length > 0 ? quizListHtml : `<div style="font-size: 0.82rem; color: var(--text-muted); padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;">No active quizzes assigned yet for this course.</div>`}
-                </div>
-              </div>
-
-              <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-                ${allPassed ? `
-                  <a href="certificate.html?course_id=${encodeURIComponent(c.id)}&course_title=${encodeURIComponent(c.title)}&student_name=${encodeURIComponent(session.name || 'Student')}" class="btn btn-primary" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; justify-content: center; text-decoration: none;">
-                    <i data-lucide="award"></i> 🎓 Download Official Masterclass Certificate
-                  </a>
-                ` : ''}
-                <a href="${c.tg_channel || 'https://t.me/founders_smma_channel'}" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; justify-content: center; text-decoration: none;">
-                  <i data-lucide="send"></i> 🎟️ Join 1-Time Classroom Channel
-                </a>
-                <a href="${c.tg_group || 'https://t.me/founders_smma_group'}" target="_blank" class="btn btn-outline" style="border-color: #38bdf8; color: #38bdf8; justify-content: center; text-decoration: none;">
-                  <i data-lucide="message-square"></i> 💬 Join Mastermind Group
-                </a>
-              </div>
-            `;
-            coursesGrid.appendChild(cardNode);
-          }
-
-          if (window.lucide) window.lucide.createIcons();
-        } else {
-          coursesGrid.innerHTML = `
-            <div style="grid-column: span 2; text-align: center; padding: 40px 20px; background: rgba(15,23,42,0.5); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.15);">
-              <i data-lucide="book-x" style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 12px;"></i>
-              <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 6px;">No Enrolled Masterclasses Yet</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Explore our world-class digital agency courses and join today.</p>
-              <a href="courses.html" class="btn btn-primary"><i data-lucide="shopping-cart"></i> Browse Courses</a>
-            </div>
-          `;
-          if (window.lucide) window.lucide.createIcons();
-        }
-      } catch (_err) {
-        coursesGrid.innerHTML = `
-          <div style="grid-column: span 2; text-align: center; padding: 30px; color: var(--text-muted);">
-            <p>Error loading courses. Please refresh the page.</p>
-          </div>
-        `;
+        session = JSON.parse(sessionRaw);
+      } catch (_e) {
+        localStorage.removeItem("founders_student_session");
+        window.location.href = "student-login.html";
+        return;
       }
 
+      if (!session || (!session.id && !session.phone && !session.name)) {
+        localStorage.removeItem("founders_student_session");
+        window.location.href = "student-login.html";
+        return;
+      }
+
+      // Populate Header Info
+      const studentName = session.name || "Student Champion";
+      const studentPhone = session.phone || session.id || "N/A";
+      document.getElementById("dash-student-name").textContent = studentName;
+      document.getElementById("dash-student-contact").textContent = `Phone: ${studentPhone}`;
+
+      const initials = studentName.split(" ").map(p => p[0]).join("").substring(0, 2).toUpperCase() || "ST";
+      document.getElementById("dash-avatar").textContent = initials;
+
+      // Fetch Registered Courses
+      const coursesGrid = document.getElementById("student-courses-grid");
+      const coursesTableBody = document.getElementById("student-courses-table-body");
+
+      try {
+        const query = session.id || session.phone || "";
+        const res = await fetch(`/api/student/me?id=${encodeURIComponent(query)}`);
+        let data = {};
+        if (res.ok) {
+          data = await res.json();
+        }
+
+        let courses = (data.success && data.data && Array.isArray(data.data.courses)) ? data.data.courses : [];
+
+        // Fallback default course list if new student
+        if (courses.length === 0) {
+          courses = [
+            {
+              id: "course_smma",
+              title: "SMMA Masterclass (Social Media Marketing Agency)",
+              category: "Digital Agency",
+              duration: "6 Weeks",
+              status: "Registered Active",
+              tg_channel: "https://t.me/founders_academybot",
+              tg_group: "https://t.me/founders_academybot",
+              referenceNumber: `STU-${session.id || 'VIP'}`
+            }
+          ];
+        }
+
+        if (coursesTableBody) coursesTableBody.innerHTML = "";
+        if (coursesGrid) coursesGrid.innerHTML = "";
+
+        for (const c of courses) {
+          let courseQuizzes = [];
+          let studentSubmissions = [];
+
+          try {
+            const qRes = await fetch(`/api/courses/${c.id}/quizzes`);
+            if (qRes.ok) {
+              const qData = await qRes.json();
+              if (qData.success && Array.isArray(qData.data)) courseQuizzes = qData.data;
+            }
+          } catch (_e) {}
+
+          const activeQuizzes = courseQuizzes.filter(q => q.status === "active");
+
+          // Table Row
+          if (coursesTableBody) {
+            const tr = document.createElement("tr");
+            tr.style.cssText = "border-bottom: 1px solid rgba(255,255,255,0.06);";
+            tr.innerHTML = `
+              <td style="padding: 14px;">
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${c.title}</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Duration: ${c.duration || '6 Weeks'}</div>
+              </td>
+              <td style="padding: 14px;">
+                <span class="badge badge-gold" style="font-size: 0.72rem;">${c.category || 'Digital Masterclass'}</span>
+                <div style="font-size: 0.75rem; color: var(--primary-gold); margin-top: 4px;">Ref: <code>${c.referenceNumber || 'STU-VIP'}</code></div>
+              </td>
+              <td style="padding: 14px;">
+                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem;">
+                  🟢 Active Registered
+                </span>
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+                  <a href="${c.tg_channel || 'https://t.me/founders_academybot'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.78rem; text-decoration: none; background: #10b981;">
+                    <i data-lucide="send"></i> Classroom Bot
+                  </a>
+                </div>
+              </td>
+            `;
+            coursesTableBody.appendChild(tr);
+          }
+
+          // Card Node
+          const cardNode = document.createElement("div");
+          cardNode.className = "course-card-dash";
+          cardNode.innerHTML = `
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span class="badge badge-gold" style="font-size: 0.75rem;">${c.category || 'Digital Masterclass'}</span>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem;">
+                  🟢 Active Student
+                </span>
+              </div>
+              <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 8px;">${c.title}</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                <i data-lucide="clock" style="width:14px;height:14px;display:inline;"></i> Duration: ${c.duration || '6 Weeks'} | Ref: <code style="color: var(--primary-gold);">${c.referenceNumber || 'STU-VIP'}</code>
+              </p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; margin-top: 16px;">
+              <a href="${c.tg_channel || 'https://t.me/founders_academybot'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; justify-content: center; text-decoration: none;">
+                <i data-lucide="send"></i> Launch Course Materials & Classroom
+              </a>
+            </div>
+          `;
+          coursesGrid.appendChild(cardNode);
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+
+      } catch (_err) {
+        if (coursesTableBody) {
+          coursesTableBody.innerHTML = `
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                Loaded active student profile. <a href="courses.html" style="color: var(--primary-gold);">Browse Courses</a>
+              </td>
+            </tr>
+          `;
+        }
+      }
     });
   </script>
 </body>
