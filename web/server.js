@@ -66,6 +66,18 @@ app.post(["/api/student/login", "/student/login", "/login"], async (req, res) =>
   }
 });
 
+app.post(["/api/student/reset-password", "/student/reset-password", "/api/student/forgot-password"], async (req, res) => {
+  try {
+    const { phone, identifier, newPassword, password } = req.body || {};
+    const inputPhone = phone || identifier;
+    const inputPass = newPassword || password;
+    const result = await dbStore.resetStudentPassword({ phone: inputPhone, newPassword: inputPass });
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Process Level Safety Handlers
 process.on("unhandledRejection", (reason, promise) => {
   console.error("⚠️ Unhandled Rejection at:", promise, "reason:", reason);

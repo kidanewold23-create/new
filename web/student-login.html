@@ -328,7 +328,10 @@
         </div>
 
         <div class="form-group-custom">
-          <label class="form-label-custom" for="login-password">Password *</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label-custom" for="login-password" style="margin-bottom:0;">Password *</label>
+            <button type="button" id="btn-toggle-forgot" style="background: none; border: none; color: var(--primary-gold); font-size: 0.82rem; cursor: pointer; text-decoration: underline; padding: 0;">Forgot Password?</button>
+          </div>
           <div class="input-icon-group">
             <i data-lucide="lock" class="left-icon"></i>
             <input type="password" id="login-password" placeholder="Enter your password" required>
@@ -380,6 +383,45 @@
           <i data-lucide="user-check"></i>
           <span>Create Student Account</span>
         </button>
+      </form>
+
+      <!-- FORM 3: FORGOT PASSWORD FORM -->
+      <form id="form-forgot" class="auth-form-panel" style="display: none;">
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="forgot-phone">Registered Phone Number (Must start with 251) *</label>
+          <div class="input-icon-group">
+            <i data-lucide="phone" class="left-icon"></i>
+            <input type="tel" id="forgot-phone" placeholder="251912345678" required>
+          </div>
+          <span class="phone-prefix-hint">💡 Enter the phone number associated with your student account</span>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="forgot-new-password">New Password *</label>
+          <div class="input-icon-group">
+            <i data-lucide="key" class="left-icon"></i>
+            <input type="password" id="forgot-new-password" placeholder="Create new password (min 4 chars)" required minlength="4">
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="forgot-confirm-password">Confirm New Password *</label>
+          <div class="input-icon-group">
+            <i data-lucide="lock-check" class="left-icon"></i>
+            <input type="password" id="forgot-confirm-password" placeholder="Confirm new password" required minlength="4">
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-forgot" class="btn-submit-gold">
+          <i data-lucide="refresh-cw"></i>
+          <span>Reset Password & Log In</span>
+        </button>
+
+        <div style="text-align: center; margin-top: 14px;">
+          <button type="button" id="btn-back-to-login" style="background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
+            ← Back to Log In
+          </button>
+        </div>
       </form>
 
       <div class="auth-footer-help">
@@ -637,6 +679,103 @@
           window.showToast(errorMessage || "Failed to create student account.", "error");
         }
       });
+
+      // 3. FORGOT PASSWORD TOGGLE & SUBMIT HANDLER
+      const formForgot = document.getElementById("form-forgot");
+      const btnToggleForgot = document.getElementById("btn-toggle-forgot");
+      const btnBackToLogin = document.getElementById("btn-back-to-login");
+      const forgotPhoneInput = document.getElementById("forgot-phone");
+      const btnSubmitForgot = document.getElementById("btn-submit-forgot");
+
+      if (forgotPhoneInput) {
+        forgotPhoneInput.addEventListener("input", (e) => {
+          e.target.value = formatPhoneStarting251(e.target.value);
+        });
+      }
+
+      if (btnToggleForgot) {
+        btnToggleForgot.addEventListener("click", () => {
+          formLogin.style.display = "none";
+          formRegister.style.display = "none";
+          formForgot.style.display = "flex";
+          tabLogin.classList.remove("active");
+          tabRegister.classList.remove("active");
+        });
+      }
+
+      if (btnBackToLogin) {
+        btnBackToLogin.addEventListener("click", () => {
+          formForgot.style.display = "none";
+          formLogin.style.display = "flex";
+          tabLogin.classList.add("active");
+        });
+      }
+
+      if (formForgot) {
+        formForgot.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const rawPhone = forgotPhoneInput.value.trim();
+          const newPassword = document.getElementById("forgot-new-password").value.trim();
+          const confirmPassword = document.getElementById("forgot-confirm-password").value.trim();
+
+          if (!rawPhone || !newPassword || !confirmPassword) {
+            window.showToast("Please fill in all fields.", "error");
+            return;
+          }
+
+          if (newPassword !== confirmPassword) {
+            window.showToast("New passwords do not match.", "error");
+            return;
+          }
+
+          const phone251 = formatPhoneStarting251(rawPhone);
+          if (!phone251.startsWith("251") || phone251.length < 10) {
+            window.showToast("Phone number must start with 251.", "error");
+            return;
+          }
+
+          btnSubmitForgot.disabled = true;
+          btnSubmitForgot.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Resetting Password...</span>`;
+          if (window.lucide) window.lucide.createIcons();
+
+          let resetSuccess = false;
+          let studentSession = null;
+          let errorMessage = "Failed to reset password.";
+
+          try {
+            const apiBase = getApiBaseUrl();
+            const res = await fetch(`${apiBase}/api/student/reset-password`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone: phone251, newPassword })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success) {
+              resetSuccess = true;
+              studentSession = data.student;
+            } else if (data && data.error) {
+              errorMessage = data.error;
+            }
+          } catch (_err) {
+            errorMessage = "Network error. Please check your connection.";
+          }
+
+          btnSubmitForgot.disabled = false;
+          btnSubmitForgot.innerHTML = `<i data-lucide="refresh-cw"></i> <span>Reset Password & Log In</span>`;
+          if (window.lucide) window.lucide.createIcons();
+
+          if (resetSuccess) {
+            if (studentSession) {
+              localStorage.setItem("founders_student_session", JSON.stringify(studentSession));
+            }
+            window.showToast("🎉 Password reset successfully! Redirecting to dashboard...", "success");
+            setTimeout(() => { window.location.href = getSuccessRedirectUrl(); }, 600);
+          } else {
+            window.showToast(errorMessage, "error");
+          }
+        });
+      }
     });
   </script>
 </body>

@@ -1304,6 +1304,47 @@ export const dbStore = {
     return { success: true, message: "Password updated successfully!" };
   },
 
+  resetStudentPassword: async ({ phone, identifier, newPassword }) => {
+    const rawPhone = String(phone || identifier || "").trim();
+    const passwordStr = String(newPassword || "").trim();
+
+    if (!passwordStr || passwordStr.length < 4) {
+      return { success: false, error: "New password must be at least 4 characters long." };
+    }
+
+    const cleanDigits = rawPhone.replace(/\D/g, "");
+    const last9 = cleanDigits.length >= 9 ? cleanDigits.slice(-9) : cleanDigits;
+
+    if (!last9) {
+      return { success: false, error: "Please enter a valid phone number (starting with 251)." };
+    }
+
+    const allStudents = await dbStore.getStudents();
+    const student = allStudents.find(s => {
+      const sDigits = (s.phone || "").replace(/\D/g, "");
+      return sDigits.length >= 9 && sDigits.endsWith(last9);
+    });
+
+    if (!student) {
+      return { success: false, error: "No student account found with this phone number. Please sign up first." };
+    }
+
+    try {
+      await supabase.from("students").update({ password_hash: passwordStr }).eq("id", student.id);
+    } catch (_e) {}
+    await dbStore.updateStudent(student.id, { password_hash: passwordStr });
+
+    return {
+      success: true,
+      message: "Password reset successfully! You can now log in with your new password.",
+      student: {
+        id: student.id,
+        name: student.name,
+        phone: student.phone
+      }
+    };
+  },
+
   getStudentCoursesWithLinks: async (studentIdOrPhone) => {
     const allStudents = await dbStore.getStudents();
     const cleanSearch = String(studentIdOrPhone || "").trim().toLowerCase();

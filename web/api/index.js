@@ -240,6 +240,17 @@ body { background-color: var(--bg-dark); color: var(--text-main); font-family: '
       }
     }
 
+    if ((pathname.includes("reset-password") || pathname.includes("forgot-password")) && reqMethod === "POST") {
+      try {
+        const body = await getJsonBody();
+        const { phone, identifier, newPassword, password } = body || {};
+        const result = await dbStore.resetStudentPassword({ phone: phone || identifier, newPassword: newPassword || password });
+        return sendRes(result, result.success ? 200 : 400);
+      } catch (err) {
+        return sendRes({ success: false, error: err.message }, 500);
+      }
+    }
+
     // 1. Auth & Admin Security API
     if (pathname === "/api/admin/security" && reqMethod === "GET") {
       const security = await dbStore.getAdminSecurity();

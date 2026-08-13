@@ -393,7 +393,7 @@ export function getMainMenuReplyKeyboard() {
         { text: "🎟️ Redeem Giveaway" }
       ],
       [
-        { text: "📜 Certificate" },
+        { text: "🔑 Forgot Password" },
         { text: "💳 Payment Channels" }
       ]
     ],
@@ -751,13 +751,25 @@ export async function handleMessage(msg) {
     return;
   }
 
-  if (text.includes("Certificate") || text === "/certificate" || text.includes("ሰርቲፊኬት")) {
-    await onCertificateClicked(chatId, from, msg);
+  if (text.includes("Forgot Password") || text.includes("Password") || text === "/forgotpassword" || text.startsWith("/resetpassword") || upperText.startsWith("/RESETPASSWORD")) {
+    await handleForgotPassword(chatId, from, text);
     return;
   }
 
   if (text === "/pay" || text === "/bank" || text === "/payment" || text.includes("Payment") || text.includes("ክፍያ")) {
     await onBankPaymentClicked(chatId, from, msg);
+    return;
+  }
+
+  // If user already has registered phone number, show main menu directly without asking again
+  const hasPhone = await isUserRegistered(telegramId);
+  if (!hasPhone) {
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `👋 *Welcome to Founders Academy!* 🎓\n\nHello *${firstName}*,\nTo access your student portal and courses, please tap the button below to share your phone number:`,
+      parse_mode: "Markdown",
+      reply_markup: getPhoneRequestKeyboard()
+    });
     return;
   }
 
@@ -956,6 +968,81 @@ export async function sendMainMenu(chatId, firstName) {
     text: `✨ *Hey champion, ${firstName}!* Ready to level up today? 🚀📚\n\nChoose where you'd like to explore next:`,
     parse_mode: "Markdown",
     reply_markup: getMainMenuReplyKeyboard()
+  });
+}
+
+export async function handleForgotPassword(chatId, user, text) {
+  const telegramId = user.id;
+  const firstName = user.first_name || "Student";
+  const trimmed = (text || "").trim();
+  const upper = trimmed.toUpperCase();
+
+  // Reset password execution (e.g. /resetpassword MyNewPassword123)
+  if (upper.startsWith("/RESETPASSWORD ") || upper.startsWith("/RESET_PASSWORD ") || upper.startsWith("/RESETPASS ")) {
+    const parts = trimmed.split(/\s+/);
+    const newPass = parts.slice(1).join(" ").trim();
+
+    if (!newPass || newPass.length < 4) {
+      await telegramApi("sendMessage", {
+        chat_id: chatId,
+        text: `❌ *Password Too Short*\n\nYour new password must be at least 4 characters long.\n\n*Usage:* \`/resetpassword YourNewPassword123\``,
+        parse_mode: "Markdown"
+      });
+      return;
+    }
+
+    try {
+      const cleanTgId = String(telegramId);
+      const { data: student } = await supabase
+        .from("students")
+        .select("*")
+        .or(`id.eq.TG-${cleanTgId},telegram_id.eq.${cleanTgId},chat_id.eq.${cleanTgId}`)
+        .maybeSingle();
+
+      if (student) {
+        await supabase.from("students").update({ password_hash: newPass }).eq("id", student.id);
+        await dbStore.updateStudent(student.id, { password_hash: newPass });
+
+        await telegramApi("sendMessage", {
+          chat_id: chatId,
+          text: `🎉 *Password Reset Successfully!* 🔐\n\nHello *${firstName}*,\nYour student portal password has been updated to:\n🔑 \`${newPass}\`\n\nYou can now log in at:\n👉 https://new-nu-umber.vercel.app/student-login.html`,
+          parse_mode: "Markdown"
+        });
+        return;
+      }
+
+      // Check userCache for phone
+      const cached = userCache.get(telegramId);
+      const userPhone = cached?.phone_number;
+      if (userPhone) {
+        const res = await dbStore.resetStudentPassword({ phone: userPhone, newPassword: newPass });
+        if (res.success) {
+          await telegramApi("sendMessage", {
+            chat_id: chatId,
+            text: `🎉 *Password Reset Successfully!* 🔐\n\nHello *${firstName}*,\nYour student portal password has been updated to:\n🔑 \`${newPass}\`\n\nYou can now log in at:\n👉 https://new-nu-umber.vercel.app/student-login.html`,
+            parse_mode: "Markdown"
+          });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("[Bot Password Reset Error]:", err);
+    }
+
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `⚠️ *Student Account Not Found*\n\nWe couldn't find a student account linked to your Telegram profile.\n\nPlease tap **📱 Share Phone Number** first to link your account!`,
+      parse_mode: "Markdown",
+      reply_markup: getPhoneRequestKeyboard()
+    });
+    return;
+  }
+
+  // Prompt user with reset instructions
+  await telegramApi("sendMessage", {
+    chat_id: chatId,
+    text: `🔑 *Founders Academy Password Reset* 🔐\n\nHello *${firstName}*,\nTo reset your student portal password, reply with this command:\n\n👉 \`/resetpassword your_new_password\`\n\n*Example:*\n\`/resetpassword Founders2026!\`\n\n_Your new password will be updated instantly in your student account!_`,
+    parse_mode: "Markdown"
   });
 }
 
