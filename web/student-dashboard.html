@@ -41,7 +41,7 @@
     }
 
     .dash-hero-banner {
-      padding: 30px 0 20px;
+      padding: 30px 0 10px;
     }
 
     .dash-welcome-card {
@@ -151,13 +151,35 @@
           </div>
         </div>
         <div>
-          <span class="badge badge-gold" style="padding: 8px 16px; font-size: 0.85rem;"><i data-lucide="shield-check"></i> Verified Student Account</span>
+          <span id="dash-tg-badge" class="badge" style="background: rgba(245,158,11,0.15); color: var(--primary-gold); border: 1px solid rgba(245,158,11,0.3); padding: 8px 16px; font-size: 0.85rem;">
+            <i data-lucide="shield-alert"></i> Pending Telegram Link
+          </span>
         </div>
       </div>
     </div>
 
+    <!-- Telegram Linking Banner -->
+    <div id="telegram-link-banner" style="margin-top: 16px; display: none; background: rgba(0, 136, 204, 0.08); border: 1px solid rgba(0, 136, 204, 0.3); border-radius: 20px; padding: 22px 28px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(0, 136, 204, 0.2); border: 1px solid rgba(0, 136, 204, 0.4); color: #38bdf8; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <i data-lucide="send" style="width: 24px; height: 24px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 4px;">⚡ Connect Your Telegram Account</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Link your Telegram profile to receive direct classroom materials, live updates, and instant bot access.</p>
+          </div>
+        </div>
+
+        <a id="btn-connect-tg-bot" href="https://t.me/founders_academybot" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background: linear-gradient(135deg, #0088cc 0%, #0055ff 100%); color: #fff; font-weight: 800; padding: 12px 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 136, 204, 0.35);">
+          <i data-lucide="external-link" style="width: 18px; height: 18px;"></i>
+          <span>Open Bot & Link Telegram</span>
+        </a>
+      </div>
+    </div>
+
     <!-- Enrolled Courses Section -->
-    <section style="margin-top: 20px;">
+    <section style="margin-top: 24px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <h2 class="dash-section-title" style="margin-bottom: 0;">
           <i data-lucide="book-marked" style="color: var(--primary-gold);"></i> My Registered Masterclasses
@@ -261,6 +283,44 @@
       const initials = studentName.split(" ").map(p => p[0]).join("").substring(0, 2).toUpperCase() || "ST";
       document.getElementById("dash-avatar").textContent = initials;
 
+      // Check Telegram Link Status Function
+      const checkTgStatus = async () => {
+        try {
+          const query = session.phone || session.id || "";
+          const res = await fetch(`/api/student/me?id=${encodeURIComponent(query)}`);
+          if (res.ok) {
+            const resData = await res.json();
+            const stuData = resData.data?.student;
+            const tgBanner = document.getElementById("telegram-link-banner");
+            const tgBadge = document.getElementById("dash-tg-badge");
+
+            if (stuData && (stuData.telegram_id || stuData.chat_id)) {
+              if (tgBanner) tgBanner.style.display = "none";
+              if (tgBadge) {
+                tgBadge.className = "badge badge-gold";
+                tgBadge.innerHTML = `<i data-lucide="shield-check"></i> 🟢 Telegram Connected (${stuData.telegram_id || stuData.chat_id})`;
+                if (window.lucide) window.lucide.createIcons();
+              }
+              session.telegram_id = stuData.telegram_id || stuData.chat_id;
+              localStorage.setItem("founders_student_session", JSON.stringify(session));
+            } else {
+              if (tgBanner) {
+                tgBanner.style.display = "block";
+                const connectBtn = document.getElementById("btn-connect-tg-bot");
+                if (connectBtn) {
+                  const phoneClean = (session.phone || session.id || "").replace(/[^0-9]/g, "");
+                  connectBtn.href = `https://t.me/founders_academybot?start=connect_${encodeURIComponent(phoneClean)}`;
+                }
+              }
+            }
+          }
+        } catch (_e) {}
+      };
+
+      // Run initial check and set dynamic 4s auto-polling
+      checkTgStatus();
+      setInterval(checkTgStatus, 4000);
+
       // Fetch Registered Courses
       const coursesGrid = document.getElementById("student-courses-grid");
       const coursesTableBody = document.getElementById("student-courses-table-body");
@@ -295,19 +355,6 @@
         if (coursesGrid) coursesGrid.innerHTML = "";
 
         for (const c of courses) {
-          let courseQuizzes = [];
-          let studentSubmissions = [];
-
-          try {
-            const qRes = await fetch(`/api/courses/${c.id}/quizzes`);
-            if (qRes.ok) {
-              const qData = await qRes.json();
-              if (qData.success && Array.isArray(qData.data)) courseQuizzes = qData.data;
-            }
-          } catch (_e) {}
-
-          const activeQuizzes = courseQuizzes.filter(q => q.status === "active");
-
           // Table Row
           if (coursesTableBody) {
             const tr = document.createElement("tr");

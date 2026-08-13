@@ -456,6 +456,23 @@ export async function handleMessage(msg) {
     return;
   }
 
+  // 0. Student Account Telegram Linking Handler (e.g. /start connect_251912345678)
+  if (upperText.startsWith("/START CONNECT_") || upperText.startsWith("/START CONNECT")) {
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `👋 *Welcome to Founders Academy Student Verification!* 🎓\n\nHello *${firstName}*,\nTo link your Telegram account to your Founders Academy student profile, please tap the button below to share your phone number.`,
+      parse_mode: "Markdown",
+      reply_markup: {
+        keyboard: [
+          [{ text: "📱 Share Phone Number & Link Profile", request_contact: true }]
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: true
+      }
+    });
+    return;
+  }
+
   // 0. Admin 2FA Pairing Code Handler (e.g. /link_admin FA-89241 or FA-89241 or /start admin_FA-89241)
   if (
     upperText.startsWith("/LINK_ADMIN") || 
@@ -574,6 +591,7 @@ export async function handleMessage(msg) {
   if (msg.contact) {
     const rawPhone = msg.contact.phone_number || "";
     const phoneNumber = rawPhone.startsWith("+") ? rawPhone : `+${rawPhone}`;
+    const cleanDigits = rawPhone.replace(/\D/g, "");
 
     await registerBotUser({
       telegram_id: telegramId,
@@ -583,6 +601,35 @@ export async function handleMessage(msg) {
       phone_number: phoneNumber,
       registered_at: new Date().toISOString()
     });
+
+    // Link student record in Supabase students table
+    try {
+      const { data: allStudents } = await supabase.from("students").select("*");
+      if (allStudents && allStudents.length > 0) {
+        const targetStudent = allStudents.find(s => {
+          const sDigits = (s.phone || "").replace(/\D/g, "");
+          return cleanDigits.slice(-9) && sDigits.endsWith(cleanDigits.slice(-9));
+        });
+
+        if (targetStudent) {
+          await supabase.from("students").update({
+            telegram_id: telegramId,
+            chat_id: telegramId,
+            telegram_username: from.username || ""
+          }).eq("id", targetStudent.id);
+
+          await dbStore.updateStudent(targetStudent.id, {
+            telegram_id: telegramId,
+            chat_id: telegramId,
+            telegram_username: from.username || ""
+          });
+
+          console.log(`[Bot Supabase] 🎯 Linked Telegram ID ${telegramId} to student record: ${targetStudent.id} (${targetStudent.name})`);
+        }
+      }
+    } catch (err) {
+      console.error("[Bot Student Link Error]:", err);
+    }
 
     console.log(`[Bot] Checking course enrollments for phone: ${phoneNumber}...`);
     const invites = await findEnrollmentInvitesByPhone(phoneNumber, firstName);
