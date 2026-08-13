@@ -230,60 +230,41 @@ app.post("/api/student/logout", (req, res) => {
   return res.status(200).json({ success: true, message: "Student logged out successfully" });
 });
 
-app.post(["/api/student/telegram-auth/request-code", "*/request-code"], async (req, res) => {
+app.post(["/api/student/telegram-auth/request-code", "/api/student/telegram-auth", "/api/request-code"], async (req, res) => {
   try {
-    const { identifier } = req.body || {};
-    const result = await dbStore.requestStudentTelegramOtp(identifier);
-    if (result.success) {
-      return res.status(200).json(result);
+    const { identifier, code, action } = req.body || {};
+    if (action === "verify-code" || (identifier && code)) {
+      const result = await dbStore.verifyStudentTelegramOtp(identifier, code);
+      return res.status(result.success ? 200 : 400).json(result);
     }
-    return res.status(400).json(result);
+    if (action === "request-code" || identifier) {
+      const result = await dbStore.requestStudentTelegramOtp(identifier);
+      return res.status(result.success ? 200 : 400).json(result);
+    }
+    const result = await dbStore.authenticateTelegramUser(req.body || {});
+    return res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-app.post(["/api/student/telegram-auth/verify-code", "*/verify-code"], async (req, res) => {
+app.post("/api/student/telegram-auth/verify-code", async (req, res) => {
   try {
     const { identifier, code } = req.body || {};
     const result = await dbStore.verifyStudentTelegramOtp(identifier, code);
-    if (result.success) {
-      return res.status(200).json(result);
-    }
-    return res.status(400).json(result);
+    return res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-app.get(["/api/student/telegram-auth/poll-status", "*/poll-status"], async (req, res) => {
+app.get(["/api/student/telegram-auth/poll-status", "/api/poll-status"], async (req, res) => {
   try {
     const { code } = req.query || {};
     const result = await dbStore.pollStudentTelegramOtp(code);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ verified: false, error: error.message });
-  }
-});
-
-app.post(["/api/student/telegram-auth", "*/telegram-auth"], async (req, res) => {
-  try {
-    const tgData = req.body || {};
-    if (tgData.action === "request-code" || (tgData.identifier && !tgData.id && !tgData.hash && !tgData.code)) {
-      const result = await dbStore.requestStudentTelegramOtp(tgData.identifier);
-      return res.status(result.success ? 200 : 400).json(result);
-    }
-    if (tgData.action === "verify-code" || (tgData.identifier && tgData.code)) {
-      const result = await dbStore.verifyStudentTelegramOtp(tgData.identifier, tgData.code);
-      return res.status(result.success ? 200 : 400).json(result);
-    }
-    const result = await dbStore.authenticateTelegramUser(tgData);
-    if (result.success) {
-      return res.status(200).json(result);
-    }
-    return res.status(400).json(result);
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
   }
 });
 
