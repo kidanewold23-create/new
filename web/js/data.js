@@ -9,7 +9,7 @@ const COURSES = [
     category: "marketing",
     badge: "Bestseller",
     priceETB: "10,000 ETB",
-    originalPriceETB: "13,500 ETB",
+    originalPriceETB: "15,000 ETB",
     priceUSD: "$180",
     rating: 4.9,
     students: "1,840",
@@ -201,7 +201,7 @@ const TESTIMONIALS = [
     role: "SMMA Agency Founder",
     earnings: "3,400 USD / Month",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-    quote: "Khilx Academy transformed my life. Within 2 months of taking the SMMA course, I closed 3 remote clients from the US and UAE. The cold email scripts alone paid for the course 10x over!"
+    quote: "Founders Academy transformed my life. Within 2 months of taking the SMMA course, I closed 3 remote clients from the US and UAE. The cold email scripts alone paid for the course 10x over!"
   },
   {
     name: "Tigist Haile",
@@ -230,15 +230,15 @@ const FAQS = [
   },
   {
     question: "How is the course delivered after payment?",
-    answer: "Our courses are delivered 100% via Telegram! After completing payment, you launch our official bot @KhilxAcademyBot and tap 'Share Phone Number'. Once verified, the bot generates your unique, 1-time private Telegram channel link (HD video lessons & resource files) and 1-time private group link (student community & mentorship)."
+    answer: "Our courses are delivered 100% via Telegram! After completing payment, you launch our official bot @founders_academybot and tap 'Share Phone Number'. Once verified, the bot generates your unique, 1-time private Telegram channel link (HD video lessons & resource files) and 1-time private group link (student community & mentorship)."
   },
   {
     question: "How do quizzes and certificates work inside Telegram?",
-    answer: "Inside @KhilxAcademyBot, you can take interactive quizzes after completing course modules to test your skills. Once you finish all quizzes and submit your final project, the bot issues your official Verified Certificate directly in Telegram!"
+    answer: "Inside @founders_academybot, you can take interactive quizzes after completing course modules to test your skills. Once you finish all quizzes and submit your final project, the bot issues your official Verified Certificate directly in Telegram!"
   },
   {
     question: "Do returning students need to share their phone number again?",
-    answer: "No! Phone number sharing only happens once when a new student first registers with @KhilxAcademyBot. If you are already registered, the bot instantly recognizes your phone number and delivers your unique 1-time channel and group links immediately."
+    answer: "No! Phone number sharing only happens once when a new student first registers with @founders_academybot. If you are already registered, the bot instantly recognizes your phone number and delivers your unique 1-time channel and group links immediately."
   }
 ];
 

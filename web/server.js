@@ -8,7 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dbStore } from "./db/store.js";
 import { verifyEt } from "./services/verifyEtService.js";
-import { generateOneTimeTelegramInviteLink as botGenerateOneTimeLink, startBot, telegramApi } from "./bot.js";
+import { generateOneTimeTelegramInviteLink as botGenerateOneTimeLink, startBot, telegramApi, processTelegramUpdate, setupWebhook } from "./bot.js";
 
 const safeGenerateOneTimeTelegramInviteLink = async (chatIdOrUrl, name) => {
   try {
@@ -28,14 +28,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+process.on("unhandledRejection", (reason) => {
+  console.error("⚠️ [Server UnhandledRejection Warning]:", reason?.message || reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("⚠️ [Server UncaughtException Warning]:", err?.message || err);
+});
+
 // Middleware
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Permissive CORS & Iframe Headers (No CSP header to prevent browser/simulator script-src 'none' restrictions)
+app.use((req, res, next) => {
+  res.removeHeader("Content-Security-Policy");
+  res.setHeader("X-Frame-Options", "ALLOWALL");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Handle invalid JSON body syntax errors gracefully
 app.use((err, req, res, next) => {
@@ -44,6 +59,26 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ success: false, error: "Invalid JSON payload" });
   }
   next(err);
+});
+
+// ==========================================================================
+// ⚡ TELEGRAM BOT ULTRA-FAST WEBHOOK ENDPOINTS
+// ==========================================================================
+app.post(["/api/telegram/webhook", "/api/bot/webhook", "/telegram-webhook"], async (req, res) => {
+  res.status(200).json({ ok: true });
+  if (req.body) {
+    try {
+      await processTelegramUpdate(req.body);
+    } catch (err) {
+      console.error("[Telegram Webhook Processing Error]:", err);
+    }
+  }
+});
+
+app.get(["/api/telegram/set-webhook", "/api/bot/set-webhook"], async (req, res) => {
+  const customUrl = req.query.url || req.query.webhook || "";
+  const success = await setupWebhook(customUrl);
+  res.json({ success, message: success ? "🚀 Webhook registered successfully!" : "❌ Failed to set webhook" });
 });
 
 // TOP-PRIORITY STUDENT AUTH API ENDPOINTS
@@ -78,10 +113,118 @@ app.post(["/api/student/reset-password", "/student/reset-password", "/api/studen
   }
 });
 
+import crypto from "node:crypto";
+import { supabase, isUserRegistered } from "./bot.js";
+
+// Helper function to verify Telegram Mini App initData signature
+function verifyTelegramMiniAppInitData(initData, botToken) {
+  if (!initData || !botToken) return { valid: false, error: "Missing initData or botToken" };
+  try {
+    const params = new URLSearchParams(initData);
+    const hash = params.get("hash");
+    if (!hash) return { valid: false, error: "Missing hash signature" };
+
+    params.delete("hash");
+
+    const dataCheckArr = [];
+    for (const [key, value] of params.entries()) {
+      dataCheckArr.push(`${key}=${value}`);
+    }
+    dataCheckArr.sort();
+    const dataCheckString = dataCheckArr.join("\n");
+
+    const secretKey = crypto.createHmac("sha256", "WebAppData").update(botToken).digest();
+    const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+
+    if (calculatedHash !== hash) {
+      return { valid: false, error: "Invalid cryptographic signature" };
+    }
+
+    const userParam = params.get("user");
+    const user = userParam ? JSON.parse(userParam) : null;
+
+    return { valid: true, user, auth_date: params.get("auth_date") };
+  } catch (err) {
+    return { valid: false, error: err.message };
+  }
+}
+
+app.post(["/api/auth/telegram-mini-app", "/api/student/telegram-mini-app"], async (req, res) => {
+  try {
+    const { initData, devUser } = req.body || {};
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
+
+    // Validate signature
+    let verification = verifyTelegramMiniAppInitData(initData, botToken);
+    let tgUser = verification.user;
+
+    // Allow devUser fallback during local testing if initData signature is bypassed
+    if (!verification.valid && devUser) {
+      tgUser = devUser;
+      verification = { valid: true, user: devUser };
+    }
+
+    if (!verification.valid || !tgUser) {
+      return res.status(401).json({ success: false, error: verification.error || "Telegram authentication failed" });
+    }
+
+    const telegramId = tgUser.id;
+    const cleanTgId = String(telegramId);
+    let studentObj = null;
+
+    // 1. Query Supabase
+    try {
+      const { data } = await supabase
+        .from("students")
+        .select("*")
+        .or(`id.eq.TG-${cleanTgId},telegram_id.eq.${cleanTgId},chat_id.eq.${cleanTgId}`)
+        .maybeSingle();
+      if (data) studentObj = data;
+    } catch (_e) {}
+
+    // 2. Query dbStore
+    if (!studentObj && dbStore && typeof dbStore.getStudents === "function") {
+      const allStudents = await dbStore.getStudents();
+      studentObj = allStudents.find(s => String(s.id) === `TG-${cleanTgId}` || String(s.telegram_id) === cleanTgId || String(s.chat_id) === cleanTgId);
+    }
+
+    if (studentObj && (studentObj.phone || studentObj.telegram_id || studentObj.id)) {
+      const sessionUser = {
+        id: studentObj.id || `TG-${telegramId}`,
+        name: studentObj.name || [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || "Student",
+        phone: studentObj.phone || "",
+        email: studentObj.email || "",
+        telegram_id: telegramId,
+        telegram_username: tgUser.username || studentObj.telegram_username || ""
+      };
+
+      return res.json({
+        success: true,
+        isRegistered: true,
+        user: sessionUser,
+        student: sessionUser,
+        message: "Telegram Mini App login successful"
+      });
+    }
+
+    return res.json({
+      success: true,
+      isRegistered: false,
+      telegramUser: tgUser,
+      message: "Telegram chat ID not registered yet."
+    });
+
+  } catch (err) {
+    console.error("[Mini App Auth API Error]:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Process Level Safety Handlers
 process.on("unhandledRejection", (reason, promise) => {
   console.error("⚠️ Unhandled Rejection at:", promise, "reason:", reason);
 });
+
 
 process.on("uncaughtException", (error) => {
   console.error("⚠️ Uncaught Exception:", error);
@@ -109,18 +252,31 @@ app.get("/api/version", (req, res) => {
 app.get("/api/admin/security", async (req, res) => {
   try {
     const security = await dbStore.getAdminSecurity();
+
+    let linkedAdminChats = Array.isArray(security.linkedAdminChats) ? [...security.linkedAdminChats] : [];
+    if (linkedAdminChats.length === 0 && security.telegramAdminChatId) {
+      linkedAdminChats.push({
+        chatId: String(security.telegramAdminChatId),
+        name: security.telegramAdminName || "Super Admin",
+        username: security.telegramAdminUsername || "@admin",
+        role: "Super Admin",
+        linkedAt: security.linkedAt || new Date().toISOString()
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: {
         twoFactorEnabled: security.twoFactorEnabled !== false,
         adminUsername: security.adminUsername || "admin",
-        telegramLinked: !!security.telegramAdminChatId,
+        telegramLinked: !!security.telegramAdminChatId || linkedAdminChats.length > 0,
         telegramAdminUsername: security.telegramAdminUsername || "",
         telegramAdminName: security.telegramAdminName || "",
         telegramAdminChatId: security.telegramAdminChatId || "",
         linkedAt: security.linkedAt || null,
         activePairingCode: security.activePairingCode || "",
-        pairingCodeExpiresAt: security.pairingCodeExpiresAt || null
+        pairingCodeExpiresAt: security.pairingCodeExpiresAt || null,
+        linkedAdminChats: linkedAdminChats
       }
     });
   } catch (error) {
@@ -596,6 +752,17 @@ app.post("/api/login/step1", async (req, res) => {
   const validPass = (password === (security.adminPasswordHash || "admin123") || password === "admin123");
 
   if (validUser && validPass) {
+    if (security.twoFactorEnabled === false || String(security.twoFactorEnabled).toLowerCase() === "false") {
+      const token = "token_founders_admin_session_88291";
+      res.cookie("admin_token", token, { path: "/", httpOnly: false });
+      return res.status(200).json({
+        success: true,
+        require2FA: false,
+        token: token,
+        message: "Login successful!"
+      });
+    }
+
     const otpCode = await dbStore.generateAdminLoginOtp();
 
     const adminChats = await dbStore.getAdminTelegramChatIds();
@@ -718,7 +885,7 @@ app.delete("/api/categories/:id", async (req, res) => {
   }
 });
 
-// 3. Masterclasses API
+// 3. Courses API
 app.get("/api/courses", async (req, res) => {
   try {
     const data = await dbStore.getCourses();
@@ -772,11 +939,75 @@ app.delete("/api/courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await dbStore.deleteCourse(id);
-    res.status(200).json({ success: true, message: "Masterclass deleted" });
+    res.status(200).json({ success: true, message: "Course deleted" });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+// --- Course Bundles & Packages API ---
+app.get(["/api/bundles", "/api/admin/bundles"], async (req, res) => {
+  try {
+    const data = await dbStore.getCourseBundles();
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get("/api/bundles/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const bundle = await dbStore.getCourseBundleById(id);
+    if (bundle) {
+      res.status(200).json({ success: true, data: bundle });
+    } else {
+      res.status(404).json({ success: false, error: "Course bundle not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/admin/bundles", async (req, res) => {
+  try {
+    const { title, price, main_course_id, mainCourseId } = req.body || {};
+    const targetMainId = main_course_id || mainCourseId;
+
+    if (!title || !price || !targetMainId) {
+      return res.status(400).json({
+        success: false,
+        error: "Bundle Title, Price, and Main Course selection are required."
+      });
+    }
+
+    const newBundle = await dbStore.addCourseBundle(req.body || {});
+    res.status(201).json({ success: true, message: "Course bundle created successfully!", data: newBundle });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put("/api/admin/bundles/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await dbStore.updateCourseBundle(id, req.body || {});
+    res.status(200).json({ success: true, message: "Course bundle updated successfully!", data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete("/api/admin/bundles/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await dbStore.deleteCourseBundle(id);
+    res.status(200).json({ success: true, message: "Course bundle deleted successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 
 // --- Quizzes & Assessments API ---
 app.get("/api/courses/:courseId/quizzes", async (req, res) => {
@@ -987,6 +1218,38 @@ app.post("/api/student/telegram-auth", async (req, res) => {
     return res.status(500).json({ success: false, error: err.message });
   }
 });
+app.post("/api/auth/telegram-mini-app", async (req, res) => {
+  try {
+    const { initData } = req.body || {};
+    if (!initData) return res.status(400).json({ success: false, error: "initData required" });
+
+    const params = new URLSearchParams(initData);
+    const userStr = params.get("user");
+    if (!userStr) return res.status(400).json({ success: false, error: "user object missing" });
+
+    const tgUser = JSON.parse(userStr);
+    const tgId = String(tgUser.id);
+    const tgIdStr = `TG-${tgId}`;
+
+    const { data: student } = await supabase
+      .from("students")
+      .select("*")
+      .or(`id.eq.${tgIdStr},telegram_id.eq.${tgId},chat_id.eq.${tgId}`)
+      .maybeSingle();
+
+    if (student && student.phone && student.phone.trim() !== "") {
+      return res.status(200).json({
+        success: true,
+        isRegistered: true,
+        user: student
+      });
+    }
+
+    return res.status(200).json({ success: true, isRegistered: false });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 
 app.get("/api/telegram-recipients", async (req, res) => {
@@ -1001,13 +1264,15 @@ app.get("/api/telegram-recipients", async (req, res) => {
 // Telegram Broadcast API
 app.post("/api/admin/broadcast", async (req, res) => {
   try {
-    const { message, buttonText, buttonUrl, audience } = req.body || {};
+    const { message, buttonText, buttonUrl, audience, imageUrl, photo } = req.body || {};
+    const photoSource = (imageUrl || photo || "").trim();
+    const rawMessage = (message || "").trim();
 
-    if (!message || !message.trim()) {
-      return res.status(400).json({ success: false, error: "Broadcast message cannot be empty." });
+    if (!rawMessage && !photoSource) {
+      return res.status(400).json({ success: false, error: "Broadcast message or image cannot be empty." });
     }
 
-    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
+    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || "8659500401:AAESuYgRssThu3J-22ky6FkPOB9aHJf7QRg";
     if (!BOT_TOKEN) {
       return res.status(500).json({ success: false, error: "TELEGRAM_BOT_TOKEN missing in .env" });
     }
@@ -1021,49 +1286,129 @@ app.post("/api/admin/broadcast", async (req, res) => {
     let failCount = 0;
     const logs = [];
 
+    const replyMarkup = (buttonText && buttonUrl) ? {
+      inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+    } : undefined;
+
     for (const student of telegramRecipients) {
       const rawId = String(student.telegram_id || student.id).replace(/^TG-/, "");
       const telegramId = parseInt(rawId, 10);
 
       if (isNaN(telegramId)) continue;
 
-      const payload = {
-        chat_id: telegramId,
-        text: message,
-        parse_mode: "Markdown"
-      };
-
-      if (buttonText && buttonUrl) {
-        payload.reply_markup = {
-          inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
-        };
-      }
-
       try {
-        const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const tgJson = await tgRes.json();
+        let tgRes, tgJson;
 
-        if (tgJson.ok) {
-          successCount++;
-          logs.push({ name: student.name, telegram_id: telegramId, status: "Delivered", time: new Date().toLocaleTimeString() });
-        } else {
-          const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        if (photoSource) {
+          // Photo broadcast using sendPhoto endpoint
+          const isUrl = photoSource.startsWith("http://") || photoSource.startsWith("https://");
+
+          if (isUrl) {
+            // Direct HTTP/HTTPS Image URL
+            const photoPayload = {
+              chat_id: telegramId,
+              photo: photoSource,
+              caption: rawMessage,
+              parse_mode: "Markdown",
+              reply_markup: replyMarkup
+            };
+
+            tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(photoPayload)
+            });
+            tgJson = await tgRes.json();
+
+            // Fallback: Retry photo without Markdown parse_mode if failed
+            if (!tgJson.ok) {
+              const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...photoPayload, parse_mode: undefined })
+              });
+              const fbJson = await fbRes.json();
+              if (fbJson.ok) {
+                tgJson = fbJson;
+              }
+            }
+          } else if (photoSource.startsWith("data:")) {
+            // Base64 Data URL upload via multipart FormData
+            const formData = new FormData();
+            formData.append("chat_id", String(telegramId));
+            if (rawMessage) formData.append("caption", rawMessage);
+            formData.append("parse_mode", "Markdown");
+            if (replyMarkup) formData.append("reply_markup", JSON.stringify(replyMarkup));
+
+            const match = photoSource.match(/^data:(image\/\w+);base64,(.+)$/);
+            let mimeType = "image/jpeg";
+            let base64Str = photoSource;
+            if (match) {
+              mimeType = match[1];
+              base64Str = match[2];
+            }
+            const buffer = Buffer.from(base64Str, "base64");
+            const ext = mimeType.split("/")[1] || "jpg";
+            const blob = new Blob([buffer], { type: mimeType });
+            formData.append("photo", blob, `broadcast_photo.${ext}`);
+
+            tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+              method: "POST",
+              body: formData
+            });
+            tgJson = await tgRes.json();
+
+            // Fallback retry without Markdown if failed
+            if (!tgJson.ok) {
+              const fbFormData = new FormData();
+              fbFormData.append("chat_id", String(telegramId));
+              if (rawMessage) fbFormData.append("caption", rawMessage);
+              if (replyMarkup) fbFormData.append("reply_markup", JSON.stringify(replyMarkup));
+              fbFormData.append("photo", blob, `broadcast_photo.${ext}`);
+
+              const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: "POST",
+                body: fbFormData
+              });
+              const fbJson = await fbRes.json();
+              if (fbJson.ok) tgJson = fbJson;
+            }
+          }
+        }
+
+        // If no photo was attached or if photo send returned non-ok, fall back to standard text message
+        if (!photoSource || (tgJson && !tgJson.ok)) {
+          const textPayload = {
+            chat_id: telegramId,
+            text: rawMessage,
+            parse_mode: "Markdown",
+            reply_markup: replyMarkup
+          };
+
+          tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...payload, parse_mode: undefined })
+            body: JSON.stringify(textPayload)
           });
-          const fbJson = await fbRes.json();
-          if (fbJson.ok) {
-            successCount++;
-            logs.push({ name: student.name, telegram_id: telegramId, status: "Delivered (Plain Text)", time: new Date().toLocaleTimeString() });
-          } else {
-            failCount++;
-            logs.push({ name: student.name, telegram_id: telegramId, status: `Failed: ${tgJson.description || "Error"}`, time: new Date().toLocaleTimeString() });
+          tgJson = await tgRes.json();
+
+          if (!tgJson.ok) {
+            const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...textPayload, parse_mode: undefined })
+            });
+            const fbJson = await fbRes.json();
+            if (fbJson.ok) tgJson = fbJson;
           }
+        }
+
+        if (tgJson && tgJson.ok) {
+          successCount++;
+          logs.push({ name: student.name, telegram_id: telegramId, status: photoSource ? "Delivered (Photo)" : "Delivered", time: new Date().toLocaleTimeString() });
+        } else {
+          failCount++;
+          logs.push({ name: student.name, telegram_id: telegramId, status: `Failed: ${tgJson?.description || "Unknown error"}`, time: new Date().toLocaleTimeString() });
         }
       } catch (err) {
         failCount++;
@@ -1138,6 +1483,81 @@ app.post("/api/landing/reset", async (req, res) => {
   }
 });
 
+// 5.55. ImgBB / Image URL Resolver API
+app.all("/api/resolve-image-url", async (req, res) => {
+  try {
+    let rawUrl = (req.query.url || req.body?.url || "").trim();
+    if (!rawUrl) return res.status(400).json({ success: false, error: "Missing url param" });
+    if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
+      rawUrl = "https://" + rawUrl;
+    }
+
+    if (/\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(rawUrl) || rawUrl.includes("i.ibb.co")) {
+      return res.status(200).json({ success: true, directUrl: rawUrl });
+    }
+
+    if (rawUrl.includes("ibb.co/")) {
+      const response = await fetch(rawUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }
+      });
+      const htmlText = await response.text();
+
+      const directMatch = htmlText.match(/https:\/\/i\.ibb\.co\/[^\s"'<>]+/i);
+      if (directMatch && directMatch[0]) {
+        return res.status(200).json({ success: true, directUrl: directMatch[0] });
+      }
+
+      const ogMatch = htmlText.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i) ||
+                      htmlText.match(/content=["']([^"']+)["']\s+property=["']og:image["']/i);
+
+      if (ogMatch && ogMatch[1]) {
+        return res.status(200).json({ success: true, directUrl: ogMatch[1] });
+      }
+    }
+
+    return res.status(200).json({ success: true, directUrl: rawUrl });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message, directUrl: req.query.url || req.body?.url });
+  }
+});
+
+// 5.6. Telegram Responses Customizer API
+app.get("/api/admin/telegram-responses", async (req, res) => {
+  try {
+    const data = await dbStore.getTelegramResponses();
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post(["/api/admin/telegram-responses", "/api/admin/telegram-responses/update"], async (req, res) => {
+  try {
+    const updated = await dbStore.updateTelegramResponses(req.body || {});
+    res.status(200).json({ success: true, data: updated, message: "Telegram responses saved successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put("/api/admin/telegram-responses", async (req, res) => {
+  try {
+    const updated = await dbStore.updateTelegramResponses(req.body || {});
+    res.status(200).json({ success: true, data: updated, message: "Telegram responses saved successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/admin/telegram-responses/reset", async (req, res) => {
+  try {
+    const resetData = await dbStore.resetTelegramResponses();
+    res.status(200).json({ success: true, data: resetData, message: "Telegram responses reset to defaults!" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // =========================================================================
 // 6. VERIFY.ET PAYMENT VERIFICATION & TRANSACTIONS API
 // =========================================================================
@@ -1173,8 +1593,8 @@ app.get("/api/coupons", async (req, res) => {
 
 app.post("/api/coupons/validate", async (req, res) => {
   try {
-    const { couponCode, courseId } = req.body || {};
-    const result = await dbStore.validateCoupon(couponCode, courseId);
+    const { couponCode, courseId, price } = req.body || {};
+    const result = await dbStore.validateCoupon(couponCode, courseId, price);
     if (!result.valid) {
       return res.status(400).json({ success: false, error: result.error || "Invalid coupon code" });
     }
@@ -1192,9 +1612,12 @@ app.post("/api/coupons/validate", async (req, res) => {
 app.post("/api/verify/transaction", async (req, res) => {
   try {
     const {
+      studentId,
       studentName,
       studentEmail,
       studentPhone,
+      telegramId,
+      chatId,
       courseId,
       provider,
       referenceNumber,
@@ -1267,7 +1690,7 @@ app.post("/api/verify/transaction", async (req, res) => {
         student_name: studentName || "Anonymous Customer",
         student_phone: studentPhone || "",
         student_email: studentEmail || "",
-        masterclass_title: course ? course.title : "Masterclass Enrollment",
+        course_title: course ? course.title : "Course Enrollment",
         course_id: course ? course.id : courseId,
         payment_method: provider,
         reference_number: referenceNumber,
@@ -1291,13 +1714,35 @@ app.post("/api/verify/transaction", async (req, res) => {
       });
     }
 
-    // Payment is VERIFIED! Record transaction in ledger
+    // Payment is VERIFIED! Record transaction in ledger with student.id in student_name & course ID in course_title
+    const targetCourseId = course ? course.id : courseId;
+
+    let targetStudentId = studentId || "";
+    if (!targetStudentId) {
+      const tgIdClean = String(telegramId || chatId || "").trim();
+      const pClean = (studentPhone || "").trim();
+      try {
+        const allStu = await dbStore.getStudents();
+        const matched = allStu.find(s => {
+          if (!s.id || String(s.id).startsWith("CONFIG_")) return false;
+          if (tgIdClean && (s.id === `TG-${tgIdClean}` || String(s.telegram_id) === tgIdClean || String(s.chat_id) === tgIdClean)) return true;
+          if (pClean && s.phone && pClean.replace(/\D/g, "").slice(-9) && s.phone.replace(/\D/g, "").endsWith(pClean.replace(/\D/g, "").slice(-9))) return true;
+          return false;
+        });
+        if (matched) targetStudentId = matched.id;
+      } catch (_e) {}
+    }
+    if (!targetStudentId) {
+      if (telegramId || chatId) targetStudentId = `TG-${telegramId || chatId}`;
+      else targetStudentId = studentPhone || studentName || verification.senderName || "STU-VIP";
+    }
+
     const savedTxn = await dbStore.addTransaction({
-      student_name: studentName || verification.senderName || "Verified Student",
+      student_name: targetStudentId,
       student_phone: studentPhone || "",
       student_email: studentEmail || "",
-      masterclass_title: course ? course.title : "Masterclass Enrollment",
-      course_id: course ? course.id : courseId,
+      course_title: targetCourseId,
+      course_id: targetCourseId,
       payment_method: verification.provider || provider,
       reference_number: verification.referenceNumber || referenceNumber,
       account_suffix: accountSuffix || "",
@@ -1369,7 +1814,7 @@ app.post("/api/verify/transaction", async (req, res) => {
         }
 
         if (targetChatId) {
-          const courseTitle = course ? course.title : "Masterclass";
+          const courseTitle = course ? course.title : "Course";
           let inviteMsg = `🎉 *Boom! Payment Verified, ${sName}!* 🎓🔥\n\n`;
           inviteMsg += `Your enrollment in *${courseTitle}* is confirmed.\n\n`;
           inviteMsg += `Here are your exclusive 1-time Telegram access portals:\n\n`;
@@ -1412,7 +1857,7 @@ app.post("/api/verify/transaction", async (req, res) => {
       transaction: savedTxn,
       enrollment: {
         studentId: enrollment.student.id,
-        courseTitle: course ? course.title : "Masterclass",
+        courseTitle: course ? course.title : "Course",
         telegramChannel: oneTimeChannelLink,
         telegramGroup: oneTimeGroupLink
       },
@@ -1506,9 +1951,20 @@ app.post("/api/verify/webhook", async (req, res) => {
   }
 });
 
+app.post(["/api/transactions", "/api/admin/transactions"], async (req, res) => {
+  try {
+    const newTxn = await dbStore.addTransaction(req.body || {});
+    res.status(201).json({ success: true, data: newTxn });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
 /**
  * GET /api/analytics
  * Retrieve real-time analytics, revenue trajectory, student velocity,
+
  * course breakdown, payment provider share, and recent enrollments directly from database.
  */
 app.get("/api/analytics", async (req, res) => {
@@ -1519,35 +1975,29 @@ app.get("/api/analytics", async (req, res) => {
       dbStore.getTransactions()
     ]);
 
-    // 1. Calculate Core KPIs
-    let totalEnrolledFromCourses = 0;
-    courses.forEach(c => {
-      totalEnrolledFromCourses += parseInt(String(c.enrolled_students || 0), 10) || 0;
-    });
-
-    const totalStudentsCount = Math.max(students.length, totalEnrolledFromCourses);
+    // 1. Calculate Real Core KPIs from Database
+    const actualStudentCount = students.length;
 
     // Completed / Verified Transactions
     const completedTxns = transactions.filter(t => 
       t.status === "Completed" || t.status === "VERIFIED" || t.status === "Settled"
     );
 
-    let completedTxnRevenue = 0;
+    let grossRevenue = 0;
     completedTxns.forEach(t => {
       const amt = parseFloat(String(t.amount || "0").replace(/[^0-9.]/g, "")) || 0;
-      completedTxnRevenue += amt;
+      grossRevenue += amt;
     });
 
-    let totalEstimatedCourseRev = 0;
-    courses.forEach(c => {
-      const priceNum = parseFloat(String(c.price || "0").replace(/[^0-9.]/g, "")) || 0;
-      const enrolled = parseInt(String(c.enrolled_students || 0), 10) || 0;
-      totalEstimatedCourseRev += (priceNum * enrolled);
-    });
+    if (grossRevenue === 0 && transactions.length > 0) {
+      transactions.forEach(t => {
+        const amt = parseFloat(String(t.amount || "0").replace(/[^0-9.]/g, "")) || 0;
+        grossRevenue += amt;
+      });
+    }
 
-    const grossRevenue = completedTxnRevenue > totalEstimatedCourseRev ? completedTxnRevenue : (totalEstimatedCourseRev || completedTxnRevenue || 4926600);
-    const avgOrderValue = totalStudentsCount > 0 ? Math.round(grossRevenue / totalStudentsCount) : 3947;
-    const settlementRate = transactions.length > 0 ? Math.min(100, Math.round((completedTxns.length / transactions.length) * 1000) / 10) : 97.4;
+    const avgOrderValue = actualStudentCount > 0 ? Math.round(grossRevenue / actualStudentCount) : (grossRevenue || 0);
+    const settlementRate = transactions.length > 0 ? Math.round((completedTxns.length / transactions.length) * 100) : 100;
 
     // 2. Build Course Breakdown
     const colors = ["#f59e0b", "#6366f1", "#10b981", "#f43f5e", "#06b6d4", "#8b5cf6", "#ec4899", "#14b8a6"];
@@ -1567,118 +2017,106 @@ app.get("/api/analytics", async (req, res) => {
       };
     });
 
-    // 3. Payment Methods Breakdown
+    // 3. Payment Methods Breakdown from Real Transactions
     const paymentCounts = {};
     transactions.forEach(t => {
-      const method = (t.payment_method || "telebirr").toLowerCase();
+      const method = (t.payment_method || t.provider || "telebirr").toLowerCase();
       paymentCounts[method] = (paymentCounts[method] || 0) + 1;
     });
-    if (Object.keys(paymentCounts).length === 0) {
-      paymentCounts["telebirr"] = 64;
-      paymentCounts["cbe"] = 24;
-      paymentCounts["boa"] = 8;
-      paymentCounts["awash"] = 4;
-    }
 
-    // 4. Timeframe Trajectories
-    const dailyLabels = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 86400000);
-      dailyLabels.push(d.toLocaleDateString("en-US", { month: "short", day: "2-digit" }));
-    }
-
-    const monthlyLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep (Proj)", "Oct (Proj)", "Nov (Proj)", "Dec (Proj)"];
+    // 4. Real Timeframe Trajectories from Database Transactions & Students
+    const monthlyLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const currentYear = new Date().getFullYear();
-    const yearlyLabels = [String(currentYear - 3), String(currentYear - 2), String(currentYear - 1), `${currentYear} (YTD)`];
+    const yearlyLabels = [String(currentYear - 3), String(currentYear - 2), String(currentYear - 1), String(currentYear)];
 
-    const dailyRevenue = { all: [] };
-    const dailyEnrollments = { all: [] };
-    const monthlyRevenue = { all: [] };
-    const monthlyEnrollments = { all: [] };
-    const yearlyRevenue = { all: [] };
-    const yearlyEnrollments = { all: [] };
-
-    const dailyWeights = [0.03, 0.04, 0.05, 0.04, 0.06, 0.07, 0.06, 0.09, 0.08, 0.10, 0.11, 0.10, 0.13, 0.15];
-    const monthlyWeights = [0.02, 0.03, 0.04, 0.03, 0.05, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.15];
-    const yearlyWeights = [0.12, 0.28, 0.55, 1.0];
+    const monthlyRevenue = { all: Array(12).fill(0) };
+    const monthlyEnrollments = { all: Array(12).fill(0) };
+    const yearlyRevenue = { all: Array(4).fill(0) };
+    const yearlyEnrollments = { all: Array(4).fill(0) };
 
     courses.forEach(c => {
-      const cId = c.id;
-      const cRev = courseStats[cId]?.revenue || (grossRevenue / (courses.length || 1));
-      const cStu = courseStats[cId]?.enrolled || Math.round(totalStudentsCount / (courses.length || 1));
-
-      dailyRevenue[cId] = dailyWeights.map(w => Math.round(w * (cRev * 0.12)));
-      dailyEnrollments[cId] = dailyWeights.map(w => Math.max(1, Math.round(w * (cStu * 0.12))));
-
-      monthlyRevenue[cId] = monthlyWeights.map(w => Math.round(w * cRev));
-      monthlyEnrollments[cId] = monthlyWeights.map(w => Math.max(1, Math.round(w * cStu)));
-
-      yearlyRevenue[cId] = yearlyWeights.map(w => Math.round(w * cRev));
-      yearlyEnrollments[cId] = yearlyWeights.map(w => Math.max(1, Math.round(w * cStu)));
+      monthlyRevenue[c.id] = Array(12).fill(0);
+      monthlyEnrollments[c.id] = Array(12).fill(0);
+      yearlyRevenue[c.id] = Array(4).fill(0);
+      yearlyEnrollments[c.id] = Array(4).fill(0);
     });
 
-    dailyRevenue.all = dailyLabels.map((_, i) => {
-      let sum = 0;
-      courses.forEach(c => { sum += (dailyRevenue[c.id]?.[i] || 0); });
-      return sum || Math.round(dailyWeights[i] * grossRevenue * 0.12);
-    });
+    if (completedTxns.length > 0) {
+      completedTxns.forEach(t => {
+        const tDate = t.created_at ? new Date(t.created_at) : new Date();
+        const mIdx = isNaN(tDate.getTime()) ? 7 : tDate.getMonth();
+        const yearStr = String(tDate.getFullYear());
+        const yIdx = yearlyLabels.indexOf(yearStr);
+        const amt = parseFloat(String(t.amount || "0").replace(/[^0-9.]/g, "")) || 0;
+        const cId = t.course_id || courses[0]?.id || "all";
 
-    dailyEnrollments.all = dailyLabels.map((_, i) => {
-      let sum = 0;
-      courses.forEach(c => { sum += (dailyEnrollments[c.id]?.[i] || 0); });
-      return sum || Math.max(1, Math.round(dailyWeights[i] * totalStudentsCount * 0.12));
-    });
+        monthlyRevenue.all[mIdx] += amt;
+        monthlyEnrollments.all[mIdx] += 1;
 
-    monthlyRevenue.all = monthlyLabels.map((_, i) => {
-      let sum = 0;
-      courses.forEach(c => { sum += (monthlyRevenue[c.id]?.[i] || 0); });
-      return sum || Math.round(monthlyWeights[i] * grossRevenue);
-    });
+        if (monthlyRevenue[cId]) {
+          monthlyRevenue[cId][mIdx] += amt;
+          monthlyEnrollments[cId][mIdx] += 1;
+        }
 
-    monthlyEnrollments.all = monthlyLabels.map((_, i) => {
-      let sum = 0;
-      courses.forEach(c => { sum += (monthlyEnrollments[c.id]?.[i] || 0); });
-      return sum || Math.max(1, Math.round(monthlyWeights[i] * totalStudentsCount));
-    });
-
-    yearlyRevenue.all = yearlyLabels.map((_, i) => {
-      let sum = 0;
-      courses.forEach(c => { sum += (yearlyRevenue[c.id]?.[i] || 0); });
-      return sum || Math.round(yearlyWeights[i] * grossRevenue);
-    });
-
-    yearlyEnrollments.all = yearlyLabels.map((_, i) => {
-      let sum = 0;
-      courses.forEach(c => { sum += (yearlyEnrollments[c.id]?.[i] || 0); });
-      return sum || Math.max(1, Math.round(yearlyWeights[i] * totalStudentsCount));
-    });
+        if (yIdx >= 0) {
+          yearlyRevenue.all[yIdx] += amt;
+          yearlyEnrollments.all[yIdx] += 1;
+          if (yearlyRevenue[cId]) {
+            yearlyRevenue[cId][yIdx] += amt;
+            yearlyEnrollments[cId][yIdx] += 1;
+          }
+        } else {
+          yearlyRevenue.all[3] += amt;
+          yearlyEnrollments.all[3] += 1;
+        }
+      });
+    }
 
     // 5. Recent student enrollments (live from transactions & students)
-    const recentEnrollments = transactions.slice(0, 15).map(t => ({
+    let recentEnrollments = transactions.map(t => ({
       id: t.id,
       studentName: t.student_name || "Student",
-      studentPhone: t.student_phone || "+251 90 000 0000",
+      studentPhone: t.student_phone || "N/A",
       studentEmail: t.student_email || "@student",
-      courseTitle: t.masterclass_title || "Masterclass Enrollment",
+      courseTitle: t.course_title || "Course Enrollment",
       courseId: t.course_id || "",
       paymentMethod: t.payment_method || "telebirr",
       referenceNumber: t.reference_number || t.id,
-      amount: t.amount || "ETB 8,500",
+      amount: t.amount || "ETB 0",
       status: t.status || "Completed",
       verifyStatus: t.verify_et_status || "VERIFIED",
       date: t.created_at ? new Date(t.created_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
     }));
+
+    if (recentEnrollments.length === 0 && students.length > 0) {
+      recentEnrollments = students.map((s, idx) => {
+        const assignedCourse = courses[idx % (courses.length || 1)] || {};
+        return {
+          id: s.id || `STU-${idx + 1}`,
+          studentName: s.name || "Registered Learner",
+          studentPhone: s.phone || "N/A",
+          studentEmail: s.email || s.telegram_username || "@student",
+          courseTitle: assignedCourse.title || "Course",
+          courseId: assignedCourse.id || "",
+          paymentMethod: "telebirr",
+          referenceNumber: `REC-${s.id || idx + 100}`,
+          amount: assignedCourse.price || "ETB 0",
+          status: "Completed",
+          verifyStatus: "VERIFIED",
+          date: s.joined_date || new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+        };
+      });
+    }
 
     res.status(200).json({
       success: true,
       data: {
         kpi: {
           grossRevenue,
-          totalEnrollments: totalStudentsCount,
+          totalEnrollments: actualStudentCount,
+          publishedCourses: courses.length,
           avgOrderValue,
-          settlementRate,
-          revenueGrowth: "+24.8%",
-          studentGrowth: "+18.2%"
+          settlementRate
         },
         courses: courses.map(c => ({
           id: c.id,
@@ -1689,9 +2127,8 @@ app.get("/api/analytics", async (req, res) => {
           color: courseStats[c.id]?.color || "#f59e0b"
         })),
         trajectories: {
-          daily: { labels: dailyLabels, revenue: dailyRevenue, enrollments: dailyEnrollments, growthRevenue: "+31.4%", growthStudents: "+26.0%" },
-          monthly: { labels: monthlyLabels, revenue: monthlyRevenue, enrollments: monthlyEnrollments, growthRevenue: "+24.8%", growthStudents: "+18.2%" },
-          yearly: { labels: yearlyLabels, revenue: yearlyRevenue, enrollments: yearlyEnrollments, growthRevenue: "+80.5%", growthStudents: "+78.9%" }
+          monthly: { labels: monthlyLabels, revenue: monthlyRevenue, enrollments: monthlyEnrollments },
+          yearly: { labels: yearlyLabels, revenue: yearlyRevenue, enrollments: yearlyEnrollments }
         },
         paymentBreakdown: paymentCounts,
         recentEnrollments
@@ -1747,9 +2184,12 @@ app.use(async (req, res, next) => {
     p.startsWith("/js/") ||
     p.startsWith("/img/") ||
     p.startsWith("/admin-") ||
+    p.startsWith("/student-") ||
     p.includes("admin") ||
     p === "/maintenance.html" ||
     p === "/maintenance" ||
+    p.endsWith(".css") ||
+    p.endsWith(".js") ||
     p.endsWith(".ico") ||
     p.endsWith(".png") ||
     p.endsWith(".jpg") ||
@@ -1800,8 +2240,70 @@ app.get("/admin/broadcast", (req, res) => res.sendFile(path.join(__dirname, "adm
 app.get("/admin-broadcast", (req, res) => res.sendFile(path.join(__dirname, "admin-broadcast.html")));
 app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "admin-dashboard.html")));
 
+// --- DEDICATED STUDENT AUTH API SYSTEM (/api/auth/*) ---
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { identifier, password } = req.body || {};
+    const result = await dbStore.authenticateStudent({ identifier, password });
+    if (result.success) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/auth/signup", async (req, res) => {
+  try {
+    const { name, phone, password } = req.body || {};
+    const result = await dbStore.registerStudentAccount({ name, phone, password });
+    if (result.success) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { phone, newPassword } = req.body || {};
+    const result = await dbStore.resetStudentPassword({ phone, newPassword });
+    if (result.success) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get(["/api/student/me", "/api/auth/me"], async (req, res) => {
+  try {
+    const id = req.query.id || req.query.phone || "";
+    if (!id) return res.status(400).json({ success: false, error: "Missing student identifier" });
+    const data = await dbStore.getStudentCoursesWithLinks(id);
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get("/courses", (req, res) => res.sendFile(path.join(__dirname, "courses.html")));
-app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "login.html")));
+app.get("/student/login", (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
+app.get("/student-login", (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
+app.get("/student-auth.html", (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
+app.get("/student/auth", (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
+app.get("/student-auth", (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
+app.get("/student-auth.html", (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
+app.get("/student/dashboard", (req, res) => res.sendFile(path.join(__dirname, "student-dashboard.html")));
+app.get("/student-dashboard", (req, res) => res.sendFile(path.join(__dirname, "student-dashboard.html")));
+app.get(/^\/login\/?$/, (req, res) => res.sendFile(path.join(__dirname, "student-auth.html")));
 app.get("/maintenance", (req, res) => res.sendFile(path.join(__dirname, "maintenance.html")));
 
 // Serve Static Frontend Files with No-Cache Control

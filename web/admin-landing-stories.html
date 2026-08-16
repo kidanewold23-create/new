@@ -139,6 +139,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn active">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -199,6 +202,9 @@
         </div>
 
         <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-add-casestudy">
+            <i data-lucide="plus"></i> Add New Case Study
+          </button>
           <button type="button" class="btn-dash-action btn-dash-primary" id="btn-save-section" style="padding: 10px 24px;">
             <i data-lucide="save"></i> Save Stories Changes
           </button>
@@ -209,16 +215,23 @@
         <!-- Section Headers -->
         <div class="cms-card">
           <div class="cms-card-title">
-            <i data-lucide="layout" style="color: var(--primary-gold);"></i> Section Headlines
+            <i data-lucide="layout" style="color: var(--primary-gold);"></i> Section Headlines & Status
           </div>
           <div class="grid-3">
             <div class="form-group">
               <label class="form-label" for="ss-tag">Section Tag</label>
               <input type="text" id="ss-tag" class="form-input" placeholder="PROVEN STUDENT RESULTS">
             </div>
-            <div class="form-group" style="grid-column: span 2;">
+            <div class="form-group">
               <label class="form-label" for="ss-title">Section Title</label>
               <input type="text" id="ss-title" class="form-input" placeholder="Real Stories from Founders Academy Graduates">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ss-status">Section Display Status (ON/OFF)</label>
+              <select id="ss-status" class="form-input" style="height: 48px;">
+                <option value="active">Active (ON - Visible on index.html)</option>
+                <option value="inactive">Hidden / Inactive (OFF - Hide Section)</option>
+              </select>
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
@@ -250,8 +263,13 @@
 
         <!-- Case Studies List -->
         <div class="cms-card">
-          <div class="cms-card-title">
-            <i data-lucide="file-check-2" style="color: #06b6d4;"></i> Detailed Student Case Studies
+          <div class="cms-card-title" style="justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="file-check-2" style="color: #06b6d4;"></i> Detailed Student Case Studies
+            </div>
+            <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-add-casestudy-card" style="padding: 6px 14px; font-size: 0.85rem;">
+              <i data-lucide="plus"></i> Add Case Study
+            </button>
           </div>
           <div id="casestudies-cms-container">
             <!-- Populated by JavaScript -->
@@ -264,14 +282,29 @@
   <script src="js/landing-cms-helper.js"></script>
   <script src="js/admin.js"></script>
   <script>
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       renderCmsNavTabs("stories");
+
+      let currentCaseStudies = [];
 
       const config = await getLandingConfig();
       if (config && config.successStories) {
         document.getElementById("ss-tag").value = config.successStories.sectionTag || "";
         document.getElementById("ss-title").value = config.successStories.sectionTitle || "";
         document.getElementById("ss-sub").value = config.successStories.sectionSubtitle || "";
+        if (document.getElementById("ss-status")) {
+          document.getElementById("ss-status").value = config.successStories.status === "inactive" ? "inactive" : "active";
+        }
 
         if (config.successStories.earningsBanner) {
           document.getElementById("eb-amount").value = config.successStories.earningsBanner.totalAmount || "47,000,000+ ETB";
@@ -291,7 +324,8 @@
           story: "Before Founders Academy, Abel had zero marketing experience. After completing the SMMA Incubator, he built an outreach pipeline landing clients in the US & UK.",
           key1: "4 Active Retainers",
           key2: "100% Remote Operation",
-          key3: "Scaled to 3 Team Members"
+          key3: "Scaled to 3 Team Members",
+          status: "active"
         },
         {
           id: "cs-2",
@@ -300,76 +334,129 @@
           badge: "ETB 145,000 / Month",
           avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
           quote: "The pacing, sound design, and color grading modules transformed my editing quality overnight.",
-          story: "Selam was struggling on local freelance gigs. Through the Cinematic Video Masterclass, she built a portfolio that landed full-time editing contracts with 2 US creators.",
+          story: "Selam was struggling on local freelance gigs. Through the Cinematic Video Course, she built a portfolio that landed full-time editing contracts with 2 US creators.",
           key1: "2 Full-Time Retainers",
           key2: "145k ETB Monthly Income",
-          key3: "Adobe Premiere Pro Certified"
+          key3: "Adobe Premiere Pro Certified",
+          status: "active"
         }
       ];
 
-      const caseStudies = (config && config.successStories && Array.isArray(config.successStories.caseStudies) && config.successStories.caseStudies.length > 0) ? config.successStories.caseStudies : defaultCaseStudies;
+      if (config && config.successStories && Array.isArray(config.successStories.caseStudies) && config.successStories.caseStudies.length > 0) {
+        currentCaseStudies = config.successStories.caseStudies;
+      } else {
+        currentCaseStudies = defaultCaseStudies;
+      }
 
-      const container = document.getElementById("casestudies-cms-container");
-      container.innerHTML = caseStudies.map((cs, idx) => `
-        <div class="casestudy-cms-box" data-id="${cs.id || 'cs-' + (idx + 1)}">
-          <strong style="color: #06b6d4; font-size: 0.95rem; display: block; margin-bottom: 12px;">Case Study #${idx + 1}: ${cs.name || 'Student'}</strong>
-          <div class="grid-3" style="margin-bottom: 10px;">
-            <div class="form-group">
-              <label class="form-label">Student Name</label>
-              <input type="text" class="form-input cs-name" value="${cs.name || ''}">
+      renderList(currentCaseStudies);
+
+      function renderList(list) {
+        const container = document.getElementById("casestudies-cms-container");
+        if (!container) return;
+
+        if (!list || list.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted); padding: 40px; border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
+              <i data-lucide="inbox" style="width: 40px; height: 40px; opacity: 0.5; margin-bottom: 10px;"></i>
+              <p>No case studies added yet.</p>
+              <button type="button" class="btn-dash-action btn-dash-secondary" onclick="addCaseStudyDraft()" style="margin-top: 10px;">
+                <i data-lucide="plus"></i> Add First Case Study
+              </button>
             </div>
-            <div class="form-group">
-              <label class="form-label">Role / Agency Name</label>
-              <input type="text" class="form-input cs-role" value="${cs.role || ''}">
+          `;
+          if (window.lucide) window.lucide.createIcons();
+          return;
+        }
+
+        container.innerHTML = list.map((cs, idx) => `
+          <div class="casestudy-cms-box" data-id="${cs.id || 'cs-' + (idx + 1)}">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <strong style="color: #06b6d4; font-size: 0.95rem;">Case Study #${idx + 1}: ${escapeHtml(cs.name || 'Student')}</strong>
+                <span class="badge ${cs.status === 'inactive' ? 'badge-danger' : 'badge-gold'}" style="font-size: 0.75rem;">
+                  ${cs.status === 'inactive' ? 'OFF / Hidden' : 'ON / Active'}
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" class="btn-dash-action btn-dash-secondary btn-del-cs" onclick="removeCaseStudyItem('${cs.id || 'cs-' + (idx + 1)}')" style="padding: 5px 12px; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+                  <i data-lucide="trash-2"></i> Remove
+                </button>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Milestone / Earnings Badge</label>
-              <input type="text" class="form-input cs-badge" value="${cs.badge || ''}">
+
+            <div class="grid-3" style="margin-bottom: 10px;">
+              <div class="form-group">
+                <label class="form-label">Student Name</label>
+                <input type="text" class="form-input cs-name" value="${escapeHtml(cs.name || '')}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role / Agency Name</label>
+                <input type="text" class="form-input cs-role" value="${escapeHtml(cs.role || '')}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Milestone / Earnings Badge</label>
+                <input type="text" class="form-input cs-badge" value="${escapeHtml(cs.badge || '')}">
+              </div>
             </div>
-          </div>
-          <div class="grid-2" style="margin-bottom: 10px;">
-            <div class="form-group">
-              <label class="form-label">Avatar Image URL</label>
-              <input type="text" class="form-input cs-avatar" value="${cs.avatar || ''}">
+
+            <div class="grid-3" style="margin-bottom: 10px;">
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label">Avatar Image URL</label>
+                <input type="text" class="form-input cs-avatar" value="${escapeHtml(cs.avatar || '')}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Story Status (ON / OFF)</label>
+                <select class="form-input cs-status" style="height: 48px;">
+                  <option value="active" ${cs.status !== 'inactive' ? 'selected' : ''}>Active (ON - Visible)</option>
+                  <option value="inactive" ${cs.status === 'inactive' ? 'selected' : ''}>Hidden (OFF - Hide Story)</option>
+                </select>
+              </div>
             </div>
-            <div class="form-group">
+
+            <div class="form-group" style="margin-bottom: 10px;">
               <label class="form-label">Headline Quote</label>
-              <input type="text" class="form-input cs-quote" value="${cs.quote || ''}">
+              <input type="text" class="form-input cs-quote" value="${escapeHtml(cs.quote || '')}">
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Detailed Story Narrative</label>
-            <textarea class="form-input cs-story" style="height: 60px; padding: 10px 14px;">${cs.story || ''}</textarea>
-          </div>
-          <div class="grid-3" style="margin-bottom: 0;">
-            <div class="form-group">
-              <label class="form-label">Key Takeaway 1</label>
-              <input type="text" class="form-input cs-k1" value="${cs.key1 || ''}">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Key Takeaway 2</label>
-              <input type="text" class="form-input cs-k2" value="${cs.key2 || ''}">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Key Takeaway 3</label>
-              <input type="text" class="form-input cs-k3" value="${cs.key3 || ''}">
-            </div>
-          </div>
-        </div>
-      `).join("");
 
-      if (window.lucide) window.lucide.createIcons();
+            <div class="form-group">
+              <label class="form-label">Detailed Story Narrative</label>
+              <textarea class="form-input cs-story" style="height: 60px; padding: 10px 14px;">${escapeHtml(cs.story || '')}</textarea>
+            </div>
 
-      document.getElementById("btn-save-section")?.addEventListener("click", () => {
+            <div class="grid-3" style="margin-bottom: 0;">
+              <div class="form-group">
+                <label class="form-label">Key Takeaway 1</label>
+                <input type="text" class="form-input cs-k1" value="${escapeHtml(cs.key1 || '')}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Key Takeaway 2</label>
+                <input type="text" class="form-input cs-k2" value="${escapeHtml(cs.key2 || '')}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Key Takeaway 3</label>
+                <input type="text" class="form-input cs-k3" value="${escapeHtml(cs.key3 || '')}">
+              </div>
+            </div>
+          </div>
+        `).join("");
+
+        if (window.lucide) window.lucide.createIcons();
+        attachAvatarListeners();
+      }
+
+      function gatherListFromDOM() {
         const boxes = document.querySelectorAll(".casestudy-cms-box");
-        const caseStudiesList = [];
+        const list = [];
         boxes.forEach((box, idx) => {
-          caseStudiesList.push({
+          const avatarInput = box.querySelector(".cs-avatar");
+          const avatarUrl = avatarInput?.value?.trim() || "";
+          list.push({
             id: box.dataset.id || `cs-${idx + 1}`,
             name: box.querySelector(".cs-name")?.value.trim() || "",
             role: box.querySelector(".cs-role")?.value.trim() || "",
             badge: box.querySelector(".cs-badge")?.value.trim() || "",
-            avatar: box.querySelector(".cs-avatar")?.value.trim() || "",
+            avatar: avatarUrl,
+            status: box.querySelector(".cs-status")?.value || "active",
             quote: box.querySelector(".cs-quote")?.value.trim() || "",
             story: box.querySelector(".cs-story")?.value.trim() || "",
             key1: box.querySelector(".cs-k1")?.value.trim() || "",
@@ -377,12 +464,84 @@
             key3: box.querySelector(".cs-k3")?.value.trim() || ""
           });
         });
+        return list;
+      }
+
+      window.addCaseStudyDraft = () => {
+        const current = gatherListFromDOM();
+        current.unshift({
+          id: `cs-${Date.now()}`,
+          name: "New Student Case Study",
+          role: "Digital Agency Owner",
+          badge: "$3,000 / Month",
+          avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+          quote: "I signed my first retainer client using Founders Academy scripts.",
+          story: "Detailed narrative on how student enrolled, learned the skills, and built a successful remote business.",
+          key1: "2 Retainer Clients",
+          key2: "100% Remote Operation",
+          key3: "Scaled Agency Revenue",
+          status: "active"
+        });
+        renderList(current);
+        if (window.showToast) window.showToast("✨ New Case Study draft added!", "success");
+      };
+
+      document.getElementById("btn-add-casestudy")?.addEventListener("click", window.addCaseStudyDraft);
+      document.getElementById("btn-add-casestudy-card")?.addEventListener("click", window.addCaseStudyDraft);
+
+      window.removeCaseStudyItem = (id) => {
+        const current = gatherListFromDOM().filter(cs => cs.id !== id);
+        renderList(current);
+        if (window.showToast) window.showToast("Case study removed", "info");
+      };
+
+      function attachAvatarListeners() {
+        document.querySelectorAll(".cs-avatar").forEach(avatarInput => {
+          if (avatarInput.dataset.listenerAttached) return;
+          avatarInput.dataset.listenerAttached = "true";
+
+          const resolveFn = async () => {
+            const val = avatarInput.value.trim();
+            if (val.includes("ibb.co/") && !val.includes("i.ibb.co")) {
+              try {
+                const res = await fetch("/api/resolve-image-url?url=" + encodeURIComponent(val));
+                const json = await res.json();
+                if (json.success && json.directUrl) {
+                  avatarInput.value = json.directUrl;
+                  if (window.showToast) window.showToast("✨ Converted ImgBB link to direct image URL!", "success");
+                }
+              } catch (_e) {}
+            }
+          };
+
+          avatarInput.addEventListener("blur", resolveFn);
+          avatarInput.addEventListener("change", resolveFn);
+          avatarInput.addEventListener("paste", () => setTimeout(resolveFn, 100));
+        });
+      }
+
+      document.getElementById("btn-save-section")?.addEventListener("click", async () => {
+        const caseStudiesList = gatherListFromDOM();
+
+        // Auto-resolve any ImgBB links before saving
+        for (const cs of caseStudiesList) {
+          if (cs.avatar && cs.avatar.includes("ibb.co/") && !cs.avatar.includes("i.ibb.co")) {
+            try {
+              const res = await fetch("/api/resolve-image-url?url=" + encodeURIComponent(cs.avatar));
+              const json = await res.json();
+              if (json.success && json.directUrl) {
+                cs.avatar = json.directUrl;
+              }
+            } catch (_e) {}
+          }
+        }
 
         const payload = {
           successStories: {
             sectionTag: document.getElementById("ss-tag").value.trim(),
             sectionTitle: document.getElementById("ss-title").value.trim(),
             sectionSubtitle: document.getElementById("ss-sub").value.trim(),
+            status: document.getElementById("ss-status")?.value || "active",
             earningsBanner: {
               totalAmount: document.getElementById("eb-amount").value.trim(),
               subtitle: "Total combined revenue generated by Founders Academy students in 2025-2026 across local Ethiopian businesses and global remote clients.",

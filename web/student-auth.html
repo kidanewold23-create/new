@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' blob:; script-src-elem * 'unsafe-inline' 'unsafe-eval' blob:; style-src * 'unsafe-inline'; font-src * data:; img-src * data: blob:; connect-src *;">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Access Portal | Founders Academy</title>
+  <meta name="description" content="Log in or create a student account at Founders Academy to access your enrolled masterclasses, learning channels, and certificate dashboard.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <script src="js/maintenance-guard.js"></script>
+  <script src="/js/app.js"></script>
+  <link rel="stylesheet" href="/css/styles.css?v=3.0">
+  <link rel="stylesheet" href="/css/auth.css?v=3.0">
+
+  <script>
+    if (window.location.protocol === "file:") {
+      window.location.replace("http://localhost:3000/student-auth.html" + window.location.search + window.location.hash);
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: 0 !important;
+    }
+
+    .auth-page-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(0, 0, 0, 0) 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      filter: blur(60px);
+      z-index: 0;
+    }
+
+    .auth-card-ultra {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      background: rgba(13, 19, 33, 0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 28px;
+      padding: 38px 34px;
+      box-shadow: 
+        0 30px 60px -12px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(245, 158, 11, 0.12);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .brand-avatar-badge {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 16px;
+      border-radius: 20px;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--primary-gold) 0%, #0088cc 100%);
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+    }
+
+    .brand-avatar-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 17px;
+    }
+
+    .auth-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .auth-header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .auth-tab-group {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .auth-tab-btn.active {
+      background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%);
+      color: #000000;
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+    }
+
+    .auth-form-panel {
+      display: none;
+    }
+
+    .auth-form-panel.active {
+      display: block;
+    }
+
+    .form-group-custom {
+      margin-bottom: 18px;
+    }
+
+    .form-label-custom {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+    }
+
+    .input-icon-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon-group i.left-icon {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      color: var(--primary-gold);
+      pointer-events: none;
+    }
+
+    .input-icon-group input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      padding: 12px 14px 12px 42px;
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-icon-group input:focus {
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+
+    .btn-submit-gold {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%);
+      color: #000000;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-submit-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.45);
+    }
+  </style>
+</head>
+<body class="dark-theme">
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Announcement Bar (100% Database Fetched) -->
+  <div class="announcement-bar">
+    <div class="announcement-content">
+      <span class="badge badge-gold"></span>
+      <span data-i18n="announcement_text"></span>
+      <a href="#" class="btn-text" id="announcement-cta" data-i18n="claim_offer"></a>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header (Clean Brand Logo) -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container" style="justify-content: center;">
+      <a href="index.html" class="brand-logo">
+        <div class="logo-icon">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">FOUNDERS</span>
+          <span class="brand-sub">ACADEMY</span>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Auth Page Layout -->
+  <div class="auth-page-container">
+    <div class="ambient-glow"></div>
+
+    <div class="auth-card-ultra">
+      <div class="auth-header">
+        <div class="brand-avatar-badge">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy">
+        </div>
+        <h1>Student Access Portal</h1>
+        <p>Log in or sign up to access your enrolled masterclasses & learning links</p>
+      </div>
+
+      <!-- Auth Tab Group -->
+      <div class="auth-tab-group">
+        <button type="button" id="tab-btn-login" class="auth-tab-btn active">
+          <i data-lucide="log-in" style="width:16px; height:16px;"></i> Sign In
+        </button>
+        <button type="button" id="tab-btn-register" class="auth-tab-btn">
+          <i data-lucide="user-plus" style="width:16px; height:16px;"></i> Create Account
+        </button>
+      </div>
+
+      <!-- FORM 1: LOGIN FORM -->
+      <form id="form-login" class="auth-form-panel active">
+        <div id="login-error-alert" style="display: none; padding: 12px 16px; border-radius: 14px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; font-size: 0.88rem; font-weight: 600; line-height: 1.4; margin-bottom: 14px;"></div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="login-phone">Phone Number / Username *</label>
+          <div class="input-icon-group">
+            <i data-lucide="phone" class="left-icon"></i>
+            <input type="text" id="login-phone" placeholder="e.g. 0912345678 or 251912345678" required autofocus>
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label-custom" for="login-password" style="margin-bottom:0;">Password *</label>
+            <button type="button" id="btn-toggle-forgot" style="background: none; border: none; color: var(--primary-gold); font-size: 0.82rem; cursor: pointer; text-decoration: underline; padding: 0;">Forgot Password?</button>
+          </div>
+          <div class="input-icon-group">
+            <i data-lucide="lock" class="left-icon"></i>
+            <input type="password" id="login-password" placeholder="Enter your password" required>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-auth-portal" class="btn-submit-gold">
+          <i data-lucide="log-in"></i>
+          <span>Log In to Student Portal</span>
+        </button>
+      </form>
+
+      <!-- FORM 2: REGISTRATION FORM -->
+      <form id="form-register" class="auth-form-panel">
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="reg-name">Full Name *</label>
+          <div class="input-icon-group">
+            <i data-lucide="user" class="left-icon"></i>
+            <input type="text" id="reg-name" placeholder="Enter your full name" required>
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="reg-phone">Phone Number (Mandatory +251 Ethiopia) *</label>
+          <div class="input-icon-group">
+            <i data-lucide="phone" class="left-icon"></i>
+            <input type="tel" id="reg-phone" placeholder="+251 91 234 5678" value="+251 " required>
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="reg-password">Create Password *</label>
+          <div class="input-icon-group">
+            <i data-lucide="lock" class="left-icon"></i>
+            <input type="password" id="reg-password" placeholder="Min. 4 characters" required>
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="reg-confirm-password">Confirm Password *</label>
+          <div class="input-icon-group">
+            <i data-lucide="shield-check" class="left-icon"></i>
+            <input type="password" id="reg-confirm-password" placeholder="Repeat your password" required>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-register" class="btn-submit-gold">
+          <i data-lucide="user-plus"></i>
+          <span>Create Student Account</span>
+        </button>
+      </form>
+
+      <!-- FORM 3: FORGOT PASSWORD PANEL (CONNECTED TO TELEGRAM BOT) -->
+      <div id="panel-forgot" class="auth-form-panel">
+        <div style="background: rgba(0, 136, 204, 0.12); border: 1px solid rgba(0, 136, 204, 0.35); border-radius: 14px; padding: 16px; margin-bottom: 18px; font-size: 0.88rem; color: #7dd3fc; line-height: 1.5;">
+          🤖 <strong>Telegram Bot Password Reset:</strong><br>
+          Our Telegram bot (<strong>@founders_academybot</strong>) will automatically verify your account and prompt you to set a new password.
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom" for="forgot-phone">Registered Phone Number (Optional)</label>
+          <div class="input-icon-group">
+            <i data-lucide="phone" class="left-icon"></i>
+            <input type="tel" id="forgot-phone" placeholder="e.g. 0912345678 or 251912345678">
+          </div>
+        </div>
+
+        <a id="btn-telegram-bot-reset" href="https://t.me/founders_academybot?start=resetpassword" target="_blank" class="btn-submit-gold" style="margin-bottom: 14px; background: linear-gradient(135deg, #0088cc 0%, #0284c7 100%); color: #ffffff;">
+          <i data-lucide="send"></i>
+          <span>Reset Password via Telegram Bot</span>
+        </a>
+
+        <button type="button" id="btn-cancel-forgot" style="width: 100%; background: none; border: none; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; cursor: pointer; padding: 6px;">
+          &larr; Back to Sign In
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.showToast = function(msg, type = "info") {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i data-lucide="${type === 'error' ? 'alert-circle' : type === 'success' ? 'check-circle' : 'info'}"></i> <span>${msg}</span>`;
+      container.appendChild(toast);
+      if (window.lucide) window.lucide.createIcons();
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+
+      // Fetch live announcement banner from database API
+      fetch("/api/landing")
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.success && data.data && data.data.announcement) {
+            const ann = data.data.announcement;
+            const annBar = document.querySelector(".announcement-bar");
+            if (annBar) {
+              if (ann.enabled === false) {
+                annBar.style.display = "none";
+              } else {
+                annBar.style.display = "";
+                const badge = annBar.querySelector(".badge");
+                const textSpan = annBar.querySelector("[data-i18n='announcement_text']");
+                const ctaBtn = document.getElementById("announcement-cta");
+                if (badge) badge.innerHTML = `<i data-lucide="sparkles"></i> ${ann.badge || "NEW ENROLLMENT OPEN"}`;
+                if (textSpan) textSpan.textContent = ann.text || "";
+                if (ctaBtn) {
+                  ctaBtn.textContent = ann.ctaText || "Claim Offer →";
+                  if (ann.ctaLink) ctaBtn.href = ann.ctaLink;
+                }
+                if (window.lucide) window.lucide.createIcons();
+              }
+            }
+          }
+        })
+        .catch(() => {});
+
+      const tabBtnLogin = document.getElementById("tab-btn-login");
+      const tabBtnRegister = document.getElementById("tab-btn-register");
+      const formLogin = document.getElementById("form-login");
+      const formRegister = document.getElementById("form-register");
+      const panelForgot = document.getElementById("panel-forgot");
+      const loginPhoneInput = document.getElementById("login-phone");
+      const forgotPhoneInput = document.getElementById("forgot-phone");
+      const tgBotResetBtn = document.getElementById("btn-telegram-bot-reset");
+
+      // Switch Tabs
+      tabBtnLogin.addEventListener("click", () => {
+        tabBtnLogin.classList.add("active");
+        tabBtnRegister.classList.remove("active");
+        formLogin.classList.add("active");
+        formRegister.classList.remove("active");
+        if (panelForgot) panelForgot.classList.remove("active");
+      });
+
+      tabBtnRegister.addEventListener("click", () => {
+        tabBtnRegister.classList.add("active");
+        tabBtnLogin.classList.remove("active");
+        formRegister.classList.add("active");
+        formLogin.classList.remove("active");
+        if (panelForgot) panelForgot.classList.remove("active");
+      });
+
+      const btnForgot = document.getElementById("btn-toggle-forgot");
+      if (btnForgot) {
+        btnForgot.addEventListener("click", (e) => {
+          e.preventDefault();
+          const rawVal = loginPhoneInput ? loginPhoneInput.value.replace(/[^0-9]/g, "") : "";
+          let botUrl = "https://t.me/founders_academybot?start=resetpassword";
+          if (rawVal && rawVal.length >= 8) {
+            botUrl = `https://t.me/founders_academybot?start=reset_${encodeURIComponent(rawVal)}`;
+          }
+          window.open(botUrl, "_blank");
+        });
+      }
+
+      // LOGIN SUBMIT HANDLER
+      formLogin.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const identifier = loginPhoneInput.value.trim();
+        const password = document.getElementById("login-password").value.trim();
+        const loginErrorAlert = document.getElementById("login-error-alert");
+
+        if (loginErrorAlert) {
+          loginErrorAlert.style.display = "none";
+          loginErrorAlert.innerHTML = "";
+        }
+
+        const btnSubmit = document.getElementById("btn-submit-auth-portal");
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Logging in...</span>`;
+        if (window.lucide) window.lucide.createIcons();
+
+        try {
+          let res, data;
+          try {
+            res = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ identifier, password })
+            });
+            data = await res.json().catch(() => ({}));
+          } catch (_err) {
+            res = await fetch("/api/student/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ identifier, password })
+            });
+            data = await res.json().catch(() => ({}));
+          }
+
+          if (res && res.ok && data.success && data.student) {
+            const studentJson = JSON.stringify(data.student);
+            localStorage.setItem("founders_student_session", studentJson);
+            localStorage.setItem("founders_student", studentJson);
+            sessionStorage.setItem("founders_student_session", studentJson);
+            document.cookie = `student_token=${encodeURIComponent(data.student.id)}; path=/; max-age=2592000`;
+
+            window.showToast("🎉 Logged in successfully!", "success");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectCourse = urlParams.get("redirect_course");
+            const targetUrl = redirectCourse ? `courses.html?enroll=${encodeURIComponent(redirectCourse)}` : "student-dashboard.html";
+
+            setTimeout(() => {
+              window.location.href = targetUrl;
+            }, 400);
+            return;
+          }
+
+          const msg = data.error || "Incorrect phone number or password. Please verify your credentials.";
+          let actionBtnHtml = "";
+          const lowerMsg = msg.toLowerCase();
+          if (lowerMsg.includes("not registered") || lowerMsg.includes("not found")) {
+            actionBtnHtml = `<div style="margin-top:10px;"><button type="button" onclick="document.getElementById('tab-btn-register').click()" style="background:linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color:#000; font-weight:800; border:none; border-radius:10px; padding:8px 14px; cursor:pointer; font-size:0.85rem;">Create Account Now &rarr;</button></div>`;
+          } else if (lowerMsg.includes("password")) {
+            actionBtnHtml = `<div style="margin-top:10px;"><a href="https://t.me/founders_academybot?start=resetpassword" target="_blank" style="display:inline-block; background:rgba(0,136,204,0.25); border:1px solid rgba(0,136,204,0.6); color:#38bdf8; font-weight:700; border-radius:10px; padding:7px 14px; text-decoration:none; font-size:0.85rem;">Reset via Telegram Bot &rarr;</a></div>`;
+          }
+
+          if (loginErrorAlert) {
+            loginErrorAlert.style.display = "block";
+            loginErrorAlert.innerHTML = `<div style="display:flex; gap:10px; align-items:flex-start;"><i data-lucide="alert-circle" style="width:20px; height:20px; color:#f87171; flex-shrink:0; margin-top:2px;"></i> <div><div>${msg}</div>${actionBtnHtml}</div></div>`;
+            if (window.lucide) window.lucide.createIcons();
+            loginErrorAlert.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }
+          window.showToast(msg, "error");
+        } catch (_err) {
+          window.showToast("Network connection error. Please try again.", "error");
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `<i data-lucide="log-in"></i> <span>Log In to Student Portal</span>`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
+
+      // Mandatory +251 Phone Input Formatter for Registration
+      const regPhoneInput = document.getElementById("reg-phone");
+      if (regPhoneInput) {
+        const enforcePrefix = () => {
+          let val = regPhoneInput.value;
+          let digits = val.replace(/\D/g, "");
+          if (digits.startsWith("251")) {
+            digits = digits.substring(3);
+          } else if (digits.startsWith("0")) {
+            digits = digits.substring(1);
+          }
+          if (digits.length > 9) {
+            digits = digits.substring(0, 9);
+          }
+          regPhoneInput.value = "+251 " + digits;
+        };
+
+        regPhoneInput.addEventListener("focus", () => {
+          if (!regPhoneInput.value || !regPhoneInput.value.startsWith("+251")) {
+            regPhoneInput.value = "+251 ";
+          }
+        });
+
+        regPhoneInput.addEventListener("input", enforcePrefix);
+
+        regPhoneInput.addEventListener("keydown", (e) => {
+          if ((e.key === "Backspace" || e.key === "Delete") && regPhoneInput.selectionStart <= 5) {
+            e.preventDefault();
+          }
+        });
+      }
+
+      // SIGNUP SUBMIT HANDLER
+      formRegister.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("reg-name").value.trim();
+        const rawPhone = document.getElementById("reg-phone").value.trim();
+        const password = document.getElementById("reg-password").value.trim();
+        const confirmPass = document.getElementById("reg-confirm-password").value.trim();
+
+        let phoneDigits = rawPhone.replace(/\D/g, "");
+        if (phoneDigits.startsWith("251")) {
+          phoneDigits = phoneDigits.substring(3);
+        } else if (phoneDigits.startsWith("0")) {
+          phoneDigits = phoneDigits.substring(1);
+        }
+
+        if (phoneDigits.length !== 9) {
+          window.showToast("📱 Please enter a valid 9-digit Ethiopian phone number starting with +251 (e.g. +251 91 234 5678).", "error");
+          return;
+        }
+
+        const phone = `+251 ${phoneDigits.slice(0, 2)} ${phoneDigits.slice(2, 5)} ${phoneDigits.slice(5)}`;
+        document.getElementById("reg-phone").value = phone;
+
+        if (password !== confirmPass) {
+          window.showToast("Passwords do not match. Please verify.", "error");
+          return;
+        }
+
+        const btnSubmit = document.getElementById("btn-submit-register");
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>Creating account...</span>`;
+
+        try {
+          const res = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, phone, password })
+          });
+          const data = await res.json().catch(() => ({}));
+
+          if (res.ok && data.success && data.student) {
+            localStorage.setItem("founders_student_session", JSON.stringify(data.student));
+            window.showToast("🎉 Account created successfully!", "success");
+            setTimeout(() => { window.location.href = "student-dashboard.html"; }, 500);
+            return;
+          }
+          window.showToast(data.error || "Could not create account.", "error");
+        } catch (_err) {
+          window.showToast("Network error. Please try again.", "error");
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Student Account</span>`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

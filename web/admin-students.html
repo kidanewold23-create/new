@@ -100,6 +100,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-giveaway.html" class="nav-item-btn">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
         </a>
@@ -148,6 +151,13 @@
           <div class="search-input-box" style="flex: 1; min-width: 260px;">
             <i data-lucide="search"></i>
             <input type="text" id="students-page-search" placeholder="Search by student name...">
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <select id="students-status-filter" class="form-input" style="padding: 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--text-main); border-radius: var(--radius-md); font-size: 0.88rem; outline: none; cursor: pointer;">
+              <option value="all">All Access Statuses</option>
+              <option value="active">Active Students Only</option>
+              <option value="banned">Banned Students Only 🚫</option>
+            </select>
           </div>
         </div>
 

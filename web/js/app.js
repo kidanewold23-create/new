@@ -1,13 +1,40 @@
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+window.escapeHtml = escapeHtml;
+
 window.openStudentAuthModal = function(initialTab = "login") {
   const action = initialTab === "signup" ? "signup" : "login";
-  if (!window.location.pathname.includes("student-login.html")) {
-    window.location.href = "student-login.html?action=" + action;
+  if (!window.location.pathname.includes("student-auth.html")) {
+    window.location.href = "student-auth.html?action=" + action;
   }
 };
 
 window.closeStudentAuthModal = function() {
   const modal = document.getElementById("student-auth-modal");
   if (modal) modal.style.display = "none";
+};
+
+window.toggleMobileMenu = function(e) {
+  if (e) {
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+  }
+  const navLinks = document.getElementById("nav-links") || document.querySelector(".nav-links");
+  const mobileToggle = document.getElementById("mobile-toggle");
+  if (navLinks) {
+    const isActive = navLinks.classList.toggle("mobile-active");
+    if (mobileToggle) {
+      mobileToggle.innerHTML = isActive ? `<i data-lucide="x"></i>` : `<i data-lucide="menu"></i>`;
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -53,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
      0. Preloader Controller Logic
      ========================================================================== */
   /* ==========================================================================
-     0. Preloader Controller Logic (15-Second Duration)
+     0. Preloader Controller Logic (Smooth & Fast 1.8-Second Duration)
      ========================================================================== */
   function initPreloader() {
     const preloader = document.getElementById("preloader");
@@ -76,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const percentText = document.getElementById("preloader-percent");
     const statusText = document.getElementById("preloader-status");
 
-    const TOTAL_DURATION = 15000; // 15 seconds total
+    const TOTAL_DURATION = 1800; // 1.8 seconds total for smooth, crisp counting
     const startTime = Date.now();
 
     const statusMessages = [
@@ -84,10 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "Connecting to High-Income Skill Servers...",
       "Loading Course Curriculum...",
       "Preparing SMMA & Video Editing Modules...",
-      "Configuring Ethiopian Student Portal...",
+      "Configuring Student Portal...",
       "Optimizing Agency Blueprint Assets...",
-      "Empowering Digital Entrepreneurs...",
-      "Finalizing Interactive Workspace...",
       "Ready to Elevate Your Future!"
     ];
 
@@ -116,10 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
             statusText.textContent = statusMessages[messageIndex];
             statusText.style.opacity = "1";
           }
-        }, 150);
+        }, 100);
       }
 
-      // Complete preloader exit transition after 15s
+      // Complete preloader exit transition after 1.8s
       if (elapsed >= TOTAL_DURATION) {
         clearInterval(updateInterval);
         if (progressFill) progressFill.style.width = "100%";
@@ -133,10 +158,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (preloader.parentNode) {
               preloader.parentNode.removeChild(preloader);
             }
-          }, 650);
-        }, 300);
+          }, 400);
+        }, 200);
       }
-    }, 50);
+    }, 20);
   }
 
   initPreloader();
@@ -198,39 +223,55 @@ document.addEventListener("DOMContentLoaded", () => {
      1. Render Courses Grid from Database API / Supabase
      ========================================================================== */
   let apiCoursesList = [];
+  let apiBundlesList = [];
 
   function findCourse(courseId) {
-    if (!courseId) return COURSES[0];
-    const pool = [...apiCoursesList, ...COURSES];
+    const safeCourses = typeof COURSES !== 'undefined' ? COURSES : [];
+    if (!courseId) return safeCourses.length > 0 ? safeCourses[0] : {};
+    const bundlePool = apiBundlesList.map(b => ({
+      id: b.id,
+      title: b.title,
+      priceETB: b.price,
+      originalPriceETB: b.total_individual_price_etb && b.total_individual_price_etb !== "N/A" ? b.total_individual_price_etb : "25,000 ETB",
+      description: b.description || "Course course bundle package deal.",
+      categoryName: "Special Package Bundle",
+      category: "bundle",
+      badge: "Special Package",
+      duration: `${b.total_courses_count || 3} Courses Included`
+    }));
+
+    const pool = [...bundlePool, ...apiCoursesList, ...safeCourses];
     let found = pool.find(c => c.id === courseId);
     if (found) return found;
 
-    const clean = String(courseId).replace(/^course-/, "").toLowerCase();
+    const clean = String(courseId).replace(/^(course|bundle)-/, "").toLowerCase();
     found = pool.find(c => 
       c.id.toLowerCase() === clean ||
       c.id.toLowerCase().includes(clean) || 
       clean.includes(c.id.toLowerCase()) || 
       c.title.toLowerCase().includes(clean)
     );
-    return found || COURSES[0];
+    return found || (safeCourses.length > 0 ? safeCourses[0] : {});
   }
 
   function fetchLiveCoursesFromApi() {
-    if (!coursesGrid) return;
+    // Initial immediate render with fallback courses
+    renderCourses();
 
     fetch("/api/courses")
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.data && data.data.length > 0) {
+        const safeCourses = typeof COURSES !== 'undefined' ? COURSES : [];
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
           // Map DB records to UI format with fallback to rich curriculum metadata
           apiCoursesList = data.data.filter(c => c.status !== "OFF").map(c => {
             const cleanId = (c.id || "").replace(/^course-/, "").toLowerCase();
-            const matchedStatic = COURSES.find(st => 
+            const matchedStatic = safeCourses.find(st => 
               st.id.toLowerCase() === cleanId ||
               st.id === c.id ||
               st.title.toLowerCase().trim() === (c.title || "").toLowerCase().trim() ||
               st.category.toLowerCase() === (c.category || "").toLowerCase()
-            ) || COURSES[0];
+            ) || safeCourses[0] || {};
 
             return {
               id: c.id,
@@ -251,6 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
               students: `${c.enrolled_students || 1200} Students`,
               tg_channel: c.tg_channel || "",
               tg_group: c.tg_group || "",
+              coupon_code: c.coupon_code || "",
+              coupon_discount: c.coupon_discount || "",
               outcomes: matchedStatic.outcomes || [
                 "Master fundamental and advanced industry skills",
                 "Work on practical portfolio projects & client deliverables",
@@ -273,7 +316,10 @@ document.addEventListener("DOMContentLoaded", () => {
           renderCourses();
         }
       })
-      .catch(() => renderCourses());
+      .catch((err) => {
+        console.warn("API Courses fetch error:", err);
+        renderCourses();
+      });
   }
 
   function isCategoryMatch(course, targetCategory) {
@@ -292,10 +338,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCourses() {
-    if (!coursesGrid) return;
+    const targetGrid = document.getElementById("courses-grid") || coursesGrid;
+    if (!targetGrid) return;
     const searchInput = document.getElementById("course-search") || courseSearch;
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
-    const coursesToRender = apiCoursesList.length > 0 ? apiCoursesList : COURSES;
+    const safeCourses = typeof COURSES !== 'undefined' ? COURSES : [];
+    const coursesToRender = apiCoursesList.length > 0 ? apiCoursesList : safeCourses;
 
     const filtered = coursesToRender.filter(course => {
       const matchesCategory = isCategoryMatch(course, activeCategory);
@@ -323,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (filtered.length === 0) {
-      coursesGrid.innerHTML = `
+      targetGrid.innerHTML = `
         <div class="glass-card" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
           <i data-lucide="search-x" style="width: 48px; height: 48px; color: var(--text-dim); margin-bottom: 16px;"></i>
           <h3>No courses found for "${searchTerm}"</h3>
@@ -334,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    coursesGrid.innerHTML = filtered.map(course => `
+    targetGrid.innerHTML = filtered.map(course => `
       <div class="glass-card course-card">
         <div class="course-card-top">
           <div class="course-badge-row">
@@ -367,14 +415,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.lucide) window.lucide.createIcons();
 
     // Attach Event Listeners to rendered buttons
-    coursesGrid.querySelectorAll(".view-syllabus-btn").forEach(btn => {
+    targetGrid.querySelectorAll(".view-syllabus-btn").forEach(btn => {
       btn.onclick = (e) => {
         e.preventDefault();
         openCourseDrawer(btn.getAttribute("data-course-id"));
       };
     });
 
-    coursesGrid.querySelectorAll(".enroll-now-btn").forEach(btn => {
+    targetGrid.querySelectorAll(".enroll-now-btn").forEach(btn => {
       btn.onclick = (e) => {
         e.preventDefault();
         openCheckout(btn.getAttribute("data-course-id"));
@@ -404,8 +452,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial fetch from Supabase database
   fetchLiveCoursesFromApi();
+  fetchLiveBundlesFromApi();
   fetchCategoriesFromApi();
   fetchLandingConfigFromApi();
+
+  function fetchLiveBundlesFromApi() {
+    const containers = document.querySelectorAll("#bundles-grid-container");
+    const grids = document.querySelectorAll("#bundles-grid");
+
+    fetch("/api/bundles")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data)) {
+          const activeBundles = data.data.filter(b => (b.status === "ON" || (b.status !== "OFF" && b.status !== "inactive")));
+          apiBundlesList = activeBundles;
+
+          if (activeBundles.length > 0) {
+            containers.forEach(c => c.style.display = "block");
+            const html = activeBundles.map(b => {
+              const mainTitle = b.main_course ? b.main_course.title : "Main Course";
+              const includedCourses = Array.isArray(b.included_courses) ? b.included_courses : [];
+
+              return `
+                <div class="glass-card course-card" style="border: 2px solid rgba(212, 175, 55, 0.4); background: linear-gradient(145deg, rgba(20, 20, 30, 0.9) 0%, rgba(30, 25, 15, 0.95) 100%); flex: 1; min-width: 300px; max-width: 450px;">
+                  <div class="course-card-top">
+                    <div class="course-badge-row">
+                      <span class="course-category" style="background: rgba(212, 175, 55, 0.2); color: var(--primary-gold); font-weight: 700;">
+                        <i data-lucide="layers"></i> SPECIAL PACKAGE BUNDLE
+                      </span>
+                      <span class="course-price" style="color: #10b981; font-weight: 800;">${escapeHtml(b.price)}</span>
+                    </div>
+
+                    <h3 class="course-title" style="margin-top: 10px;">${escapeHtml(b.title)}</h3>
+                    <p class="course-desc">${escapeHtml(b.description || '')}</p>
+
+                    <div style="margin: 14px 0 10px; padding: 12px; background: rgba(212, 175, 55, 0.08); border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                      <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--primary-gold); margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="star" style="width: 14px; height: 14px;"></i> Core Main Course
+                      </div>
+                      <div style="font-weight: 700; font-size: 0.92rem; color: var(--text-main);">${escapeHtml(mainTitle)}</div>
+                    </div>
+
+                    ${includedCourses.length > 0 ? `
+                      <div style="margin-bottom: 14px;">
+                        <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: #10b981; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                          <i data-lucide="gift" style="width: 14px; height: 14px;"></i> Included Bonus Courses (${includedCourses.length}):
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                          ${includedCourses.map(ic => `
+                            <li style="font-size: 0.84rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                              <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: #10b981;"></i>
+                              <span>${escapeHtml(ic.title)}</span>
+                              ${ic.status === 'OFF' ? '<small style="color:#ef4444; font-weight:700;">[Unlisted Bonus]</small>' : ''}
+                            </li>
+                          `).join("")}
+                        </ul>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <div class="course-card-bottom">
+                    <div class="course-stats-meta" style="justify-content: space-between;">
+                      <span><i data-lucide="check-square"></i> ${b.total_courses_count || (includedCourses.length + 1)} Courses Included</span>
+                      ${b.total_individual_price_etb && b.total_individual_price_etb !== "N/A" ? `<span style="text-decoration: line-through; color: var(--text-dim);">Valued at ${escapeHtml(b.total_individual_price_etb)}</span>` : ''}
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-block enroll-bundle-btn" data-bundle-id="${b.id}" style="background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-hover) 100%); color: #000; font-weight: 800; margin-top: 10px;">
+                      <i data-lucide="shopping-cart"></i> Enroll in Package Bundle (${escapeHtml(b.price)})
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join("");
+
+            grids.forEach(g => {
+              g.innerHTML = html;
+              g.querySelectorAll(".enroll-bundle-btn").forEach(btn => {
+                btn.onclick = (e) => {
+                  e.preventDefault();
+                  openCheckout(btn.getAttribute("data-bundle-id"));
+                };
+              });
+            });
+
+            if (window.lucide) window.lucide.createIcons();
+          }
+        }
+      })
+      .catch(err => {
+        console.warn("Bundles fetch error:", err);
+        containers.forEach(c => c.style.display = "block");
+      });
+  }
+
+  // Expose global reloader
+  window.reloadBundlesFromDatabase = fetchLiveBundlesFromApi;
+
+
 
   // Filter Tabs Handler
   if (filterTabs) {
@@ -423,28 +566,126 @@ document.addEventListener("DOMContentLoaded", () => {
     courseSearch.addEventListener("input", renderCourses);
   }
 
-  let liveLandingConfig = null;
-
   function fetchLandingConfigFromApi() {
+    // Check cached config for instant 0ms section & nav link visibility checks
+    const cached = localStorage.getItem("founders_landing_config");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        liveLandingConfig = parsed;
+        applyLandingConfigToDOM(parsed);
+      } catch (_e) {}
+    }
+
     fetch("/api/landing")
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data) {
           liveLandingConfig = data.data;
+          try {
+            localStorage.setItem("founders_landing_config", JSON.stringify(data.data));
+          } catch (_e) {}
           applyLandingConfigToDOM(data.data);
         }
       })
       .catch(() => {});
   }
 
+  function applySectionVisibilities(config) {
+    if (!config) return;
+
+    const sectionMap = [
+      {
+        key: "hero",
+        status: config.hero?.status || config.hero?.heroStatus || "active",
+        selectors: [".hero-section", "#home"],
+        linkSelectors: ['a[href="#home"]', 'a[href="#hero"]']
+      },
+      {
+        key: "announcement",
+        status: config.announcement?.enabled !== false && config.announcement?.status !== "inactive" ? "active" : "inactive",
+        selectors: [".announcement-bar"],
+        linkSelectors: []
+      },
+      {
+        key: "metrics",
+        status: config.metrics?.status || config.metricsStatus || "active",
+        selectors: [".metrics-bar", "#metrics"],
+        linkSelectors: ['a[href="#metrics"]']
+      },
+      {
+        key: "personas",
+        status: config.personasSection?.status || config.personas?.status || config.personasStatus || "active",
+        selectors: ["#personas", ".personas-section"],
+        linkSelectors: ['a[href="#personas"]']
+      },
+      {
+        key: "instructors",
+        status: config.instructorsSection?.status || config.instructors?.status || config.instructorsStatus || "active",
+        selectors: ["#instructors", ".instructors-section"],
+        linkSelectors: ['a[href="#instructors"]']
+      },
+      {
+        key: "whatYouGet",
+        status: config.whatYouGet?.status || config.guaranteeStatus || "active",
+        selectors: ["#what-you-get", ".guarantee-section"],
+        linkSelectors: ['a[href="#what-you-get"]', 'a[href="#guarantee"]']
+      },
+      {
+        key: "successStories",
+        status: config.successStories?.status || config.storiesStatus || "active",
+        selectors: ["#success-stories", ".success-stories-section"],
+        linkSelectors: ['a[href="#success-stories"]']
+      },
+      {
+        key: "testimonials",
+        status: config.testimonialsSection?.status || config.testimonialsStatus || "active",
+        selectors: ["#testimonials", ".testimonials-section"],
+        linkSelectors: ['a[href="#testimonials"]']
+      },
+      {
+        key: "faqs",
+        status: config.faqsSection?.status || config.faqsStatus || "active",
+        selectors: ["#faq", "#faqs", ".faq-section"],
+        linkSelectors: ['a[href="#faq"]', 'a[href="#faqs"]']
+      },
+      {
+        key: "supportFooter",
+        status: config.supportFooter?.status || config.footerStatus || "active",
+        selectors: [".support-banner", ".support-section", "#support", ".support-box"],
+        linkSelectors: ['a[href="#support"]', 'a[href*="founderssupport"]']
+      }
+    ];
+
+    sectionMap.forEach(item => {
+      const isOff = item.status === "inactive" || item.status === "OFF" || item.status === false || item.status === "disabled";
+
+      // Hide/Show section container elements
+      item.selectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => {
+          el.style.display = isOff ? "none" : "";
+        });
+      });
+
+      // Hide/Show any navigation links pointing to this section
+      item.linkSelectors.forEach(linkSel => {
+        document.querySelectorAll(linkSel).forEach(linkEl => {
+          linkEl.style.display = isOff ? "none" : "";
+        });
+      });
+    });
+  }
+
   function applyLandingConfigToDOM(config) {
     if (!config) return;
+
+    applySectionVisibilities(config);
 
     // 1. Announcement Bar
     if (config.announcement) {
       const annBar = document.querySelector(".announcement-bar");
       if (annBar) {
-        if (config.announcement.enabled === false) {
+        if (config.announcement.enabled === false || config.announcement.status === "inactive") {
           annBar.style.display = "none";
         } else {
           annBar.style.display = "";
@@ -483,12 +724,51 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       if (secondaryCta) secondaryCta.textContent = config.hero.secondaryCtaText || "Watch Intro Video";
-      if (trustSpan) {
-        trustSpan.innerHTML = `<strong>${config.hero.trustStudentsCount || '4,850+'}</strong> ${config.hero.trustSubtitle || 'Ethiopian youth trained & launching clients'}`;
+      const heroTrust = document.querySelector(".hero-trust");
+      if (heroTrust) {
+        if (config.hero.trustStatus === "inactive" || config.hero.trustStatus === "OFF" || config.hero.trustStatus === false) {
+          heroTrust.style.display = "none";
+        } else {
+          heroTrust.style.display = "";
+
+          // 1. Render Student Avatars
+          const trustAvatarsDiv = heroTrust.querySelector(".trust-avatars");
+          if (trustAvatarsDiv && Array.isArray(config.hero.trustAvatars) && config.hero.trustAvatars.length > 0) {
+            trustAvatarsDiv.innerHTML = config.hero.trustAvatars
+              .filter(url => url && String(url).trim().length > 0)
+              .map((url, i) => `<img src="${escapeHtml(url)}" alt="Student ${i + 1}">`)
+              .join("");
+          }
+
+          // 2. Render Rating Stars
+          const trustStarsDiv = heroTrust.querySelector(".stars");
+          if (trustStarsDiv) {
+            const numStars = parseInt(config.hero.trustRatingStars || 5, 10) || 5;
+            let starsHtml = "";
+            for (let s = 0; s < numStars; s++) {
+              starsHtml += `<i data-lucide="star"></i>`;
+            }
+            trustStarsDiv.innerHTML = starsHtml;
+            if (window.lucide) window.lucide.createIcons();
+          }
+
+          // 3. Render Student Count & Subtitle Text
+          const trustSpan = heroTrust.querySelector(".trust-text span");
+          if (trustSpan) {
+            trustSpan.innerHTML = `<strong>${escapeHtml(config.hero.trustStudentsCount || '4,850+')}</strong> ${escapeHtml(config.hero.trustSubtitle || 'Ethiopian youth trained & launching clients')}`;
+          }
+        }
       }
 
-      // Intro Video Box
+      // Intro Video Box & Video Modal Frame
       if (config.hero.introVideo) {
+        if (config.hero.introVideo.embedUrl) {
+          currentIntroVideoEmbedUrl = config.hero.introVideo.embedUrl;
+          const introVideoFrame = document.getElementById("intro-video-frame");
+          if (introVideoFrame) {
+            introVideoFrame.src = formatYouTubeEmbedUrl(currentIntroVideoEmbedUrl, 0);
+          }
+        }
         const videoBox = document.querySelector(".hero-video-box");
         if (videoBox) {
           const thumbImg = videoBox.querySelector(".video-thumb-img");
@@ -551,14 +831,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (config.instructors.partnerLogos && Array.isArray(config.instructors.partnerLogos) && config.instructors.partnerLogos.length > 0) {
           const logosGrid = instSection.querySelector(".trusted-logos-grid");
           if (logosGrid) {
-            const logoIcons = {
-              "safaricom": "radio", "canal+": "tv", "dstv": "play-square",
-              "upwork": "star", "telebirr": "smartphone", "cbe": "building-2",
-              "meta": "globe", "youtube": "youtube"
-            };
             logosGrid.innerHTML = config.instructors.partnerLogos.map(logo => {
-              const iconName = logoIcons[logo.toLowerCase()] || "check-circle";
-              return `<div class="trusted-logo-pill"><i data-lucide="${iconName}"></i> ${logo}</div>`;
+              return `<div class="trusted-logo-pill">${escapeHtml(logo)}</div>`;
             }).join("");
           }
         }
@@ -566,22 +840,37 @@ document.addEventListener("DOMContentLoaded", () => {
         // Mentors Cards Grid
         if (config.instructors.mentors && Array.isArray(config.instructors.mentors) && config.instructors.mentors.length > 0) {
           const instGrid = instSection.querySelector(".instructors-grid");
+          const activeMentors = config.instructors.mentors.filter(m => m.status !== "disabled" && m.status !== "OFF");
           if (instGrid) {
-            instGrid.innerHTML = config.instructors.mentors.map(m => `
-              <div class="instructor-card glass-card">
-                <div class="instructor-avatar-wrap">
-                  <img src="${m.photo || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80'}" alt="${m.name}" class="instructor-avatar-img">
-                  <div class="instructor-badge-icon"><i data-lucide="shield-check"></i></div>
+            instGrid.innerHTML = activeMentors.map(m => {
+              let photoUrl = m.photo || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80';
+              if (photoUrl.includes("ibb.co/") && !photoUrl.includes("i.ibb.co")) {
+                fetch("/api/resolve-image-url?url=" + encodeURIComponent(photoUrl))
+                  .then(r => r.json())
+                  .then(d => {
+                    if (d.success && d.directUrl) {
+                      document.querySelectorAll(`img[data-mentor-id="${m.id}"]`).forEach(img => {
+                        img.src = d.directUrl;
+                      });
+                    }
+                  }).catch(() => {});
+              }
+              return `
+                <div class="instructor-card glass-card">
+                  <div class="instructor-avatar-wrap">
+                    <img src="${photoUrl}" data-mentor-id="${m.id}" alt="${escapeHtml(m.name)}" class="instructor-avatar-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80';">
+                    <div class="instructor-badge-icon"><i data-lucide="shield-check"></i></div>
+                  </div>
+                  <h3 class="instructor-name">${escapeHtml(m.name)}</h3>
+                  <span class="instructor-role">${escapeHtml(m.role)}</span>
+                  <p class="instructor-bio">${escapeHtml(m.bio)}</p>
+                  <div class="instructor-stats-row">
+                    <span><i data-lucide="users"></i> ${escapeHtml(m.stat1 || 'Mentored')}</span>
+                    <span><i data-lucide="award"></i> ${escapeHtml(m.stat2 || 'Certified')}</span>
+                  </div>
                 </div>
-                <h3 class="instructor-name">${m.name}</h3>
-                <span class="instructor-role">${m.role}</span>
-                <p class="instructor-bio">${m.bio}</p>
-                <div class="instructor-stats-row">
-                  <span><i data-lucide="users"></i> ${m.stat1 || 'Mentored'}</span>
-                  <span><i data-lucide="award"></i> ${m.stat2 || 'Certified'}</span>
-                </div>
-              </div>
-            `).join("");
+              `;
+            }).join("");
           }
         }
       }
@@ -640,18 +929,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (config.successStories) {
       const successSec = document.getElementById("success-stories");
       if (successSec) {
+        if (config.successStories.status === "inactive" || config.successStories.status === "OFF" || config.successStories.enabled === false) {
+          successSec.style.display = "none";
+        } else {
+          successSec.style.display = "";
+        }
+
         const secTag = successSec.querySelector(".section-tag");
         const secTitle = successSec.querySelector(".section-title");
         const secSub = successSec.querySelector(".section-subtitle");
         if (secTag && config.successStories.sectionTag) secTag.innerHTML = `<i data-lucide="trophy"></i> ${config.successStories.sectionTag}`;
-        if (secTitle && config.successStories.sectionTitle) secTitle.innerHTML = `${config.successStories.sectionTitle} <span class="gradient-text">Graduates</span>`;
+        if (secTitle && config.successStories.sectionTitle) {
+          secTitle.innerHTML = config.successStories.sectionTitle.includes("span") 
+            ? config.successStories.sectionTitle 
+            : `Real Results <span class="gradient-text">${config.successStories.sectionTitle}</span>`;
+        }
         if (secSub && config.successStories.sectionSubtitle) secSub.textContent = config.successStories.sectionSubtitle;
 
         // Case Studies Grid
         if (config.successStories.caseStudies && Array.isArray(config.successStories.caseStudies) && config.successStories.caseStudies.length > 0) {
           const caseGrid = successSec.querySelector(".success-stories-grid");
           if (caseGrid) {
-            caseGrid.innerHTML = config.successStories.caseStudies.map(cs => `
+            const activeStories = config.successStories.caseStudies.filter(cs => cs.status !== "inactive" && cs.status !== "disabled" && cs.status !== "OFF");
+            caseGrid.innerHTML = activeStories.map(cs => `
               <div class="case-study-card glass-card">
                 <div>
                   <div class="case-study-top">
@@ -709,6 +1009,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 10. Support & Footer
     if (config.supportFooter) {
+      const supportStatus = config.supportFooter.status;
+      const isSupportOff = supportStatus === "inactive" || supportStatus === "OFF" || supportStatus === false || supportStatus === "disabled";
+
+      const supportElements = document.querySelectorAll(".support-banner, .support-section, #support, .support-box");
+      supportElements.forEach(el => {
+        el.style.display = isSupportOff ? "none" : "";
+      });
+
       const suppTitle = document.querySelector(".support-info h3");
       const suppSub = document.querySelector(".support-info p");
       const tgSuppBtn = document.getElementById("telegram-support-btn");
@@ -730,9 +1038,50 @@ document.addEventListener("DOMContentLoaded", () => {
         const copyElem = document.querySelector(".footer-bottom p");
         if (copyElem) copyElem.innerHTML = config.supportFooter.footerCopyright;
       }
+
+      if (Array.isArray(config.supportFooter.socialLinks)) {
+        const socialContainers = document.querySelectorAll(".social-links");
+        const activeLinks = config.supportFooter.socialLinks.filter(l => l.status === "active" || l.status === "ON" || l.status === true);
+        if (socialContainers.length > 0 && activeLinks.length > 0) {
+          const html = activeLinks.map(l => {
+            const iconSvg = getSocialIconSvg(l.platform, l.iconUrl, l.label);
+            const targetAttr = (l.url && l.url.startsWith("http")) ? 'target="_blank" rel="noopener noreferrer"' : '';
+            return `<a href="${l.url || '#'}" ${targetAttr} aria-label="${escapeHtml(l.label || l.platform)}" title="${escapeHtml(l.label || '')}">${iconSvg}</a>`;
+          }).join("");
+          socialContainers.forEach(container => {
+            container.innerHTML = html;
+          });
+        }
+      }
     }
 
     if (window.lucide) window.lucide.createIcons();
+  }
+
+  function getSocialIconSvg(platform, customIconUrl, label) {
+    if (customIconUrl && String(customIconUrl).trim().length > 0) {
+      return `<img src="${escapeHtml(String(customIconUrl).trim())}" alt="${escapeHtml(label || 'Icon')}" style="width: 20px; height: 20px; object-fit: contain; vertical-align: middle;">`;
+    }
+    const p = (platform || "").toLowerCase();
+    if (p === "telegram") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>`;
+    }
+    if (p === "youtube") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.56 49.56 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path><path d="m10 15 5-3-5-3z"></path></svg>`;
+    }
+    if (p === "instagram") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>`;
+    }
+    if (p === "linkedin") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>`;
+    }
+    if (p === "tiktok") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>`;
+    }
+    if (p === "twitter") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>`;
+    }
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
   }
 
   /* ==========================================================================
@@ -740,22 +1089,38 @@ document.addEventListener("DOMContentLoaded", () => {
      ========================================================================== */
   function renderTestimonials(customList) {
     if (!testimonialsGrid) return;
-    const list = (customList && Array.isArray(customList) && customList.length > 0) ? customList : TESTIMONIALS;
-    testimonialsGrid.innerHTML = list.map(t => `
-      <div class="glass-card testimonial-card">
-        <div class="testimonial-header">
-          <img src="${t.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}" alt="${t.name}" class="testimonial-avatar">
-          <div class="testimonial-info">
-            <h4>${t.name}</h4>
-            <span>${t.role}</span>
+    const list = (customList && Array.isArray(customList)) ? customList : (liveLandingConfig?.testimonials || []);
+    const activeList = list.filter(t => t.status !== "inactive" && t.status !== "disabled" && t.status !== "OFF");
+
+    testimonialsGrid.innerHTML = activeList.map(t => {
+      let photoUrl = t.image || t.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80';
+      if (photoUrl.includes("ibb.co/") && !photoUrl.includes("i.ibb.co")) {
+        fetch("/api/resolve-image-url?url=" + encodeURIComponent(photoUrl))
+          .then(r => r.json())
+          .then(d => {
+            if (d.success && d.directUrl) {
+              document.querySelectorAll(`img[data-testimonial-id="${t.id || t.name}"]`).forEach(img => {
+                img.src = d.directUrl;
+              });
+            }
+          }).catch(() => {});
+      }
+      return `
+        <div class="glass-card testimonial-card">
+          <div class="testimonial-header">
+            <img src="${photoUrl}" data-testimonial-id="${t.id || t.name}" alt="${escapeHtml(t.name)}" class="testimonial-avatar" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80';">
+            <div class="testimonial-info">
+              <h4>${escapeHtml(t.name)}</h4>
+              <span>${escapeHtml(t.role)}</span>
+            </div>
+          </div>
+          <p>"${escapeHtml(t.quote)}"</p>
+          <div>
+            <span class="earning-badge"><i data-lucide="trending-up"></i> ${escapeHtml(t.earnings || t.badge || 'Verified Graduate')}</span>
           </div>
         </div>
-        <p>"${t.quote}"</p>
-        <div>
-          <span class="earning-badge"><i data-lucide="trending-up"></i> ${t.earnings}</span>
-        </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
     if (window.lucide) window.lucide.createIcons();
   }
 
@@ -789,45 +1154,57 @@ document.addEventListener("DOMContentLoaded", () => {
      ========================================================================== */
   function openCourseDrawer(courseId) {
     const course = findCourse(courseId);
-    if (!course || !courseModal || !courseModalBody) return;
+    const targetModal = document.getElementById("course-modal");
+    const targetBody = document.getElementById("course-modal-body");
+    const targetClose = document.getElementById("course-modal-close");
 
-    courseModalBody.innerHTML = `
-      <div style="padding: 30px;">
-        <div class="badge badge-gold" style="margin-bottom: 12px;">${course.badge || "Featured Course"}</div>
-        <h2 style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; margin-bottom: 12px;">${course.title}</h2>
-        <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 24px;">${course.description}</p>
+    if (!course || !targetModal || !targetBody) {
+      console.warn("Course drawer target elements not found for courseId:", courseId);
+      return;
+    }
+
+    const priceText = course.priceETB || course.price || "10,000 ETB";
+
+    targetBody.innerHTML = `
+      <div style="padding: 28px 24px;">
+        <div class="badge badge-gold" style="margin-bottom: 12px;"><i data-lucide="sparkles"></i> ${course.badge || "Featured Course"}</div>
+        <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 800; margin-bottom: 12px; color: #fff;">${course.title}</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.6;">${course.description}</p>
         
-        <div class="glass-box" style="margin-bottom: 24px;">
-          <h4 style="color: var(--primary-gold); margin-bottom: 12px;"><i data-lucide="check-circle-2"></i> What You Will Learn & Achieve:</h4>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
-            ${(course.outcomes || []).map(o => `<li style="font-size: 0.9rem; color: var(--text-main); display: flex; gap: 8px;"><i data-lucide="check" style="color: var(--accent-emerald);"></i> ${o}</li>`).join("")}
+        <div class="glass-box" style="margin-bottom: 24px; padding: 20px;">
+          <h4 style="color: var(--primary-gold); margin-bottom: 12px; font-size: 1rem;"><i data-lucide="check-circle-2"></i> What You Will Learn & Achieve:</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+            ${(course.outcomes || []).map(o => `<li style="font-size: 0.9rem; color: var(--text-main); display: flex; gap: 10px; align-items: flex-start;"><i data-lucide="check" style="color: var(--accent-emerald); width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;"></i> <span>${o}</span></li>`).join("")}
           </ul>
         </div>
 
         <div style="margin-bottom: 24px;">
-          <h4 style="font-family: var(--font-heading); margin-bottom: 14px;"><i data-lucide="list"></i> Course Curriculum & Syllabus</h4>
+          <h4 style="font-family: var(--font-heading); margin-bottom: 14px; color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;"><i data-lucide="list" style="color: var(--primary-gold);"></i> Course Curriculum & Syllabus</h4>
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            ${(course.modules || []).map((m) => `
-              <div style="display: flex; justify-content: space-between; padding: 12px 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.9rem;">
-                <span><strong>${m.title}</strong></span>
-                <span style="color: var(--text-dim);">${m.duration}</span>
+            ${(course.modules || []).map((m, idx) => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.92rem;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(245,158,11,0.15); color: var(--primary-gold); font-weight: 800; font-size: 0.8rem;">${idx + 1}</span>
+                  <span style="color: #fff;"><strong>${m.title}</strong></span>
+                </div>
+                <span style="color: var(--text-dim); font-size: 0.85rem;"><i data-lucide="clock" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>${m.duration}</span>
               </div>
             `).join("")}
           </div>
         </div>
 
-        <div class="glass-box" style="border-color: rgba(99, 102, 241, 0.4); margin-bottom: 24px;">
-          <h4 style="color: var(--accent-indigo); margin-bottom: 8px;"><i data-lucide="gift"></i> Included Free Bonus Bundles:</h4>
-          ${(course.bonuses || []).map(b => `<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">• ${b}</p>`).join("")}
+        <div class="glass-box" style="border-color: rgba(99, 102, 241, 0.4); margin-bottom: 24px; padding: 20px;">
+          <h4 style="color: var(--accent-indigo); margin-bottom: 10px; font-size: 0.95rem;"><i data-lucide="gift"></i> Included Free Bonus Bundles:</h4>
+          ${(course.bonuses || []).map(b => `<p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;"><i data-lucide="sparkles" style="width: 14px; height: 14px; color: var(--primary-gold);"></i> ${b}</p>`).join("")}
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 20px; gap: 16px; flex-wrap: wrap;">
           <div>
             <span style="font-size: 0.85rem; color: var(--text-muted);">Enrollment Fee:</span>
-            <div style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--primary-gold);">${course.priceETB}</div>
+            <div style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: var(--primary-gold);">${priceText}</div>
           </div>
           <button type="button" class="btn btn-primary btn-lg drawer-enroll-trigger" data-course-id="${course.id}">
-            <i data-lucide="rocket"></i> Enroll in Course
+            <i data-lucide="rocket"></i> Enroll Now &rarr;
           </button>
         </div>
       </div>
@@ -835,24 +1212,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (window.lucide) window.lucide.createIcons();
 
-    courseModal.classList.add("active");
+    targetModal.classList.add("active");
+    document.body.style.overflow = "hidden";
 
-    const drawerEnrollBtn = courseModalBody.querySelector(".drawer-enroll-trigger");
+    const drawerEnrollBtn = targetBody.querySelector(".drawer-enroll-trigger");
     if (drawerEnrollBtn) {
       drawerEnrollBtn.onclick = (e) => {
         e.preventDefault();
-        courseModal.classList.remove("active");
+        targetModal.classList.remove("active");
+        document.body.style.overflow = "";
         openCheckout(course.id);
       };
     }
   }
 
-  if (courseModalClose) {
-    courseModalClose.onclick = () => courseModal.classList.remove("active");
+  function closeCourseDrawer() {
+    const targetModal = document.getElementById("course-modal");
+    if (targetModal) targetModal.classList.remove("active");
+    document.body.style.overflow = "";
   }
-  if (courseModal) {
-    courseModal.onclick = (e) => {
-      if (e.target === courseModal) courseModal.classList.remove("active");
+
+  window.openCourseDrawer = openCourseDrawer;
+  window.closeCourseDrawer = closeCourseDrawer;
+
+  const targetModal = document.getElementById("course-modal");
+  const targetClose = document.getElementById("course-modal-close");
+
+  if (targetClose) {
+    targetClose.onclick = () => closeCourseDrawer();
+  }
+  if (targetModal) {
+    targetModal.onclick = (e) => {
+      if (e.target === targetModal) closeCourseDrawer();
     };
   }
 
@@ -1056,17 +1447,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function openCheckout(courseId) {
     const activeStudentSession = localStorage.getItem("founders_student_session");
     if (!activeStudentSession) {
-      if (window.showToast) {
-        window.showToast("Please register or log in first to enroll in masterclasses!", "info");
+      if (typeof showToast === "function") {
+        showToast("Please register or create an account first to enroll!", "info");
       }
       setTimeout(() => {
-        window.location.href = `student-login.html?action=signup&redirect_course=${encodeURIComponent(courseId || "")}`;
-      }, 600);
+        window.location.href = `student-auth.html?action=signup&redirect_course=${encodeURIComponent(courseId || "")}`;
+      }, 400);
       return;
     }
 
     const course = findCourse(courseId);
-    if (!course || !checkoutModal) return;
+    if (!course || !checkoutModal) {
+      console.warn("Checkout modal or course target not found for courseId:", courseId);
+      return;
+    }
 
     activeCourseForCheckout = course;
     
@@ -1077,62 +1471,125 @@ document.addEventListener("DOMContentLoaded", () => {
       try { studentSession = JSON.parse(sessionRaw); } catch (_e) {}
     }
 
+    const sName = studentSession?.name || getCookie("fa_user_fullname") || "Student";
+    const rawPhone = studentSession?.phone || getCookie("fa_user_phone") || "251900000000";
+    let cleanPhone = rawPhone.replace(/\D/g, "");
+    if (!cleanPhone.startsWith("251")) {
+      cleanPhone = `251${cleanPhone.slice(-9)}`;
+    }
+    const sCity = studentSession?.email || studentSession?.city || getCookie("fa_user_city") || "Addis Ababa";
+
+    buyerData = {
+      name: sName,
+      phone: cleanPhone,
+      address: sCity
+    };
+
     const nameInput = document.getElementById("buyer-name");
     const phoneInput = document.getElementById("buyer-phone");
     const cityInput = document.getElementById("buyer-address");
     const cookieBadge = document.getElementById("cookie-info-badge");
 
-    if (studentSession) {
-      if (nameInput && studentSession.name) nameInput.value = studentSession.name;
-      if (phoneInput && studentSession.phone) phoneInput.value = studentSession.phone;
-      if (cityInput && studentSession.email) cityInput.value = studentSession.email;
+    if (nameInput) nameInput.value = sName;
+    if (phoneInput) phoneInput.value = cleanPhone;
+    if (cityInput) cityInput.value = sCity;
 
-      if (cookieBadge) {
-        cookieBadge.innerHTML = `<i data-lucide="check-circle"></i> Logged in as <strong>${studentSession.name}</strong> (${studentSession.phone})`;
-        cookieBadge.classList.remove("hidden");
-      }
-    } else {
-      // Read stored details from cookies
-      const savedName = getCookie("fa_user_fullname");
-      const savedPhone = getCookie("fa_user_phone");
-      const savedCity = getCookie("fa_user_city");
+    if (cookieBadge && studentSession) {
+      cookieBadge.innerHTML = `<i data-lucide="check-circle"></i> Enrolling as <strong>${sName}</strong> (${cleanPhone})`;
+      cookieBadge.classList.remove("hidden");
+    }
 
-      if (savedName && nameInput) nameInput.value = savedName;
-      if (savedPhone && phoneInput) phoneInput.value = savedPhone;
-      if (savedCity && cityInput) cityInput.value = savedCity;
+    // Reset coupon state for new checkout session
+    appliedCouponState = null;
 
-      if ((savedName || savedPhone || savedCity) && cookieBadge) {
-        cookieBadge.classList.remove("hidden");
-      } else if (cookieBadge) {
-        cookieBadge.classList.add("hidden");
+    const promoCodeInput = document.getElementById("promo-code");
+    const applyPromoBtn = document.getElementById("apply-promo-btn");
+    if (promoCodeInput) {
+      promoCodeInput.value = "";
+      if (course.coupon_code) {
+        promoCodeInput.placeholder = `Promo Code (e.g. ${course.coupon_code})`;
+      } else {
+        promoCodeInput.placeholder = "Promo Code (FOUNDER25)";
       }
     }
 
-    // Set course titles in step 1, step 2, step 3
+    // Set course titles and prices in checkout summary
     const titleStep1 = document.getElementById("checkout-course-title-step1");
     const summaryCourseName = document.getElementById("summary-course-name");
+
+    const rawPrice = course.price || course.priceETB || "10,000 ETB";
+    const basePriceNum = parseFloat(String(rawPrice).replace(/[^0-9.]/g, "")) || 10000;
+    const formattedDbPrice = `${basePriceNum.toLocaleString()} ETB`;
     
     if (titleStep1) titleStep1.textContent = course.title;
     if (summaryCourseName) summaryCourseName.textContent = course.title;
-    if (summaryOriginalPrice) summaryOriginalPrice.textContent = course.originalPriceETB || "12,500 ETB";
-    if (summaryDiscount) summaryDiscount.textContent = "-2,500 ETB";
-    if (summaryFinalPrice) summaryFinalPrice.textContent = course.priceETB;
-    if (instructionPrice) instructionPrice.textContent = course.priceETB;
+    if (summaryOriginalPrice) summaryOriginalPrice.textContent = formattedDbPrice;
+    if (summaryDiscount) summaryDiscount.textContent = "0 ETB";
+    if (summaryFinalPrice) summaryFinalPrice.textContent = formattedDbPrice;
+    if (instructionPrice) instructionPrice.textContent = formattedDbPrice;
+
+    // Auto-apply course-specific promo code if configured on course
+    if (course.coupon_code && promoCodeInput && applyPromoBtn) {
+      promoCodeInput.value = course.coupon_code;
+      setTimeout(() => {
+        applyPromoBtn.click();
+      }, 200);
+    }
+
+    // Update summary preview
+    const previewName = document.getElementById("preview-buyer-name");
+    const previewPhone = document.getElementById("preview-buyer-phone");
+    if (previewName) previewName.textContent = buyerData.name;
+    if (previewPhone) previewPhone.textContent = buyerData.phone;
 
     // Fetch latest merchant payment details directly from Supabase DB API
     fetchBankConfigFromApi();
 
-    setCheckoutStep(1);
+    // Directly open Step 2 (Payment Selection) bypassing Step 1 (Name, City, Phone form)
+    setCheckoutStep(2);
     checkoutModal.classList.add("active");
+    document.body.style.overflow = "hidden";
     if (window.lucide) window.lucide.createIcons();
   }
 
+  function closeCheckoutModal() {
+    if (checkoutModal) checkoutModal.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  // Global Event Delegation for all Enroll, Bundle, and Syllabus Buttons across the site
+  document.addEventListener("click", (e) => {
+    const syllabusBtn = e.target.closest(".view-syllabus-btn, .view-syllabus-trigger, [data-action='view-syllabus']");
+    if (syllabusBtn) {
+      e.preventDefault();
+      const courseId = syllabusBtn.dataset.courseId || syllabusBtn.getAttribute("data-course-id");
+      openCourseDrawer(courseId);
+      return;
+    }
+
+    const bundleBtn = e.target.closest(".enroll-bundle-btn") || e.target.closest("[data-bundle-id]");
+    if (bundleBtn) {
+      e.preventDefault();
+      const bundleId = bundleBtn.getAttribute("data-bundle-id") || bundleBtn.dataset.bundleId;
+      openCheckout(bundleId);
+      return;
+    }
+
+    const courseBtn = e.target.closest(".enroll-course-btn, .enroll-now-btn, .enroll-trigger, .drawer-enroll-trigger");
+    if (courseBtn) {
+      e.preventDefault();
+      const courseId = courseBtn.getAttribute("data-course-id") || courseBtn.dataset.courseId;
+      openCheckout(courseId);
+      return;
+    }
+  });
+
   if (checkoutModalClose) {
-    checkoutModalClose.onclick = () => checkoutModal.classList.remove("active");
+    checkoutModalClose.onclick = () => closeCheckoutModal();
   }
   if (checkoutModal) {
     checkoutModal.onclick = (e) => {
-      if (e.target === checkoutModal) checkoutModal.classList.remove("active");
+      if (e.target === checkoutModal) closeCheckoutModal();
     };
   }
 
@@ -1516,7 +1973,8 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             couponCode: code,
-            courseId: activeCourseForCheckout ? activeCourseForCheckout.id : null
+            courseId: activeCourseForCheckout ? activeCourseForCheckout.id : null,
+            price: activeCourseForCheckout ? (activeCourseForCheckout.priceETB || activeCourseForCheckout.price) : null
           })
         });
         const json = await res.json();
@@ -1528,7 +1986,7 @@ document.addEventListener("DOMContentLoaded", () => {
           appliedCouponState = json.data;
           showToast(json.data.message || `Success! ${json.data.discountStr} discount applied.`, "success");
 
-          if (summaryDiscount) summaryDiscount.textContent = `-${json.data.discountAmount.toLocaleString()} ETB`;
+          if (summaryDiscount) summaryDiscount.textContent = `-${json.data.discountAmount.toLocaleString()} ETB (${json.data.discountStr})`;
           if (summaryFinalPrice) summaryFinalPrice.textContent = `${json.data.finalPrice.toLocaleString()} ETB`;
           if (instructionPrice) instructionPrice.textContent = `${json.data.finalPrice.toLocaleString()} ETB`;
 
@@ -1544,6 +2002,15 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Error checking coupon code", "error");
       }
     });
+
+    if (promoCodeInput) {
+      promoCodeInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          applyPromoBtn.click();
+        }
+      });
+    }
   }
 
   // Confirm Payment Step 2 -> Verify with Verify.ET backend & Trigger Boom Effect Step 3
@@ -1657,20 +2124,81 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Mobile Menu Toggle
+  // Mobile Hamburger Menu Toggle
   const mobileToggle = document.getElementById("mobile-toggle");
-  const navLinks = document.getElementById("nav-links");
+  const navLinks = document.getElementById("nav-links") || document.querySelector(".nav-links");
   if (mobileToggle && navLinks) {
-    mobileToggle.addEventListener("click", () => {
-      navLinks.classList.toggle("mobile-active");
+    if (!mobileToggle.innerHTML.trim() || !mobileToggle.querySelector("svg, i")) {
+      mobileToggle.innerHTML = `<i data-lucide="menu"></i>`;
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    mobileToggle.onclick = function(e) {
+      window.toggleMobileMenu(e);
+    };
+
+    document.addEventListener("click", (e) => {
+      if (!navLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
+        if (navLinks.classList.contains("mobile-active")) {
+          navLinks.classList.remove("mobile-active");
+          mobileToggle.innerHTML = `<i data-lucide="menu"></i>`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }
     });
 
-    navLinks.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("mobile-active");
+    navLinks.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        if (navLinks.classList.contains("mobile-active")) {
+          navLinks.classList.remove("mobile-active");
+          mobileToggle.innerHTML = `<i data-lucide="menu"></i>`;
+          if (window.lucide) window.lucide.createIcons();
+        }
       });
     });
   }
+
+  // Global Logout Helper Function
+  window.logoutStudent = function(e) {
+    if (e) e.preventDefault();
+    localStorage.removeItem("founders_student_session");
+    localStorage.removeItem("founders_student");
+    sessionStorage.removeItem("founders_student_session");
+    document.cookie = "student_token=; Max-Age=0; path=/;";
+    if (window.showToast) window.showToast("Logged out safely.", "info");
+    setTimeout(() => { window.location.href = "student-auth.html"; }, 300);
+  };
+
+  // Dynamic Student Auth State Navigation Link Updater (Hamburger Menu & Navbar)
+  function updateNavbarAuthState() {
+    const sessionRaw = localStorage.getItem("founders_student_session");
+    let isLoggedIn = false;
+    if (sessionRaw) {
+      try {
+        const parsed = JSON.parse(sessionRaw);
+        if (parsed && (parsed.id || parsed.phone || parsed.name)) isLoggedIn = true;
+      } catch (_e) {}
+    }
+
+    const authNavLinks = document.querySelectorAll(".nav-link-login, #nav-link-auth-action");
+    authNavLinks.forEach(link => {
+      if (isLoggedIn) {
+        link.href = "#";
+        link.onclick = (e) => window.logoutStudent(e);
+        link.innerHTML = `<i data-lucide="log-out"></i> Log Out`;
+        link.style.color = "#f87171";
+      } else {
+        link.href = "student-auth.html";
+        link.onclick = null;
+        link.innerHTML = `<i data-lucide="log-in"></i> Log In`;
+        link.style.color = "";
+      }
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  updateNavbarAuthState();
 
   /* ==========================================================================
      Navbar Active Link & Scroll Spy Handler
@@ -1755,6 +2283,39 @@ document.addEventListener("DOMContentLoaded", () => {
   if (tabRegisterBtn) tabRegisterBtn.addEventListener("click", () => openAuthModal("register"));
 
   /* Intro Video Modal Management */
+  let currentIntroVideoEmbedUrl = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ";
+
+  function formatYouTubeEmbedUrl(rawUrl, autoplay = 0) {
+    if (!rawUrl || !rawUrl.trim()) {
+      return `https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=${autoplay}&rel=0&enablejsapi=1`;
+    }
+
+    let url = rawUrl.trim();
+    let videoId = "";
+
+    if (url.includes("youtu.be/")) {
+      videoId = url.split("youtu.be/")[1]?.split("?")[0]?.split("&")[0];
+    } else if (url.includes("youtube.com/watch")) {
+      const match = url.match(/[?&]v=([^&]+)/);
+      if (match) videoId = match[1];
+    } else if (url.includes("youtube.com/embed/")) {
+      videoId = url.split("youtube.com/embed/")[1]?.split("?")[0]?.split("&")[0];
+    } else if (url.includes("youtube-nocookie.com/embed/")) {
+      videoId = url.split("youtube-nocookie.com/embed/")[1]?.split("?")[0]?.split("&")[0];
+    }
+
+    if (videoId) {
+      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=${autoplay}&rel=0&enablejsapi=1`;
+    }
+
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      const separator = url.includes("?") ? "&" : "?";
+      return `${url}${separator}autoplay=${autoplay}&rel=0&enablejsapi=1`;
+    }
+
+    return `https://www.youtube-nocookie.com/embed/${url}?autoplay=${autoplay}&rel=0&enablejsapi=1`;
+  }
+
   const videoModal = document.getElementById("video-modal");
   const videoModalClose = document.getElementById("video-modal-close");
   const watchDemoBtn = document.getElementById("watch-demo-btn");
@@ -1765,8 +2326,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!videoModal) return;
     videoModal.classList.add("active");
     if (introVideoFrame) {
-      // Autoplay video when opened
-      introVideoFrame.src = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
+      introVideoFrame.src = formatYouTubeEmbedUrl(currentIntroVideoEmbedUrl, 1);
     }
   }
 
@@ -1774,8 +2334,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!videoModal) return;
     videoModal.classList.remove("active");
     if (introVideoFrame) {
-      // Stop video playback when closed
-      introVideoFrame.src = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0";
+      introVideoFrame.src = formatYouTubeEmbedUrl(currentIntroVideoEmbedUrl, 0);
     }
   }
 
@@ -1824,8 +2383,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div id="demo-verify-new-container">
           <div class="chat-bubble bot-bubble">
-            <div class="bubble-title"><i data-lucide="bot"></i> Khilx Academy Bot</div>
-            <p>Welcome to <strong>Khilx Academy Bot</strong>! 🎉</p>
+            <div class="bubble-title"><i data-lucide="bot"></i> Founders Academy Bot</div>
+            <p>Welcome to <strong>Founders Academy Bot</strong>! 🎉</p>
             <p>You are enrolling for <strong>SMMA & Agency Growth Accelerator</strong>. Since this is your first time, please tap <strong>"Share Phone Number"</strong> below to register your account.</p>
             <div class="bot-inline-action">
               <button class="btn-tg-action" id="demo-share-phone-btn">
@@ -1840,18 +2399,18 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
 
           <div class="chat-bubble bot-bubble hidden" id="demo-bot-links-msg">
-            <div class="bubble-title"><i data-lucide="bot"></i> Khilx Academy Bot</div>
+            <div class="bubble-title"><i data-lucide="bot"></i> Founders Academy Bot</div>
             <p>✅ <strong>Phone Registered & Verified!</strong> Welcome Selam Tadesse.</p>
             <p>Here are your <strong>unique, 1-time single-use access links</strong>:</p>
             <div class="bot-links-grid">
-              <a href="https://t.me/KhilxAcademyBot" target="_blank" class="bot-link-card">
+              <a href="https://t.me/founders_academybot" target="_blank" class="bot-link-card">
                 <i data-lucide="tv"></i>
                 <div>
                   <strong>🔒 Join Private HD Video Channel</strong>
                   <span>Unique 1-Time Access Link • Expires after join</span>
                 </div>
               </a>
-              <a href="https://t.me/KhilxAcademyBot" target="_blank" class="bot-link-card">
+              <a href="https://t.me/founders_academybot" target="_blank" class="bot-link-card">
                 <i data-lucide="users"></i>
                 <div>
                   <strong>💬 Join Private Student Mentorship Group</strong>
@@ -1864,19 +2423,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div id="demo-verify-returning-container" class="hidden">
           <div class="chat-bubble bot-bubble">
-            <div class="bubble-title"><i data-lucide="bot"></i> Khilx Academy Bot</div>
+            <div class="bubble-title"><i data-lucide="bot"></i> Founders Academy Bot</div>
             <p>Welcome back, <strong>Selam Tadesse</strong>! 👋</p>
             <p>⚡ <strong>Already Registered Student Recognized!</strong> Your phone number (<code>+251 91 122 3344</code>) is active in our database.</p>
-            <p>Here are your instant <strong>unique, 1-time access links</strong> for your new masterclass:</p>
+            <p>Here are your instant <strong>unique, 1-time access links</strong> for your new course:</p>
             <div class="bot-links-grid">
-              <a href="https://t.me/KhilxAcademyBot" target="_blank" class="bot-link-card">
+              <a href="https://t.me/founders_academybot" target="_blank" class="bot-link-card">
                 <i data-lucide="tv"></i>
                 <div>
                   <strong>🔒 Join Private HD Video Channel</strong>
                   <span>Unique 1-Time Access Link • Delivered Instantly</span>
                 </div>
               </a>
-              <a href="https://t.me/KhilxAcademyBot" target="_blank" class="bot-link-card">
+              <a href="https://t.me/founders_academybot" target="_blank" class="bot-link-card">
                 <i data-lucide="users"></i>
                 <div>
                   <strong>💬 Join Private Student Mentorship Group</strong>
@@ -1928,7 +2487,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="chat-date">Module 3 Assessment</div>
         
         <div class="chat-bubble bot-bubble">
-          <div class="bubble-title"><i data-lucide="bot"></i> Khilx Academy Bot</div>
+          <div class="bubble-title"><i data-lucide="bot"></i> Founders Academy Bot</div>
           <p>📝 <strong>Module 3 Quiz: Client Acquisition</strong></p>
           <p><strong>Question 1 of 5:</strong> What is the most effective approach when sending cold emails to local business owners?</p>
           
@@ -1971,14 +2530,14 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="chat-date">Course Completion</div>
         
         <div class="chat-bubble bot-bubble">
-          <div class="bubble-title"><i data-lucide="bot"></i> Khilx Academy Bot</div>
+          <div class="bubble-title"><i data-lucide="bot"></i> Founders Academy Bot</div>
           <p>🎓 <strong>CONGRATULATIONS SELAM TADESSE!</strong> 🎉</p>
           <p>You have successfully completed 100% of the <strong>SMMA & Agency Growth Accelerator</strong> curriculum and passed all module quizzes.</p>
           
           <div class="bot-cert-card glass-box">
             <i data-lucide="award" style="width: 48px; height: 48px; color: #fbbf24; margin-bottom: 8px;"></i>
             <h4 style="font-family: var(--font-heading); color: var(--primary-gold); font-size: 1.1rem;">Verified Professional Certificate</h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Issued to: <strong>Selam Tadesse</strong> • ID: <code>KHILX-2026-89421</code></p>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Issued to: <strong>Selam Tadesse</strong> • ID: <code>FOUNDERS-2026-89421</code></p>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">Specialization: Social Media Marketing Agency (SMMA)</p>
 
             <button class="btn btn-primary btn-sm btn-block" id="download-cert-demo-btn">
@@ -2056,28 +2615,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Delegated Global Trigger for Enrollment and Syllabus Triggers
-  document.addEventListener("click", (e) => {
-    const enrollBtn = e.target.closest(".enroll-trigger, .enroll-now-btn, .drawer-enroll-trigger");
-    if (enrollBtn) {
-      e.preventDefault();
-      const courseId = enrollBtn.dataset.courseId || enrollBtn.getAttribute("data-course-id");
-      if (courseModal) courseModal.classList.remove("active");
-      openCheckout(courseId);
-      return;
-    }
-    const syllabusBtn = e.target.closest(".view-syllabus-btn");
-    if (syllabusBtn) {
-      e.preventDefault();
-      const courseId = syllabusBtn.dataset.courseId || syllabusBtn.getAttribute("data-course-id");
-      openCourseDrawer(courseId);
-      return;
-    }
-  });
+
 
   window.openStudentAuthModal = function(initialTab = "login") {
     const action = initialTab === "signup" ? "signup" : "login";
-    window.location.href = "student-login.html?action=" + action;
+    window.location.href = "student-auth.html?action=" + action;
   };
 
   window.closeStudentAuthModal = function() {
@@ -2088,53 +2630,56 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateStudentHeaderAuth() {
     const navActions = document.querySelector(".nav-actions");
     const navLinks = document.getElementById("nav-links");
-    if (!navActions) return;
 
-    const sessionRaw = localStorage.getItem("founders_student_session");
+    const sessionRaw = localStorage.getItem("founders_student_session") || localStorage.getItem("founders_student");
     let session = null;
     if (sessionRaw) {
       try { session = JSON.parse(sessionRaw); } catch (_e) {}
     }
 
-    let dashBtn = document.getElementById("header-student-dash-btn");
-    let loginBtn = document.getElementById("header-student-login-btn");
+    const loginLinks = document.querySelectorAll(".nav-link-login, a[href*='student-auth.html'], a[href*='student-login']");
 
-    if (session) {
-      if (loginBtn) loginBtn.remove();
-      if (!dashBtn) {
-        dashBtn = document.createElement("a");
-        dashBtn.id = "header-student-dash-btn";
-        dashBtn.href = "student-dashboard.html";
-        dashBtn.className = "btn btn-outline";
-        dashBtn.style.borderColor = "var(--primary-gold)";
-        dashBtn.style.color = "var(--primary-gold)";
-        dashBtn.innerHTML = `<i data-lucide="layout-dashboard"></i> Dashboard`;
-        navActions.insertBefore(dashBtn, navActions.firstChild);
-      }
-      if (navLinks && !document.getElementById("nav-link-dashboard")) {
+    // Clean up any legacy dynamic duplicate buttons from navActions
+    const extraLoginBtn = document.getElementById("header-student-login-btn");
+    if (extraLoginBtn) extraLoginBtn.remove();
+    const extraDashBtn = document.getElementById("header-student-dash-btn");
+    if (extraDashBtn) extraDashBtn.remove();
+
+    if (session && (session.id || session.phone || session.name)) {
+      // HIDE ALL LOGIN LINKS FOR LOGGED-IN USERS
+      loginLinks.forEach(el => {
+        if (!el.classList.contains("brand-logo") && !el.id?.includes("dash")) {
+          el.style.display = "none";
+        }
+      });
+
+      // Show Dashboard Link in Navigation Menu if not already present
+      const existingDashInNav = navLinks ? (navLinks.querySelector("a[href*='student-dashboard.html']") || document.getElementById("nav-link-dashboard")) : null;
+      if (navLinks && !existingDashInNav) {
         const link = document.createElement("a");
         link.id = "nav-link-dashboard";
         link.href = "student-dashboard.html";
         link.className = "nav-link";
+        if (window.location.pathname.includes("student-dashboard")) {
+          link.classList.add("active");
+        }
+        link.style.color = "var(--primary-gold)";
+        link.style.fontWeight = "700";
         link.innerHTML = `<i data-lucide="layout-dashboard"></i> My Dashboard`;
         navLinks.appendChild(link);
       }
     } else {
-      if (dashBtn) dashBtn.remove();
-      if (!loginBtn || loginBtn.tagName !== "A") {
-        if (loginBtn) loginBtn.remove();
-        loginBtn = document.createElement("a");
-        loginBtn.id = "header-student-login-btn";
-        loginBtn.href = "student-login.html";
-        loginBtn.className = "btn btn-outline";
-        loginBtn.style.borderColor = "rgba(255, 255, 255, 0.25)";
-        loginBtn.innerHTML = `<i data-lucide="log-in"></i> Login`;
-        navActions.insertBefore(loginBtn, navActions.firstChild);
-      } else {
-        loginBtn.href = "student-login.html";
-      }
+      // RESTORE SINGLE LOGIN LINK FOR GUEST VISITORS
+      loginLinks.forEach(el => {
+        el.style.display = "";
+      });
+
+      const dashLink = document.getElementById("nav-link-dashboard");
+      if (dashLink && !window.location.pathname.includes("student-dashboard")) dashLink.remove();
     }
-    if (window.lucide) window.lucide.createIcons();
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
   }
 
   window.performStudentLogout = function() {
@@ -2146,17 +2691,36 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Logged out successfully.", "info");
     }
     setTimeout(() => {
-      window.location.href = "student-login.html";
+      window.location.href = "student-auth.html";
     }, 200);
   };
 
   // Initial Builds
+  fetchLandingConfigFromApi();
   renderCourses();
   renderTestimonials();
   renderFAQ();
   animateMetrics();
-  // Global click delegate for login and logout buttons
+  // Global click delegate for mobile toggle, login, and logout buttons
   document.addEventListener("click", (e) => {
+    const mobileToggle = e.target.closest("#mobile-toggle, .mobile-toggle");
+    if (mobileToggle) {
+      e.preventDefault();
+      e.stopPropagation();
+      const navLinks = document.getElementById("nav-links");
+      if (navLinks) {
+        navLinks.classList.toggle("mobile-active");
+      }
+      return;
+    }
+
+    const navLinks = document.getElementById("nav-links");
+    if (navLinks && navLinks.classList.contains("mobile-active")) {
+      if (!navLinks.contains(e.target)) {
+        navLinks.classList.remove("mobile-active");
+      }
+    }
+
     const logoutBtn = e.target.closest("#btn-student-logout, .btn-student-logout, [data-action='student-logout'], [data-action='logout']");
     if (logoutBtn) {
       e.preventDefault();
@@ -2165,9 +2729,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const loginBtn = e.target.closest("button[id*='login'], .btn-login, [data-action='login']");
-    if (loginBtn && !loginBtn.closest("#admin-login-card") && !loginBtn.id.includes("logout") && !loginBtn.classList.contains("btn-student-logout")) {
-      e.preventDefault();
-      window.location.href = "student-login.html";
+    if (loginBtn && !loginBtn.closest("#admin-login-card") && !loginBtn.closest("#form-login") && !loginBtn.closest(".auth-card-ultra") && !loginBtn.id.includes("logout") && !loginBtn.classList.contains("btn-student-logout") && loginBtn.type !== "submit") {
+      if (!window.location.pathname.includes("student-auth.html")) {
+        e.preventDefault();
+        window.location.href = "student-auth.html";
+      }
     }
   });
 

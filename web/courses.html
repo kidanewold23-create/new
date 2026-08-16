@@ -6,8 +6,8 @@
   <meta http-equiv="Expires" content="0">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Courses | Khilx Academy</title>
-  <meta name="description" content="Explore our full catalog of high-income digital courses in SMMA, Video Editing, Cinematography, Content Creation, and Graphic Design at Khilx Academy.">
+  <title>All Courses | Founders Academy</title>
+  <meta name="description" content="Explore our full catalog of high-income digital courses in SMMA, Video Editing, Cinematography, Content Creation, and Graphic Design at Founders Academy.">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,52 +27,51 @@
   <!-- Notification Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- Announcement Bar -->
-  <div class="announcement-bar">
-    <div class="announcement-content">
-      <span class="badge badge-gold"><i data-lucide="sparkles"></i> NEW ENROLLMENT OPEN</span>
-      <span data-i18n="announcement_text">Founders Academy Accelerator Round 6 registration is live! Get 25% OFF plus 3 bonus courses.</span>
-      <a href="#courses-grid" class="btn-text" id="announcement-cta" data-i18n="claim_offer">Claim Offer &rarr;</a>
-    </div>
-  </div>
-
-  <!-- Main Navigation -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <a href="index.html" class="brand-logo">
-        <div class="logo-icon">
-          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
-        </div>
-        <div class="logo-text">
-          <span class="brand-name">FOUNDERS</span>
-          <span class="brand-sub">ACADEMY</span>
-        </div>
-      </a>
-
-      <div class="nav-links" id="nav-links">
-        <a href="index.html" class="nav-link"><i data-lucide="home"></i> Home</a>
-        <a href="index.html#personas" class="nav-link"><i data-lucide="users"></i> Who Is It For?</a>
-        <a href="index.html#what-you-get" class="nav-link"><i data-lucide="package-check"></i> What You Get</a>
-        <a href="index.html#success-stories" class="nav-link"><i data-lucide="trophy"></i> Success Stories</a>
-        <a href="courses.html" class="nav-link active" data-i18n="nav_courses"><i data-lucide="book-open"></i> Courses</a>
-      </div>
-
-      <div class="nav-actions">
-        <a href="student-login.html" class="btn btn-outline" id="header-student-login-btn" style="border-color: rgba(255, 255, 255, 0.25);">
-          <i data-lucide="log-in"></i> Login
-        </a>
-
-        <a href="#courses-grid" class="btn btn-primary">
-          <i data-lucide="shopping-cart"></i> Join Courses
-        </a>
-
-        <!-- Mobile Menu Trigger -->
-        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation Menu">
-          <i data-lucide="menu"></i>
-        </button>
+  <!-- Main Fixed Header Wrapper -->
+  <header class="navbar-wrapper">
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+      <div class="announcement-content">
+        <span class="badge badge-gold"><i data-lucide="sparkles"></i> NEW ENROLLMENT OPEN</span>
+        <span data-i18n="announcement_text">Founders Accelerator Round 6 registration is live! Get 25% OFF plus 3 bonus courses.</span>
+        <a href="#courses-grid" class="btn-text" id="announcement-cta" data-i18n="claim_offer">Claim Offer &rarr;</a>
       </div>
     </div>
-  </nav>
+
+    <!-- Main Navigation -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="brand-logo">
+          <div class="logo-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">FOUNDERS</span>
+            <span class="brand-sub">ACADEMY</span>
+          </div>
+        </a>
+
+        <div class="nav-links" id="nav-links">
+          <a href="index.html" class="nav-link"><i data-lucide="sparkles"></i> Home</a>
+          <a href="index.html#personas" class="nav-link"><i data-lucide="target"></i> Who Is It For?</a>
+          <a href="index.html#what-you-get" class="nav-link"><i data-lucide="gift"></i> What You Get</a>
+          <a href="index.html#success-stories" class="nav-link"><i data-lucide="star"></i> Testimonials</a>
+          <a href="student-auth.html" class="nav-link nav-link-login"><i data-lucide="log-in"></i> Log In</a>
+        </div>
+
+        <div class="nav-actions">
+          <a href="#courses-grid" class="btn btn-primary">
+            <i data-lucide="rocket"></i> Join Courses
+          </a>
+
+          <!-- Mobile Menu Trigger -->
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+            <i data-lucide="menu"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
 
   <!-- Courses Page Header -->
   <section class="hero-section" style="padding: 60px 0 40px;">
@@ -110,6 +109,24 @@
   <!-- Courses Grid Container -->
   <section class="courses-section" style="padding-top: 20px;">
     <div class="container">
+      <!-- Course Bundles Section (Rendered dynamically if bundles exist) -->
+      <div id="bundles-grid-container" style="margin-bottom: 50px; display: block;">
+        <div style="margin-bottom: 28px; text-align: center;">
+          <span class="badge badge-gold" style="font-size: 0.82rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; background: rgba(212, 175, 55, 0.15); color: var(--primary-gold); border: 1px solid rgba(212, 175, 55, 0.3);">
+            <i data-lucide="layers" style="color: var(--primary-gold);"></i> SPECIAL DISCOUNTED PACKAGES
+          </span>
+          <h2 style="font-size: 2.2rem; font-weight: 800; margin-top: 10px; color: var(--text-main);">
+            Course <span class="gradient-text">Course Bundles</span>
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.96rem; max-width: 620px; margin: 8px auto 0;">
+            Enroll in complete agency package deals. Every bundle includes 1 Main Course plus bonus courses with full Telegram links delivered for all courses!
+          </p>
+        </div>
+        <div class="courses-grid" id="bundles-grid">
+          <!-- Bundles rendered dynamically -->
+        </div>
+      </div>
+
       <div class="courses-grid" id="courses-grid">
         <!-- Dynamically rendered via JS -->
       </div>
@@ -129,12 +146,20 @@
             <span class="brand-sub">ACADEMY</span>
           </div>
         </a>
-        <p>Empowering the next generation of Ethiopian entrepreneurs with world-class digital skills and agency masterclasses.</p>
+        <p>Empowering the next generation of Ethiopian entrepreneurs with world-class digital skills and agency courses.</p>
         <div class="social-links">
-          <a href="https://t.me/founderssupport" target="_blank" aria-label="Telegram"><i data-lucide="send"></i></a>
-          <a href="https://youtube.com/@yonasmoh" target="_blank" aria-label="YouTube"><i data-lucide="youtube"></i></a>
-          <a href="https://instagram.com/yonasmoh" target="_blank" aria-label="Instagram"><i data-lucide="instagram"></i></a>
-          <a href="#" aria-label="Linkedin"><i data-lucide="linkedin"></i></a>
+          <a href="https://t.me/founderssupport" target="_blank" aria-label="Telegram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
+          </a>
+          <a href="https://youtube.com/@yonasmoh" target="_blank" aria-label="YouTube">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.56 49.56 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path><path d="m10 15 5-3-5-3z"></path></svg>
+          </a>
+          <a href="https://instagram.com/yonasmoh" target="_blank" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          </a>
         </div>
       </div>
 
@@ -162,24 +187,11 @@
         </ul>
       </div>
 
-      <div class="footer-col newsletter-col">
-        <h4>Stay Updated</h4>
-        <p>Subscribe to receive free tutorials, market reports, and discount alerts.</p>
-        <form class="newsletter-form" id="newsletter-form">
-          <input type="email" placeholder="Enter your email" required aria-label="Email Address">
-          <button type="submit" class="btn btn-primary"><i data-lucide="arrow-right"></i></button>
-        </form>
-        <span class="privacy-note"><i data-lucide="lock"></i> We respect your privacy. No spam.</span>
-      </div>
+
     </div>
 
     <div class="footer-bottom container">
       <p>&copy; 2026 Founders Academy. All rights reserved. | Developed by Digital Dynamics</p>
-      <div class="legal-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Security & Payments</a>
-      </div>
     </div>
   </footer>
 
@@ -200,18 +212,13 @@
       
       <!-- Checkout Step Indicators -->
       <div class="checkout-steps-bar">
-        <div class="step-indicator active" id="step-ind-1">
+        <div class="step-indicator active" id="step-ind-2">
           <span class="step-num">1</span>
-          <span class="step-label">Your Info</span>
-        </div>
-        <div class="step-line"></div>
-        <div class="step-indicator" id="step-ind-2">
-          <span class="step-num">2</span>
           <span class="step-label">Payment</span>
         </div>
         <div class="step-line"></div>
         <div class="step-indicator" id="step-ind-3">
-          <span class="step-num">3</span>
+          <span class="step-num">2</span>
           <span class="step-label">Telegram Bot</span>
         </div>
       </div>
@@ -266,12 +273,12 @@
               <strong id="summary-course-name">SMMA Accelerator</strong>
             </div>
             <div class="summary-row">
-              <span>Regular Price:</span>
-              <span id="summary-original-price">12,500 ETB</span>
+              <span>Course Price:</span>
+              <span id="summary-original-price">10,000 ETB</span>
             </div>
             <div class="summary-row discount">
-              <span>Special Discount (25% OFF):</span>
-              <span id="summary-discount">-2,500 ETB</span>
+              <span>Coupon Discount:</span>
+              <span id="summary-discount">0 ETB</span>
             </div>
             <div class="summary-row total">
               <span>Total Payable:</span>
@@ -328,7 +335,7 @@
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 16px;">
-              <button class="btn btn-outline" id="back-to-step1-btn"><i data-lucide="arrow-left"></i> Back</button>
+              <button class="btn btn-outline hidden" id="back-to-step1-btn" style="display: none;"><i data-lucide="arrow-left"></i> Back</button>
               <button class="btn btn-primary btn-block btn-lg" id="confirm-payment-btn">
                 <i data-lucide="check-circle"></i> Complete & Verify Payment
               </button>

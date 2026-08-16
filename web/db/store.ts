@@ -511,6 +511,8 @@ const courseOverrides: Record<string, Partial<Masterclass>> = {};
 const deletedCourseIds = new Set<string>();
 const addedCourses: Masterclass[] = [];
 
+let inMemoryTransactions: Transaction[] = [...defaultTransactions];
+let inMemoryGiveaways: any[] = [];
 let inMemoryMaintenance: MaintenanceState = {
   status: "OFF",
   title: "System Under Scheduled Upgrades & Maintenance",

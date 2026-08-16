@@ -155,6 +155,18 @@ CREATE TABLE IF NOT EXISTS public.quiz_submissions (
   submitted_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 11. Course Bundles & Packages Table
+CREATE TABLE IF NOT EXISTS public.course_bundles (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  price TEXT NOT NULL,
+  main_course_id TEXT NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  included_course_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+  status TEXT DEFAULT 'ON',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS) for Public Read Access
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
@@ -164,6 +176,7 @@ ALTER TABLE public.telegram_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.course_quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quiz_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quiz_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.course_bundles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow public read categories" ON public.categories;
 CREATE POLICY "Allow public read categories" ON public.categories FOR SELECT USING (true);
@@ -188,5 +201,9 @@ CREATE POLICY "Allow public all quiz_questions" ON public.quiz_questions FOR ALL
 
 DROP POLICY IF EXISTS "Allow public all quiz_submissions" ON public.quiz_submissions;
 CREATE POLICY "Allow public all quiz_submissions" ON public.quiz_submissions FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public read course_bundles" ON public.course_bundles;
+CREATE POLICY "Allow public read course_bundles" ON public.course_bundles FOR SELECT USING (true);
+
 
 

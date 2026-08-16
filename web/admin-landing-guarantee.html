@@ -139,6 +139,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn active">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -216,9 +219,16 @@
               <label class="form-label" for="wyg-tag">Section Tag</label>
               <input type="text" id="wyg-tag" class="form-input" placeholder="EVERYTHING INCLUDED">
             </div>
-            <div class="form-group" style="grid-column: span 2;">
+            <div class="form-group">
               <label class="form-label" for="wyg-title">Section Title</label>
               <input type="text" id="wyg-title" class="form-input" placeholder="Everything You Need to Build a Remote High-Income Career">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="wyg-status">Section Display Status (ON/OFF)</label>
+              <select id="wyg-status" class="form-input" style="height: 48px;">
+                <option value="active">Active (ON - Visible on index.html & navbar link shown)</option>
+                <option value="inactive">Hidden / Inactive (OFF - Hide Section & Hide Navbar Link)</option>
+              </select>
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
@@ -258,13 +268,16 @@
 
       const config = await getLandingConfig();
       if (config && config.whatYouGet) {
+        if (document.getElementById("wyg-status")) {
+          document.getElementById("wyg-status").value = (config.whatYouGet.status || config.guaranteeStatus) === "inactive" ? "inactive" : "active";
+        }
         document.getElementById("wyg-tag").value = config.whatYouGet.sectionTag || "";
         document.getElementById("wyg-title").value = config.whatYouGet.sectionTitle || "";
         document.getElementById("wyg-sub").value = config.whatYouGet.sectionSubtitle || "";
       }
 
       const defaultDeliverables = [
-        { id: "d1", title: "Complete HD Video Masterclass Vault", pill: "50+ HD Modules", icon: "video", desc: "Step-by-step masterclasses broken down into bite-sized actionable lessons.", bullets: ["Lifetime Telegram channel access", "Updated every cohort with fresh strategies", "Downloadable project files & resources"] },
+        { id: "d1", title: "Complete HD Video Course Vault", pill: "50+ HD Modules", icon: "video", desc: "Step-by-step courses broken down into bite-sized actionable lessons.", bullets: ["Lifetime Telegram channel access", "Updated every cohort with fresh strategies", "Downloadable project files & resources"] },
         { id: "d2", title: "Plug-and-Play Agency Templates", pill: "Ready to Use", icon: "file-text", desc: "Battle-tested client contracts, onboarding forms, and cold outreach scripts.", bullets: ["Client service agreements & invoices", "Cold outreach DM & email scripts", "Proposal & pitch deck presentations"] },
         { id: "d3", title: "Private Student Mastermind Group", pill: "24/7 Community", icon: "message-square", desc: "Join hundreds of ambitious students, share client wins, and get peer feedback.", bullets: ["Daily mentor Q&A in Telegram group", "Weekly live portfolio review sessions", "Job board & agency subcontracting calls"] },
         { id: "d4", title: "Official Verified Certificate", pill: "Verifiable Credential", icon: "award", desc: "Digital verifiable certificate upon passing all curriculum module assessments.", bullets: ["Unique QR verification link", "Add directly to LinkedIn & CV", "Accredited by Founders Academy"] }
@@ -362,6 +375,7 @@
             sectionTag: document.getElementById("wyg-tag").value.trim(),
             sectionTitle: document.getElementById("wyg-title").value.trim(),
             sectionSubtitle: document.getElementById("wyg-sub").value.trim(),
+            status: document.getElementById("wyg-status")?.value || "active",
             deliverables: deliverablesList,
             guaranteePillars: pillarsList
           }

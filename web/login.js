@@ -55,14 +55,39 @@ document.getElementById("step1Form").addEventListener("submit", async (e) => {
     if (response.ok && (data.success !== false)) {
       savedUsername = usernameInput.value.trim();
       savedPassword = passwordInput.value.trim();
+
+      // If 2FA is disabled on account, login directly
+      if (data.require2FA === false) {
+        const activeToken = data.token || "token_founders_admin_session_88291";
+        localStorage.setItem("admin_token", activeToken);
+        localStorage.setItem("founders_admin", JSON.stringify({
+          username: savedUsername || "admin",
+          role: "Super Admin",
+          token: activeToken
+        }));
+        document.cookie = "admin_token=" + activeToken + "; path=/;";
+        window.location.href = "admin-dashboard.html";
+        return;
+      }
       
       // Switch to Step 2 (2FA OTP verification)
       document.getElementById("step1").classList.remove("active");
       document.getElementById("step2").classList.add("active");
       document.getElementById("formSubtitle").textContent = "Two-Factor Authentication";
+      
+      const instructionEl = document.querySelector(".code-instruction");
+      if (instructionEl) {
+        if (data.demoOtp) {
+          instructionEl.innerHTML = `We have generated a 6-digit verification code.<br><strong style="color: #f59e0b; font-size: 1.1rem; letter-spacing: 2px;">OTP: ${data.demoOtp}</strong>`;
+        } else {
+          instructionEl.textContent = "We have sent a 6-digit verification code to your linked Telegram account. Please enter it below to complete login.";
+        }
+      }
+
       const codeInput = document.getElementById("verificationCode");
       if (codeInput) {
-        codeInput.value = "";
+        if (data.demoOtp) codeInput.value = data.demoOtp;
+        else codeInput.value = "";
         codeInput.focus();
       }
     } else {
@@ -139,6 +164,7 @@ document.getElementById("step2Form").addEventListener("submit", async (e) => {
         role: "Super Admin",
         token: activeToken
       }));
+      document.cookie = "admin_token=" + activeToken + "; path=/;";
       window.location.href = "admin-dashboard.html";
     } else {
       errorMsg.textContent = data.message || data.error || "Verification failed. Please check the code sent to your Telegram.";
@@ -162,3 +188,16 @@ function backToStep1() {
   document.getElementById("errorMsg").classList.remove("visible");
   document.getElementById("errorMsg").style.display = "none";
 }
+
+// Eye Password Toggle Listener
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("btnTogglePass");
+  const passInp = document.getElementById("password");
+  if (toggleBtn && passInp) {
+    toggleBtn.addEventListener("click", () => {
+      const isPass = passInp.type === "password";
+      passInp.type = isPass ? "text" : "password";
+      toggleBtn.textContent = isPass ? "🔒" : "👁️";
+    });
+  }
+});

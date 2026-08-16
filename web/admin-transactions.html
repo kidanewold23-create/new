@@ -100,6 +100,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-giveaway.html" class="nav-item-btn">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
         </a>
@@ -277,7 +280,7 @@
             const refNum = txn.reference_number || txn.id || "N/A";
             const studentName = txn.student_name || "Customer";
             const studentPhone = txn.student_phone || "N/A";
-            const courseTitle = txn.masterclass_title || "Course Enrollment";
+            const courseTitle = txn.course_title || "Course Enrollment";
             const methodRaw = (txn.payment_method || "telebirr").toLowerCase();
             
             let methodBadge = `<span class="badge badge-gold"><i data-lucide="smartphone"></i> Telebirr</span>`;

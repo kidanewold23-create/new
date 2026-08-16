@@ -35,6 +35,105 @@
       }
     }
 
+    /* Panel Card */
+    .dash-panel {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Generator Form Styling */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .form-group label i {
+      color: var(--primary-gold, #f59e0b);
+      width: 16px;
+      height: 16px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-gold, #f59e0b);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .form-input option {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    /* Submit Button */
+    .btn-generate-submit {
+      width: 100%;
+      padding: 13px 20px;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #0b0f17;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-generate-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+    }
+
+    .btn-generate-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
     .code-badge-active {
       background: rgba(16, 185, 129, 0.15);
       color: #34d399;
@@ -51,6 +150,48 @@
       background: rgba(156, 163, 175, 0.15);
       color: #9ca3af;
       border: 1px solid rgba(156, 163, 175, 0.3);
+    }
+
+    /* Table Row Hover */
+    .dash-table tr {
+      transition: background 0.15s ease;
+    }
+
+    .dash-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+
+    /* Pagination Buttons */
+    .btn-page {
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-page:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-page.active {
+      background: var(--primary-gold, #d97706);
+      border-color: var(--primary-gold, #d97706);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .btn-page:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
   </style>
   <link rel="stylesheet" href="/css/styles.css?v=3.0">
@@ -133,6 +274,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-giveaway.html" class="nav-item-btn active">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
         </a>
@@ -170,9 +314,6 @@
       <!-- Top Bar -->
       <header class="admin-topbar">
         <div class="topbar-left">
-          <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" aria-label="Toggle Sidebar">
-            <i data-lucide="menu"></i>
-          </button>
           <div>
             <h1 class="topbar-title" style="display: flex; align-items: center; gap: 10px;">
               <i data-lucide="gift" style="color: var(--primary-gold);"></i> 1-Time Course Giveaway Codes
@@ -192,42 +333,42 @@
         
         <!-- Summary Stats Mini Cards -->
         <div class="stat-mini-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
-          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
-            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(217, 119, 6, 0.15); color: var(--primary-gold); display: flex; align-items: center; justify-content: center;">
+          <div class="stat-mini-card" style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); padding: 18px 20px; border-radius: 14px; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+            <div class="stat-mini-icon" style="width: 46px; height: 46px; border-radius: 12px; background: rgba(217, 119, 6, 0.15); color: var(--primary-gold); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
               <i data-lucide="ticket"></i>
             </div>
             <div>
-              <div class="stat-mini-value" id="stat-total-codes" style="font-size: 1.5rem; font-weight: 800; color: #fff;">0</div>
+              <div class="stat-mini-value" id="stat-total-codes" style="font-size: 1.6rem; font-weight: 800; color: #fff;">0</div>
               <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Total Codes Generated</div>
             </div>
           </div>
 
-          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
-            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; display: flex; align-items: center; justify-content: center;">
+          <div class="stat-mini-card" style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); padding: 18px 20px; border-radius: 14px; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+            <div class="stat-mini-icon" style="width: 46px; height: 46px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
               <i data-lucide="check-circle-2"></i>
             </div>
             <div>
-              <div class="stat-mini-value" id="stat-active-codes" style="font-size: 1.5rem; font-weight: 800; color: #34d399;">0</div>
+              <div class="stat-mini-value" id="stat-active-codes" style="font-size: 1.6rem; font-weight: 800; color: #34d399;">0</div>
               <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Active (Unused 1-Time)</div>
             </div>
           </div>
 
-          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
-            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); color: #f87171; display: flex; align-items: center; justify-content: center;">
+          <div class="stat-mini-card" style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); padding: 18px 20px; border-radius: 14px; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+            <div class="stat-mini-icon" style="width: 46px; height: 46px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); color: #f87171; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
               <i data-lucide="user-check"></i>
             </div>
             <div>
-              <div class="stat-mini-value" id="stat-redeemed-codes" style="font-size: 1.5rem; font-weight: 800; color: #f87171;">0</div>
+              <div class="stat-mini-value" id="stat-redeemed-codes" style="font-size: 1.6rem; font-weight: 800; color: #f87171;">0</div>
               <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Redeemed (Outdated)</div>
             </div>
           </div>
 
-          <div class="stat-mini-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
-            <div class="stat-mini-icon" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(156, 163, 175, 0.15); color: #9ca3af; display: flex; align-items: center; justify-content: center;">
+          <div class="stat-mini-card" style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); padding: 18px 20px; border-radius: 14px; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+            <div class="stat-mini-icon" style="width: 46px; height: 46px; border-radius: 12px; background: rgba(156, 163, 175, 0.15); color: #9ca3af; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
               <i data-lucide="slash"></i>
             </div>
             <div>
-              <div class="stat-mini-value" id="stat-revoked-codes" style="font-size: 1.5rem; font-weight: 800; color: #9ca3af;">0</div>
+              <div class="stat-mini-value" id="stat-revoked-codes" style="font-size: 1.6rem; font-weight: 800; color: #9ca3af;">0</div>
               <div class="stat-mini-label" style="font-size: 0.8rem; color: var(--text-muted);">Revoked / Cancelled</div>
             </div>
           </div>
@@ -239,7 +380,7 @@
           <div class="dash-panel" style="height: fit-content;">
             <div class="panel-header" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
               <div>
-                <h2 class="panel-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                <h2 class="panel-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: #fff;">
                   <i data-lucide="sparkles" style="color: var(--primary-gold);"></i> Generate Giveaway Codes
                 </h2>
                 <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; margin-bottom: 0;">
@@ -249,38 +390,36 @@
             </div>
 
             <form id="form-generate-giveaway">
-              <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label" for="giveaway-course" style="font-size: 0.84rem;">
+              <div class="form-group">
+                <label for="giveaway-course">
                   <i data-lucide="book-open"></i> Target Course Access Granted
                 </label>
-                <select id="giveaway-course" class="form-input" required style="font-size: 0.9rem;">
+                <select id="giveaway-course" class="form-input" required>
                   <option value="">Loading courses...</option>
                 </select>
               </div>
 
-              <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label" for="giveaway-count" style="font-size: 0.84rem;">
+              <div class="form-group">
+                <label for="giveaway-count">
                   <i data-lucide="layers"></i> Quantity to Generate
                 </label>
-                <select id="giveaway-count" class="form-input" style="font-size: 0.9rem;">
+                <select id="giveaway-count" class="form-input">
                   <option value="1">1 Single Code</option>
                   <option value="5">5 Codes (Batch)</option>
                   <option value="10">10 Codes (Batch)</option>
                 </select>
               </div>
 
-              <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" for="giveaway-custom-code" style="font-size: 0.84rem;">
+              <div class="form-group">
+                <label for="giveaway-custom-code">
                   <i data-lucide="edit-3"></i> Custom Code String (Optional)
                 </label>
-                <input type="text" id="giveaway-custom-code" class="form-input" placeholder="e.g. VIP-FOUNDER-2026" style="font-family: monospace; font-size: 0.95rem; text-transform: uppercase;">
-                <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">Leave blank for auto-generated secure code (GIVEAWAY-XXXXX).</p>
+                <input type="text" id="giveaway-custom-code" class="form-input" placeholder="e.g. VIP-FOUNDER-2026" style="font-family: monospace; text-transform: uppercase;">
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">Leave blank for auto-generated secure code (GIVEAWAY-XXXXX).</p>
               </div>
 
-              <button type="submit" class="btn-auth-submit" style="margin: 0; width: 100%;">
-                <span class="btn-text">🎟️ Generate 1-Time Code(s)</span>
-                <div class="btn-spinner"></div>
-                <i data-lucide="plus" class="btn-text"></i>
+              <button type="submit" class="btn-generate-submit" id="btn-submit-giveaway">
+                <i data-lucide="sparkles"></i> Generate 1-Time Code(s)
               </button>
             </form>
           </div>
@@ -289,7 +428,7 @@
           <div class="dash-panel">
             <div class="panel-header" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
               <div>
-                <h2 class="panel-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.15rem;">
+                <h2 class="panel-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.15rem; color: #fff;">
                   <i data-lucide="list" style="color: var(--primary-gold);"></i> Giveaway Codes Directory & Tracker
                 </h2>
                 <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; margin-bottom: 0;">
@@ -298,14 +437,14 @@
               </div>
 
               <div style="display: flex; gap: 10px; align-items: center;">
-                <select id="filter-giveaway-status" class="form-input" style="padding: 6px 12px; font-size: 0.84rem; width: auto;">
+                <select id="filter-giveaway-status" class="form-input" style="padding: 7px 12px; font-size: 0.84rem; width: auto;">
                   <option value="all">All Statuses</option>
                   <option value="active">🟢 Active (Unused)</option>
                   <option value="redeemed">🔴 Redeemed (Outdated)</option>
                   <option value="revoked">⏳ Revoked</option>
                 </select>
 
-                <input type="text" id="search-giveaway-code" class="form-input" placeholder="Search code or course..." style="padding: 6px 12px; font-size: 0.84rem; width: 180px;">
+                <input type="text" id="search-giveaway-code" class="form-input" placeholder="Search code or course..." style="padding: 7px 12px; font-size: 0.84rem; width: 180px;">
               </div>
             </div>
 
@@ -313,12 +452,12 @@
             <div class="table-responsive-container">
               <table class="dash-table" style="width: 100%; border-collapse: collapse;">
                 <thead>
-                  <tr style="text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: var(--text-muted);">
-                    <th style="padding: 12px;">Code</th>
-                    <th style="padding: 12px;">Target Course</th>
-                    <th style="padding: 12px;">Status</th>
-                    <th style="padding: 12px;">Redeemed By Student</th>
-                    <th style="padding: 12px; text-align: right;">Actions</th>
+                  <tr style="text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                    <th style="padding: 14px 12px;">Code</th>
+                    <th style="padding: 14px 12px;">Target Course</th>
+                    <th style="padding: 14px 12px;">Status</th>
+                    <th style="padding: 14px 12px;">Redeemed By Student</th>
+                    <th style="padding: 14px 12px; text-align: right;">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="giveaways-table-body">
@@ -327,6 +466,24 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div id="giveaway-pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 12px; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span id="giveaway-pagination-info" style="font-size: 0.82rem; color: var(--text-muted, #94a3b8);">Showing 0 to 0 of 0 entries</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <label for="giveaway-page-size" style="font-size: 0.8rem; color: var(--text-muted, #94a3b8);">Per page:</label>
+                  <select id="giveaway-page-size" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.12);">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="giveaway-pagination-controls" style="display: flex; gap: 6px; align-items: center;"></div>
             </div>
 
           </div>
@@ -341,6 +498,8 @@
   <script src="js/admin.js"></script>
   <script>
     let allGiveaways = [];
+    let currentPage = 1;
+    let pageSize = 10;
 
     function fetchCoursesDropdown() {
       fetch("/api/courses")
@@ -398,10 +557,19 @@
         return true;
       });
 
+      const totalFiltered = filtered.length;
+      const totalPages = Math.ceil(totalFiltered / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, totalFiltered);
+      const paginatedItems = filtered.slice(startIdx, endIdx);
+
       const tbody = document.getElementById("giveaways-table-body");
       if (!tbody) return;
 
-      if (filtered.length === 0) {
+      if (totalFiltered === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">
@@ -409,10 +577,11 @@
             </td>
           </tr>
         `;
+        renderPaginationControls(0, 0, 0, 1);
         return;
       }
 
-      tbody.innerHTML = filtered.map(item => {
+      tbody.innerHTML = paginatedItems.map(item => {
         let statusBadge = "";
         if (item.status === "active") {
           statusBadge = `<span class="badge code-badge-active"><i data-lucide="check-circle-2" style="width: 12px; height: 12px;"></i> Active (Unused)</span>`;
@@ -450,15 +619,15 @@
             </td>
             <td style="padding: 12px; text-align: right;">
               <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                <button type="button" onclick="copyTextToClipboard('${item.code}', 'Giveaway Code', this)" class="btn-dash-action btn-dash-secondary" style="padding: 4px 8px; font-size: 0.75rem;" title="Copy Code">
+                <button type="button" onclick="copyTextToClipboard('${item.code}', 'Giveaway Code', this)" class="btn-dash-action btn-dash-secondary" style="padding: 5px 10px; font-size: 0.75rem;" title="Copy Code">
                   <i data-lucide="copy"></i>
                 </button>
                 ${item.status === 'active' ? `
-                  <button type="button" onclick="revokeGiveawayCode('${item.code}')" class="btn-dash-action btn-dash-secondary" style="padding: 4px 8px; font-size: 0.75rem; color: #f59e0b; border-color: rgba(245,158,11,0.3);" title="Revoke Code">
+                  <button type="button" onclick="revokeGiveawayCode('${item.code}')" class="btn-dash-action btn-dash-secondary" style="padding: 5px 10px; font-size: 0.75rem; color: #f59e0b; border-color: rgba(245,158,11,0.3);" title="Revoke Code">
                     <i data-lucide="slash"></i> Revoke
                   </button>
                 ` : ''}
-                <button type="button" onclick="deleteGiveawayCode('${item.code}')" class="btn-dash-action btn-dash-secondary" style="padding: 4px 8px; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" title="Delete Permanent">
+                <button type="button" onclick="deleteGiveawayCode('${item.code}')" class="btn-dash-action btn-dash-secondary" style="padding: 5px 10px; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" title="Delete Permanent">
                   <i data-lucide="trash-2"></i>
                 </button>
               </div>
@@ -467,8 +636,65 @@
         `;
       }).join('');
 
+      renderPaginationControls(startIdx + 1, endIdx, totalFiltered, totalPages);
       if (window.lucide) window.lucide.createIcons();
     }
+
+    function renderPaginationControls(start, end, total, totalPages) {
+      const infoEl = document.getElementById("giveaway-pagination-info");
+      const controlsEl = document.getElementById("giveaway-pagination-controls");
+
+      if (infoEl) {
+        if (total === 0) {
+          infoEl.textContent = "Showing 0 entries";
+        } else {
+          infoEl.textContent = `Showing ${start} to ${end} of ${total} entries`;
+        }
+      }
+
+      if (!controlsEl) return;
+
+      if (totalPages <= 1) {
+        controlsEl.innerHTML = "";
+        return;
+      }
+
+      let btnsHtml = "";
+
+      // Prev button
+      btnsHtml += `<button type="button" class="btn-page" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">‹ Prev</button>`;
+
+      // Page numbers logic
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+      }
+
+      if (startPage > 1) {
+        btnsHtml += `<button type="button" class="btn-page" onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) btnsHtml += `<span style="color: var(--text-muted); padding: 0 2px;">...</span>`;
+      }
+
+      for (let p = startPage; p <= endPage; p++) {
+        btnsHtml += `<button type="button" class="btn-page ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) btnsHtml += `<span style="color: var(--text-muted); padding: 0 2px;">...</span>`;
+        btnsHtml += `<button type="button" class="btn-page" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+      }
+
+      // Next button
+      btnsHtml += `<button type="button" class="btn-page" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next ›</button>`;
+
+      controlsEl.innerHTML = btnsHtml;
+    }
+
+    window.goToPage = function(page) {
+      currentPage = page;
+      updateStatsAndRenderTable();
+    };
 
     function revokeGiveawayCode(code) {
       if (!confirm(`Are you sure you want to revoke 1-time giveaway code "${code}"?`)) return;
@@ -515,10 +741,23 @@
       fetchGiveawayCodes();
 
       if (document.getElementById("filter-giveaway-status")) {
-        document.getElementById("filter-giveaway-status").addEventListener("change", updateStatsAndRenderTable);
+        document.getElementById("filter-giveaway-status").addEventListener("change", () => {
+          currentPage = 1;
+          updateStatsAndRenderTable();
+        });
       }
       if (document.getElementById("search-giveaway-code")) {
-        document.getElementById("search-giveaway-code").addEventListener("input", updateStatsAndRenderTable);
+        document.getElementById("search-giveaway-code").addEventListener("input", () => {
+          currentPage = 1;
+          updateStatsAndRenderTable();
+        });
+      }
+      if (document.getElementById("giveaway-page-size")) {
+        document.getElementById("giveaway-page-size").addEventListener("change", (e) => {
+          pageSize = parseInt(e.target.value, 10) || 10;
+          currentPage = 1;
+          updateStatsAndRenderTable();
+        });
       }
 
       const form = document.getElementById("form-generate-giveaway");
@@ -532,12 +771,11 @@
           const count = document.getElementById("giveaway-count") ? document.getElementById("giveaway-count").value : "1";
           const customCode = document.getElementById("giveaway-custom-code") ? document.getElementById("giveaway-custom-code").value.trim() : "";
 
-          const submitBtn = form.querySelector("button[type='submit']");
-          let origHtml = "";
+          const submitBtn = document.getElementById("btn-submit-giveaway");
           if (submitBtn) {
-            origHtml = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<span>Generating...</span>`;
+            submitBtn.innerHTML = `<i data-lucide="loader" class="spin"></i> Generating...`;
+            if (window.lucide) window.lucide.createIcons();
           }
 
           fetch("/api/admin/giveaways/generate", {
@@ -549,7 +787,8 @@
           .then(data => {
             if (submitBtn) {
               submitBtn.disabled = false;
-              submitBtn.innerHTML = origHtml;
+              submitBtn.innerHTML = `<i data-lucide="sparkles"></i> 🎟️ Generate 1-Time Code(s)`;
+              if (window.lucide) window.lucide.createIcons();
             }
 
             if (data.success) {
@@ -563,7 +802,8 @@
           .catch(err => {
             if (submitBtn) {
               submitBtn.disabled = false;
-              submitBtn.innerHTML = origHtml;
+              submitBtn.innerHTML = `<i data-lucide="sparkles"></i> 🎟️ Generate 1-Time Code(s)`;
+              if (window.lucide) window.lucide.createIcons();
             }
             showToast("Error generating codes: " + err.message, "error");
           });

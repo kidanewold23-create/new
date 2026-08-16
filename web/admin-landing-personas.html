@@ -139,6 +139,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn active">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -207,7 +210,15 @@
 
       <div class="cms-card">
         <div class="cms-card-title">
-          <i data-lucide="user-check" style="color: var(--accent-emerald);"></i> 4 Target Student Profiles
+          <i data-lucide="user-check" style="color: var(--accent-emerald);"></i> Who Is It For Section Status & Profiles
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="personas-status">Section Display Status (ON/OFF)</label>
+          <select id="personas-status" class="form-input" style="height: 48px;">
+            <option value="active">Active (ON - Visible on index.html & navbar link shown)</option>
+            <option value="inactive">Hidden / Inactive (OFF - Hide Section & Hide Navbar Link)</option>
+          </select>
         </div>
 
         <div id="personas-cms-container">
@@ -224,6 +235,10 @@
       renderCmsNavTabs("personas");
 
       const config = await getLandingConfig();
+      if (config && document.getElementById("personas-status")) {
+        document.getElementById("personas-status").value = (config.personasSection?.status || config.personas?.status || config.personasStatus) === "inactive" ? "inactive" : "active";
+      }
+
       const defaultPersonas = [
         { id: "p1", title: "Complete Beginners", icon: "sparkles", description: "No prior experience or tech background. Learn from ground zero with step-by-step guidance.", outcome: "Zero to First Paying Client in 30 Days" },
         { id: "p2", title: "Freelancers & Creators", icon: "video", description: "Video editors, designers, and content creators ready to escape low-paying Fiverr gigs.", outcome: "Charge $500–$2,000+ per International Client" },
@@ -235,25 +250,25 @@
 
       const container = document.getElementById("personas-cms-container");
       container.innerHTML = personas.map((p, idx) => `
-        <div class="persona-cms-box" data-id="${p.id || 'p' + (idx + 1)}">
-          <strong style="color: var(--primary-gold); font-size: 0.95rem; display: block; margin-bottom: 12px;">Persona #${idx + 1}: ${p.title || 'Audience'}</strong>
-          <div class="grid-3" style="margin-bottom: 10px;">
+        <div class="persona-cms-box" data-id="${p.id || 'p' + (idx + 1)}" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 16px;">
+          <strong style="color: var(--accent-emerald); font-size: 0.95rem; display: block; margin-bottom: 12px;">Persona Profile #${idx + 1}</strong>
+          <div class="grid-2" style="margin-bottom: 10px;">
             <div class="form-group">
-              <label class="form-label">Persona Title</label>
+              <label class="form-label">Profile Title</label>
               <input type="text" class="form-input p-title" value="${p.title || ''}">
             </div>
             <div class="form-group">
               <label class="form-label">Lucide Icon Name</label>
               <input type="text" class="form-input p-icon" value="${p.icon || 'briefcase'}">
             </div>
-            <div class="form-group">
-              <label class="form-label">Outcome Badge Tag</label>
-              <input type="text" class="form-input p-outcome" value="${p.outcome || ''}">
-            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input p-desc" style="height: 60px; padding: 10px 14px;">${p.description || ''}</textarea>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Persona Description</label>
-            <input type="text" class="form-input p-desc" value="${p.description || ''}">
+            <label class="form-label">Outcome Badge Text</label>
+            <input type="text" class="form-input p-outcome" value="${p.outcome || ''}">
           </div>
         </div>
       `).join("");
@@ -273,7 +288,8 @@
           });
         });
 
-        saveLandingSection({ personas: list }, "Who Is It For? Section");
+        const status = document.getElementById("personas-status")?.value || "active";
+        saveLandingSection({ personasStatus: status, personas: list }, "Who Is It For? Section");
       });
     });
   </script>

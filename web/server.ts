@@ -155,19 +155,21 @@ Deno.serve({ port: PORT }, async (req: Request) => {
   if (pathname === "/api/admin/broadcast" && req.method === "POST") {
     try {
       const body = await req.json();
-      const { message, buttonText, buttonUrl } = body || {};
+      const { message, buttonText, buttonUrl, imageUrl, photo } = body || {};
+      const photoSource = (imageUrl || photo || "").trim();
+      const rawMessage = (message || "").trim();
 
-      if (!message || !message.trim()) {
-        return new Response(JSON.stringify({ success: false, error: "Broadcast message cannot be empty." }), { status: 400, headers });
+      if (!rawMessage && !photoSource) {
+        return new Response(JSON.stringify({ success: false, error: "Broadcast message or image cannot be empty." }), { status: 400, headers });
       }
 
-      const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") || process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN;
+      const BOT_TOKEN = (typeof Deno !== "undefined" ? Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") : "") || (typeof process !== "undefined" ? process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN : "") || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
       if (!BOT_TOKEN) {
         return new Response(JSON.stringify({ success: false, error: "TELEGRAM_BOT_TOKEN missing in .env" }), { status: 500, headers });
       }
 
       const students = await dbStore.getStudents();
-      let telegramRecipients = students.filter(s => s.id && (s.id.startsWith("TG-") || /^\d+$/.test(s.id)));
+      let telegramRecipients = students.filter((s: any) => s.id && (s.id.startsWith("TG-") || /^\d+$/.test(s.id)));
       if (telegramRecipients.length === 0) {
         telegramRecipients = students;
       }
@@ -176,49 +178,121 @@ Deno.serve({ port: PORT }, async (req: Request) => {
       let failCount = 0;
       const logs: any[] = [];
 
+      const replyMarkup = (buttonText && buttonUrl) ? {
+        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+      } : undefined;
+
       for (const student of telegramRecipients) {
         const rawId = student.id.replace(/^TG-/, "");
         const telegramId = parseInt(rawId, 10);
 
         if (isNaN(telegramId)) continue;
 
-        const payload: any = {
-          chat_id: telegramId,
-          text: message,
-          parse_mode: "Markdown"
-        };
-
-        if (buttonText && buttonUrl) {
-          payload.reply_markup = {
-            inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
-          };
-        }
-
         try {
-          const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-          const tgJson = await tgRes.json();
+          let tgRes: any, tgJson: any;
 
-          if (tgJson.ok) {
-            successCount++;
-            logs.push({ name: student.name, telegram_id: telegramId, status: "Delivered", time: new Date().toLocaleTimeString() });
-          } else {
-            const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          if (photoSource) {
+            const isUrl = photoSource.startsWith("http://") || photoSource.startsWith("https://");
+
+            if (isUrl) {
+              const photoPayload: any = {
+                chat_id: telegramId,
+                photo: photoSource,
+                caption: rawMessage,
+                parse_mode: "Markdown",
+                reply_markup: replyMarkup
+              };
+
+              tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(photoPayload)
+              });
+              tgJson = await tgRes.json();
+
+              if (!tgJson.ok) {
+                const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ...photoPayload, parse_mode: undefined })
+                });
+                const fbJson = await fbRes.json();
+                if (fbJson.ok) tgJson = fbJson;
+              }
+            } else if (photoSource.startsWith("data:")) {
+              const formData = new FormData();
+              formData.append("chat_id", String(telegramId));
+              if (rawMessage) formData.append("caption", rawMessage);
+              formData.append("parse_mode", "Markdown");
+              if (replyMarkup) formData.append("reply_markup", JSON.stringify(replyMarkup));
+
+              const match = photoSource.match(/^data:(image\/\w+);base64,(.+)$/);
+              let mimeType = "image/jpeg";
+              let base64Str = photoSource;
+              if (match) {
+                mimeType = match[1];
+                base64Str = match[2];
+              }
+              const buffer = Buffer.from(base64Str, "base64");
+              const ext = mimeType.split("/")[1] || "jpg";
+              const blob = new Blob([buffer], { type: mimeType });
+              formData.append("photo", blob, `broadcast_photo.${ext}`);
+
+              tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: "POST",
+                body: formData
+              });
+              tgJson = await tgRes.json();
+
+              if (!tgJson.ok) {
+                const fbFormData = new FormData();
+                fbFormData.append("chat_id", String(telegramId));
+                if (rawMessage) fbFormData.append("caption", rawMessage);
+                if (replyMarkup) fbFormData.append("reply_markup", JSON.stringify(replyMarkup));
+                fbFormData.append("photo", blob, `broadcast_photo.${ext}`);
+
+                const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                  method: "POST",
+                  body: fbFormData
+                });
+                const fbJson = await fbRes.json();
+                if (fbJson.ok) tgJson = fbJson;
+              }
+            }
+          }
+
+          if (!photoSource || (tgJson && !tgJson.ok)) {
+            const textPayload: any = {
+              chat_id: telegramId,
+              text: rawMessage,
+              parse_mode: "Markdown",
+              reply_markup: replyMarkup
+            };
+
+            tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ...payload, parse_mode: undefined })
+              body: JSON.stringify(textPayload)
             });
-            const fbJson = await fbRes.json();
-            if (fbJson.ok) {
-              successCount++;
-              logs.push({ name: student.name, telegram_id: telegramId, status: "Delivered (Plain Text)", time: new Date().toLocaleTimeString() });
-            } else {
-              failCount++;
-              logs.push({ name: student.name, telegram_id: telegramId, status: `Failed: ${tgJson.description || "Error"}`, time: new Date().toLocaleTimeString() });
+            tgJson = await tgRes.json();
+
+            if (!tgJson.ok) {
+              const fbRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...textPayload, parse_mode: undefined })
+              });
+              const fbJson = await fbRes.json();
+              if (fbJson.ok) tgJson = fbJson;
             }
+          }
+
+          if (tgJson && tgJson.ok) {
+            successCount++;
+            logs.push({ name: student.name, telegram_id: telegramId, status: photoSource ? "Delivered (Photo)" : "Delivered", time: new Date().toLocaleTimeString() });
+          } else {
+            failCount++;
+            logs.push({ name: student.name, telegram_id: telegramId, status: `Failed: ${tgJson?.description || "Error"}`, time: new Date().toLocaleTimeString() });
           }
         } catch (err: any) {
           failCount++;

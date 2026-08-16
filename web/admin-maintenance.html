@@ -95,6 +95,49 @@
     .switch-wrap-lg:not(.active) .switch-label-lg {
       color: #10b981;
     }
+
+    /* Gold Action Submit Button for Maintenance Settings */
+    .btn-maintenance-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #0f172a;
+      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.38);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+    }
+
+    .btn-maintenance-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+      box-shadow: 0 8px 28px rgba(245, 158, 11, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .btn-maintenance-submit:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-maintenance-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
   <link rel="stylesheet" href="/css/styles.css?v=3.0">
   <link rel="stylesheet" href="/css/auth.css?v=3.0">
@@ -107,7 +150,7 @@
   <!-- Top Sticky Admin Navbar -->
   <header class="admin-navbar">
     <div class="admin-nav-left">
-      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" onclick="window.toggleAdminSidebar && window.toggleAdminSidebar(event)" title="Toggle Navigation Sidebar">
         <i data-lucide="menu"></i>
         <span>Menu</span>
       </button>
@@ -175,6 +218,9 @@
         <div class="menu-category-label">Marketing & Communication</div>
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
         </a>
         <a href="admin-giveaway.html" class="nav-item-btn">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
@@ -307,11 +353,11 @@
               style="height: 100px; padding: 12px 16px; line-height: 1.5;" 
               placeholder="Enter the message displayed to visitors on the maintenance screen and bot..."
               required
-            >We are currently upgrading Founders Academy infrastructure and database performance for upcoming masterclass cohorts. Public student access will resume shortly.</textarea>
+            >We are currently upgrading Founders Academy infrastructure and database performance for upcoming course cohorts. Public student access will resume shortly.</textarea>
           </div>
 
           <div style="display: flex; gap: 14px; align-items: center; margin-top: 24px; flex-wrap: wrap;">
-            <button type="submit" id="btn-save-maintenance-notice" class="btn-auth-submit" style="max-width: 320px; margin: 0;">
+            <button type="submit" id="btn-save-maintenance-notice" class="btn-maintenance-submit">
               <span>Save & Apply Maintenance Settings</span>
               <i data-lucide="check"></i>
             </button>
@@ -325,7 +371,6 @@
   </div>
 
   <!-- Admin Scripts -->
-  <script src="js/admin.js"></script>
   <script>
     let currentMaintenanceState = {
       status: "OFF",

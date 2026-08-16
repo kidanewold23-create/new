@@ -12,6 +12,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="/js/telegram-mini-app-auth.js"></script>
 
   <style>
     :root {
@@ -109,35 +111,47 @@
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
   <link rel="stylesheet" href="/css/styles.css?v=3.0">
+  <link rel="stylesheet" href="/css/auth.css?v=3.0">
 </head>
 <body>
 
-  <!-- Navigation Header -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <a href="index.html" class="brand-logo">
-        <div class="logo-icon">
-          <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
-        </div>
-        <div class="logo-text">
-          <span class="brand-name">FOUNDERS</span>
-          <span class="brand-sub">ACADEMY</span>
-        </div>
-      </a>
+  <!-- Main Fixed Header Wrapper -->
+  <header class="navbar-wrapper">
+    <!-- Navigation Header -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="brand-logo">
+          <div class="logo-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Founders Academy Logo" class="brand-logo-img">
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">FOUNDERS</span>
+            <span class="brand-sub">ACADEMY</span>
+          </div>
+        </a>
 
-      <div class="nav-links">
-        <a href="index.html" class="nav-link"><i data-lucide="home"></i> Home</a>
-        <a href="courses.html" class="nav-link"><i data-lucide="book-open"></i> Courses</a>
-        <a href="student-dashboard.html" class="nav-link active"><i data-lucide="layout-dashboard"></i> My Dashboard</a>
-      </div>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html" class="nav-link"><i data-lucide="sparkles"></i> Home</a>
+          <a href="index.html#personas" class="nav-link"><i data-lucide="target"></i> Who Is It For?</a>
+          <a href="index.html#what-you-get" class="nav-link"><i data-lucide="gift"></i> What You Get</a>
+          <a href="index.html#success-stories" class="nav-link"><i data-lucide="star"></i> Testimonials</a>
+          <a href="student-dashboard.html" class="nav-link active" id="nav-link-dashboard"><i data-lucide="layout-dashboard"></i> My Dashboard</a>
+          <a href="student-auth.html" class="nav-link nav-link-login"><i data-lucide="log-in"></i> Log In</a>
+        </div>
 
-      <div class="nav-actions">
-        <button type="button" class="btn btn-outline" id="btn-student-logout" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
-          <i data-lucide="log-out"></i> Log Out
-        </button>
+        <div class="nav-actions">
+          <button type="button" class="btn btn-outline" id="btn-student-logout" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+            <i data-lucide="log-out"></i> Log Out
+          </button>
+
+          <!-- Mobile Menu Trigger -->
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+            <i data-lucide="menu"></i>
+          </button>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
   <main class="container" style="padding-bottom: 60px;">
     <!-- Hero Banner -->
@@ -159,21 +173,21 @@
     </div>
 
     <!-- Telegram Linking Banner -->
-    <div id="telegram-link-banner" style="margin-top: 16px; display: none; background: rgba(0, 136, 204, 0.08); border: 1px solid rgba(0, 136, 204, 0.3); border-radius: 20px; padding: 22px 28px;">
+    <div id="telegram-link-banner" style="margin-top: 16px; background: rgba(0, 136, 204, 0.08); border: 1px solid rgba(0, 136, 204, 0.3); border-radius: 20px; padding: 22px 28px; transition: all 0.3s ease;">
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 16px;">
-          <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(0, 136, 204, 0.2); border: 1px solid rgba(0, 136, 204, 0.4); color: #38bdf8; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <i data-lucide="send" style="width: 24px; height: 24px;"></i>
+          <div id="tg-banner-icon-box" style="width: 48px; height: 48px; border-radius: 14px; background: rgba(0, 136, 204, 0.2); border: 1px solid rgba(0, 136, 204, 0.4); color: #38bdf8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease;">
+            <i data-lucide="send" id="tg-banner-icon" style="width: 24px; height: 24px;"></i>
           </div>
           <div>
-            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 4px;">⚡ Connect Your Telegram Account</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Link your Telegram profile to receive direct classroom materials, live updates, and instant bot access.</p>
+            <h3 id="tg-banner-title" style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 4px;">⚡ Connect Your Telegram Account</h3>
+            <p id="tg-banner-desc" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Link your Telegram profile to receive direct classroom materials, live updates, and instant bot access.</p>
           </div>
         </div>
 
-        <a id="btn-connect-tg-bot" href="https://t.me/founders_academybot" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background: linear-gradient(135deg, #0088cc 0%, #0055ff 100%); color: #fff; font-weight: 800; padding: 12px 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 136, 204, 0.35);">
-          <i data-lucide="external-link" style="width: 18px; height: 18px;"></i>
-          <span>Open Bot & Link Telegram</span>
+        <a id="btn-connect-tg-bot" href="https://t.me/founders_academybot" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background: linear-gradient(135deg, #0088cc 0%, #0055ff 100%); color: #fff; font-weight: 800; padding: 12px 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 136, 204, 0.35); transition: all 0.3s ease;">
+          <i data-lucide="external-link" id="btn-connect-tg-icon" style="width: 18px; height: 18px;"></i>
+          <span id="btn-connect-tg-text">Open Bot & Link Telegram</span>
         </a>
       </div>
     </div>
@@ -182,7 +196,7 @@
     <section style="margin-top: 24px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <h2 class="dash-section-title" style="margin-bottom: 0;">
-          <i data-lucide="book-marked" style="color: var(--primary-gold);"></i> My Registered Masterclasses
+          <i data-lucide="book-marked" style="color: var(--primary-gold);"></i> My Registered Courses
         </h2>
         <a href="courses.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 10px 18px; text-decoration: none;">
           <i data-lucide="plus-circle"></i> Browse & Register Courses
@@ -209,8 +223,6 @@
           </tbody>
         </table>
       </div>
-
-      <div id="student-courses-grid" class="grid-2" style="gap: 24px;"></div>
     </section>
   </main>
 
@@ -237,25 +249,30 @@
       }, 3500);
     };
 
+    window.openCourseQuiz = async function(courseId) {
+      if (!courseId) return;
+      window.showToast("Loading quizzes for course...", "info");
+      try {
+        await fetch(`/api/courses/${encodeURIComponent(courseId)}/quizzes`);
+      } catch (_e) {}
+      setTimeout(() => {
+        window.location.href = `student-quiz.html?course_id=${encodeURIComponent(courseId)}`;
+      }, 200);
+    };
+
     document.addEventListener("DOMContentLoaded", async () => {
       if (window.lucide) window.lucide.createIcons();
 
       // Handle Log Out
       document.getElementById("btn-student-logout")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem("founders_student_session");
-        localStorage.removeItem("founders_student");
-        sessionStorage.removeItem("founders_student_session");
-        document.cookie = "student_token=; Max-Age=0; path=/;";
-        window.showToast("Logged out safely.", "info");
-        setTimeout(() => { window.location.href = "student-login.html"; }, 400);
+        if (window.logoutStudent) window.logoutStudent(e);
       });
 
       // Security Check: Verify Student Session
       const sessionRaw = localStorage.getItem("founders_student_session");
       if (!sessionRaw) {
         window.showToast("Security notice: Please log in to access your student dashboard.", "error");
-        setTimeout(() => { window.location.href = "student-login.html"; }, 800);
+        setTimeout(() => { window.location.href = "student-auth.html"; }, 800);
         return;
       }
 
@@ -264,13 +281,13 @@
         session = JSON.parse(sessionRaw);
       } catch (_e) {
         localStorage.removeItem("founders_student_session");
-        window.location.href = "student-login.html";
+        window.location.href = "student-auth.html";
         return;
       }
 
       if (!session || (!session.id && !session.phone && !session.name)) {
         localStorage.removeItem("founders_student_session");
-        window.location.href = "student-login.html";
+        window.location.href = "student-auth.html";
         return;
       }
 
@@ -283,160 +300,219 @@
       const initials = studentName.split(" ").map(p => p[0]).join("").substring(0, 2).toUpperCase() || "ST";
       document.getElementById("dash-avatar").textContent = initials;
 
-      // Check Telegram Link Status Function
+      // Synchronous Telegram UI Renderer
+      const updateTgUI = (isConnected, linkedChatId, phone) => {
+        const tgBanner = document.getElementById("telegram-link-banner");
+        const tgBadge = document.getElementById("dash-tg-badge");
+        const tgTitle = document.getElementById("tg-banner-title");
+        const tgDesc = document.getElementById("tg-banner-desc");
+        const tgIconBox = document.getElementById("tg-banner-icon-box");
+        const connectBtn = document.getElementById("btn-connect-tg-bot");
+        const connectText = document.getElementById("btn-connect-tg-text");
+
+        if (tgBanner) tgBanner.style.display = "block";
+
+        if (isConnected) {
+          const displayPhone = phone || session.phone || "Verified Phone";
+          if (tgBadge) {
+            tgBadge.className = "badge";
+            tgBadge.style.cssText = "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px 16px; font-size: 0.85rem;";
+            tgBadge.innerHTML = `<i data-lucide="shield-check"></i> 🟢 Telegram Connected (${linkedChatId || 'Active'})`;
+          }
+
+          if (tgBanner) {
+            tgBanner.style.background = "rgba(16, 185, 129, 0.08)";
+            tgBanner.style.border = "1px solid rgba(16, 185, 129, 0.35)";
+          }
+
+          if (tgIconBox) {
+            tgIconBox.style.background = "rgba(16, 185, 129, 0.2)";
+            tgIconBox.style.border = "1px solid rgba(16, 185, 129, 0.4)";
+            tgIconBox.style.color = "#34d399";
+            tgIconBox.innerHTML = '<i data-lucide="check-circle" style="width: 24px; height: 24px;"></i>';
+          }
+
+          if (tgTitle) {
+            tgTitle.innerHTML = '⚡ Connect Your Telegram Account — <span style="color: #34d399; font-weight: 800;">Connected 🟢</span>';
+          }
+
+          if (tgDesc) {
+            tgDesc.textContent = `Your Telegram account (Chat ID: ${linkedChatId || 'Active'} | Phone: ${displayPhone}) is registered and connected to Founders Academy Bot (@founders_academybot). Direct classroom updates and materials are active.`;
+          }
+
+          if (connectBtn) {
+            connectBtn.href = "https://t.me/founders_academybot";
+            connectBtn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+            connectBtn.style.boxShadow = "0 8px 20px rgba(16, 185, 129, 0.35)";
+            if (connectText) connectText.textContent = "Open Connected Telegram Bot";
+            const btnIcon = connectBtn.querySelector("[data-lucide]");
+            if (btnIcon) btnIcon.setAttribute("data-lucide", "send");
+          }
+        } else {
+          if (tgBadge) {
+            tgBadge.className = "badge";
+            tgBadge.style.cssText = "background: rgba(245,158,11,0.15); color: var(--primary-gold); border: 1px solid rgba(245,158,11,0.3); padding: 8px 16px; font-size: 0.85rem;";
+            tgBadge.innerHTML = `<i data-lucide="shield-alert"></i> Pending Telegram Link`;
+          }
+
+          if (tgBanner) {
+            tgBanner.style.background = "rgba(0, 136, 204, 0.08)";
+            tgBanner.style.border = "1px solid rgba(0, 136, 204, 0.3)";
+          }
+
+          if (tgIconBox) {
+            tgIconBox.style.background = "rgba(0, 136, 204, 0.2)";
+            tgIconBox.style.border = "1px solid rgba(0, 136, 204, 0.4)";
+            tgIconBox.style.color = "#38bdf8";
+            tgIconBox.innerHTML = '<i data-lucide="send" style="width: 24px; height: 24px;"></i>';
+          }
+
+          if (tgTitle) {
+            tgTitle.textContent = "⚡ Connect Your Telegram Account";
+          }
+
+          if (tgDesc) {
+            tgDesc.textContent = "Link your Telegram profile to receive direct classroom materials, live updates, and instant bot access.";
+          }
+
+          if (connectBtn) {
+            const phoneClean = (session.phone || session.id || "").replace(/[^0-9]/g, "");
+            connectBtn.href = `https://t.me/founders_academybot?start=connect_${encodeURIComponent(phoneClean)}`;
+            connectBtn.style.background = "linear-gradient(135deg, #0088cc 0%, #0055ff 100%)";
+            connectBtn.style.boxShadow = "0 8px 20px rgba(0, 136, 204, 0.35)";
+            if (connectText) connectText.textContent = "Open Bot & Link Telegram";
+            const btnIcon = connectBtn.querySelector("[data-lucide]");
+            if (btnIcon) btnIcon.setAttribute("data-lucide", "external-link");
+          }
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+      };
+
+      // 1. Instant Synchronous Check (0ms latency!)
+      const initChatId = session.telegram_id || session.chat_id || (session.id && String(session.id).startsWith("TG-") ? String(session.id).replace(/^TG-/, "") : null);
+      const initHasPhone = !!(session.phone || (session.id && String(session.id).replace(/\D/g, "").length >= 9));
+      const initConnected = !!initChatId && (initHasPhone || !!initChatId);
+      updateTgUI(initConnected, initChatId, session.phone);
+
+      // 2. Background Network Check & 2s Polling
       const checkTgStatus = async () => {
         try {
           const query = session.phone || session.id || "";
           const res = await fetch(`/api/student/me?id=${encodeURIComponent(query)}`);
+          let stuData = null;
           if (res.ok) {
             const resData = await res.json();
-            const stuData = resData.data?.student;
-            const tgBanner = document.getElementById("telegram-link-banner");
-            const tgBadge = document.getElementById("dash-tg-badge");
+            stuData = resData.data?.student;
+          }
 
-            if (stuData && (stuData.telegram_id || stuData.chat_id)) {
-              if (tgBanner) tgBanner.style.display = "none";
-              if (tgBadge) {
-                tgBadge.className = "badge badge-gold";
-                tgBadge.innerHTML = `<i data-lucide="shield-check"></i> 🟢 Telegram Connected (${stuData.telegram_id || stuData.chat_id})`;
-                if (window.lucide) window.lucide.createIcons();
-              }
-              session.telegram_id = stuData.telegram_id || stuData.chat_id;
-              localStorage.setItem("founders_student_session", JSON.stringify(session));
-            } else {
-              if (tgBanner) {
-                tgBanner.style.display = "block";
-                const connectBtn = document.getElementById("btn-connect-tg-bot");
-                if (connectBtn) {
-                  const phoneClean = (session.phone || session.id || "").replace(/[^0-9]/g, "");
-                  connectBtn.href = `https://t.me/founders_academybot?start=connect_${encodeURIComponent(phoneClean)}`;
-                }
-              }
-            }
+          const hasPhone = !!(stuData?.phone || session.phone || (session.id && String(session.id).replace(/\D/g, "").length >= 9));
+          const linkedChatId = stuData?.telegram_id || stuData?.chat_id || session.telegram_id || session.chat_id || (stuData?.id && String(stuData.id).startsWith("TG-") ? String(stuData.id).replace(/^TG-/, "") : null);
+          const isConnected = !!linkedChatId && (hasPhone || !!linkedChatId);
+
+          updateTgUI(isConnected, linkedChatId, stuData?.phone || session.phone);
+
+          if (linkedChatId) {
+            session.telegram_id = linkedChatId;
+            session.chat_id = linkedChatId;
+            localStorage.setItem("founders_student_session", JSON.stringify(session));
           }
         } catch (_e) {}
       };
 
-      // Run initial check and set dynamic 4s auto-polling
       checkTgStatus();
-      setInterval(checkTgStatus, 4000);
+      setInterval(checkTgStatus, 2000);
 
-      // Fetch Registered Masterclasses from Supabase Database
-      const coursesGrid = document.getElementById("student-courses-grid");
+      // Ultra-Fast Course Rendering Engine
       const coursesTableBody = document.getElementById("student-courses-table-body");
+      const queryKey = (session.phone || session.id || session.username || "").trim();
+      const cacheKey = `founders_cached_courses_${encodeURIComponent(queryKey)}`;
 
-      try {
-        const query = session.phone || session.id || session.username || "";
-        const res = await fetch(`/api/student/me?id=${encodeURIComponent(query)}`);
-        let data = {};
-        if (res.ok) {
-          data = await res.json();
-        }
+      const renderCoursesTable = (coursesList) => {
+        if (!coursesTableBody) return;
 
-        let courses = (data.success && data.data && Array.isArray(data.data.courses)) ? data.data.courses : [];
-
-        if (coursesTableBody) coursesTableBody.innerHTML = "";
-        if (coursesGrid) coursesGrid.innerHTML = "";
-
-        // Render Empty State if student has no enrolled masterclasses yet
-        if (courses.length === 0) {
-          if (coursesTableBody) {
-            coursesTableBody.innerHTML = `
-              <tr>
-                <td colspan="4" style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
-                  <i data-lucide="book-open" style="width:36px;height:36px;margin-bottom:10px;color:var(--primary-gold);display:block;margin-left:auto;margin-right:auto;"></i>
-                  <div style="font-size: 1rem; color: #fff; font-weight: 600; margin-bottom: 4px;">No Enrolled Masterclasses</div>
-                  <div style="font-size: 0.85rem; margin-bottom: 16px;">You have not enrolled in any masterclasses yet. Explore our programs to start learning.</div>
-                  <a href="courses.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; font-size:0.85rem; padding:8px 18px; text-decoration:none; background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color:#000; font-weight:700;">
-                    <i data-lucide="compass"></i> Browse All Masterclasses
-                  </a>
-                </td>
-              </tr>
-            `;
-          }
-          if (coursesGrid) {
-            coursesGrid.innerHTML = `
-              <div style="grid-column: 1 / -1; text-align: center; padding: 44px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12); border-radius: 14px;">
-                <i data-lucide="book-open" style="width:44px;height:44px;margin-bottom:12px;color:var(--primary-gold);display:block;margin-left:auto;margin-right:auto;"></i>
-                <h4 style="color:#fff; margin:0 0 6px 0; font-size:1.15rem; font-weight:700;">No Enrolled Masterclasses</h4>
-                <p style="color:var(--text-muted); font-size:0.88rem; max-width:440px; margin:0 auto 20px auto;">You haven't enrolled in any masterclasses yet. Browse our live catalog to select a course and unlock full classroom access.</p>
-                <a href="courses.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; font-size:0.88rem; padding:10px 22px; text-decoration:none; background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color:#000; font-weight:700;">
-                  <i data-lucide="compass"></i> Explore All Masterclasses
+        if (!coursesList || coursesList.length === 0) {
+          coursesTableBody.innerHTML = `
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+                <i data-lucide="book-open" style="width:36px;height:36px;margin-bottom:10px;color:var(--primary-gold);display:block;margin-left:auto;margin-right:auto;"></i>
+                <div style="font-size: 1rem; color: #fff; font-weight: 600; margin-bottom: 4px;">No Enrolled Courses</div>
+                <div style="font-size: 0.85rem; margin-bottom: 16px;">You have not enrolled in any courses yet. Explore our programs to start learning.</div>
+                <a href="courses.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; font-size:0.85rem; padding:8px 18px; text-decoration:none; background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color:#000; font-weight:700;">
+                  <i data-lucide="compass"></i> Browse All Courses
                 </a>
-              </div>
-            `;
-          }
+              </td>
+            </tr>
+          `;
           if (window.lucide) window.lucide.createIcons();
           return;
         }
 
-        for (const c of courses) {
-          // Table Row
-          if (coursesTableBody) {
-            const tr = document.createElement("tr");
-            tr.style.cssText = "border-bottom: 1px solid rgba(255,255,255,0.06);";
-            tr.innerHTML = `
-              <td style="padding: 14px;">
-                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${c.title}</div>
-                <div style="font-size: 0.78rem; color: var(--text-muted);">Duration: ${c.duration || '6 Weeks'}</div>
-              </td>
-              <td style="padding: 14px;">
-                <span class="badge badge-gold" style="font-size: 0.72rem;">${c.category || 'Digital Masterclass'}</span>
-                <div style="font-size: 0.75rem; color: var(--primary-gold); margin-top: 4px;">Ref: <code>${c.referenceNumber || 'STU-VIP'}</code></div>
-              </td>
-              <td style="padding: 14px;">
-                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem;">
-                  🟢 Active Registered
-                </span>
-              </td>
-              <td style="padding: 14px; text-align: right;">
-                <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
-                  <a href="${c.tg_channel || 'https://t.me/founders_academybot'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.78rem; text-decoration: none; background: #10b981;">
-                    <i data-lucide="send"></i> Classroom Bot
-                  </a>
-                </div>
-              </td>
-            `;
-            coursesTableBody.appendChild(tr);
-          }
-
-          // Card Node
-          const cardNode = document.createElement("div");
-          cardNode.className = "course-card-dash";
-          cardNode.innerHTML = `
-            <div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                <span class="badge badge-gold" style="font-size: 0.75rem;">${c.category || 'Digital Masterclass'}</span>
-                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem;">
-                  🟢 Active Student
-                </span>
+        const htmlRows = coursesList.map(c => `
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: background 0.2s ease;"
+              onmouseenter="this.style.background='rgba(245, 158, 11, 0.05)'"
+              onmouseleave="this.style.background='transparent'"
+              onclick="if (!event.target.closest('a')) openCourseQuiz('${c.id}')">
+            <td style="padding: 14px;">
+              <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${c.title}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Duration: ${c.duration || '6 Weeks'}</div>
+            </td>
+            <td style="padding: 14px;">
+              <span class="badge badge-gold" style="font-size: 0.72rem;">${c.category || 'Digital Course'}</span>
+              <div style="font-size: 0.75rem; color: var(--primary-gold); margin-top: 4px;">Ref: <code>${c.referenceNumber || 'STU-VIP'}</code></div>
+            </td>
+            <td style="padding: 14px;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem;">
+                🟢 Active Registered
+              </span>
+            </td>
+            <td style="padding: 14px; text-align: right;">
+              <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+                <button type="button" onclick="openCourseQuiz('${c.id}')" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(245, 158, 11, 0.5); color: var(--primary-gold); font-weight: 700;">
+                  <i data-lucide="file-text"></i> Take Quizzes
+                </button>
+                <a href="https://t.me/founders_academybot" target="_blank" rel="noopener noreferrer" class="btn btn-primary" onclick="event.stopPropagation();" style="padding: 6px 12px; font-size: 0.78rem; text-decoration: none; background: #10b981;">
+                  <i data-lucide="send"></i> Classroom Bot
+                </a>
               </div>
-              <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 8px;">${c.title}</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-                <i data-lucide="clock" style="width:14px;height:14px;display:inline;"></i> Duration: ${c.duration || '6 Weeks'} | Ref: <code style="color: var(--primary-gold);">${c.referenceNumber || 'STU-VIP'}</code>
-              </p>
-            </div>
+            </td>
+          </tr>
+        `).join("");
 
-            <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; margin-top: 16px;">
-              <a href="${c.tg_channel || 'https://t.me/founders_academybot'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; justify-content: center; text-decoration: none;">
-                <i data-lucide="send"></i> Launch Course Materials & Classroom
-              </a>
-            </div>
-          `;
-          coursesGrid.appendChild(cardNode);
-        }
-
+        coursesTableBody.innerHTML = htmlRows;
         if (window.lucide) window.lucide.createIcons();
+      };
 
+      // 1. Instant Cache Render (0ms!)
+      try {
+        const cachedRaw = localStorage.getItem(cacheKey);
+        if (cachedRaw) {
+          const cachedCourses = JSON.parse(cachedRaw);
+          if (Array.isArray(cachedCourses)) {
+            renderCoursesTable(cachedCourses);
+          }
+        }
+      } catch (_e) {}
+
+      // 2. Fetch fresh data from network in background & update cache
+      try {
+        const res = await fetch(`/api/student/me?id=${encodeURIComponent(queryKey)}`);
+        if (res.ok) {
+          const data = await res.json();
+          const rawCourses = (data.success && data.data && Array.isArray(data.data.courses)) ? data.data.courses : [];
+          const seenMap = new Map();
+          rawCourses.forEach(c => {
+            if (c && c.id && !seenMap.has(c.id)) {
+              seenMap.set(c.id, c);
+            }
+          });
+          const freshCourses = Array.from(seenMap.values());
+          renderCoursesTable(freshCourses);
+          localStorage.setItem(cacheKey, JSON.stringify(freshCourses));
+        }
       } catch (_err) {
-        if (coursesTableBody) {
-          coursesTableBody.innerHTML = `
-            <tr>
-              <td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">
-                Loaded active student profile. <a href="courses.html" style="color: var(--primary-gold);">Browse Courses</a>
-              </td>
-            </tr>
-          `;
+        if (!localStorage.getItem(cacheKey) && coursesTableBody && !coursesTableBody.children.length) {
+          renderCoursesTable([]);
         }
       }
     });

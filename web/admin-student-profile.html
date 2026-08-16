@@ -215,6 +215,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -254,9 +257,12 @@
           </a>
         </div>
 
-        <div class="topbar-actions">
+        <div class="topbar-actions" style="display: flex; gap: 8px;">
           <button type="button" class="btn-dash-action btn-dash-primary" id="btn-edit-student">
             <i data-lucide="edit-3"></i> Edit Student
+          </button>
+          <button type="button" class="btn-dash-action" id="btn-delete-profile-student" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700;">
+            <i data-lucide="trash-2"></i> Delete Student
           </button>
         </div>
       </header>
@@ -304,13 +310,13 @@
         </div>
       </div>
 
-      <!-- 2 Column Layout: Left Enrolled Masterclasses & Right Payment Audit -->
+      <!-- 2 Column Layout: Left Enrolled Courses & Right Payment Audit -->
       <div class="dashboard-grid-2col" style="grid-template-columns: 1.2fr 1fr;">
         <!-- Left: Enrolled Courses & Progress -->
         <div class="dash-panel">
           <div class="panel-header">
             <h2 class="panel-title">
-              <i data-lucide="book-open" style="color: var(--primary-gold);"></i> Enrolled Masterclasses
+              <i data-lucide="book-open" style="color: var(--primary-gold);"></i> Enrolled Courses
             </h2>
           </div>
 
@@ -572,14 +578,14 @@
           }
         }
 
-        // 5. Render Student's Enrolled Masterclasses from Database
+        // 5. Render Student's Enrolled Courses from Database
         if (coursesContainer) {
           coursesContainer.innerHTML = "";
 
           let enrolled = [];
           if (studentTxns.length > 0) {
             const courseIds = studentTxns.map(t => t.course_id).filter(Boolean);
-            const courseTitles = studentTxns.map(t => t.masterclass_title).filter(Boolean);
+            const courseTitles = studentTxns.map(t => t.course_title).filter(Boolean);
 
             enrolled = allCourses.filter(c => 
               courseIds.includes(c.id) ||
@@ -591,8 +597,8 @@
             coursesContainer.innerHTML = `
               <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
                 <i data-lucide="book-x" style="width: 40px; height: 40px; color: var(--text-dim); margin-bottom: 10px;"></i>
-                <h4 style="color: var(--text-main); margin-bottom: 6px;">No Enrolled Masterclasses</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This student has not completed enrollment for any masterclasses in the database yet.</p>
+                <h4 style="color: var(--text-main); margin-bottom: 6px;">No Enrolled Courses</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This student has not completed enrollment for any courses in the database yet.</p>
               </div>
             `;
           } else {
@@ -695,6 +701,31 @@
             editModal.classList.remove("open");
             loadStudentProfileFromDatabase();
           });
+        });
+      }
+
+      const btnDeleteProfile = document.getElementById("btn-delete-profile-student");
+      if (btnDeleteProfile) {
+        btnDeleteProfile.addEventListener("click", async () => {
+          const params = new URLSearchParams(window.location.search);
+          const studentId = currentStudentData ? currentStudentData.id : (params.get("id") || "");
+          const sName = currentStudentData ? currentStudentData.name : (params.get("name") || studentId);
+          if (!studentId) return;
+
+          if (confirm(`🚨 PERMANENT DELETION WARNING!\n\nAre you sure you want to completely DELETE '${sName}' (ID: ${studentId}) from the database?\n\nThis will permanently delete their account, transactions, and access records.`)) {
+            try {
+              const res = await fetch(`/api/students/${encodeURIComponent(studentId)}`, { method: "DELETE" });
+              const json = await res.json();
+              if (json.success) {
+                alert(`Student '${sName}' deleted successfully from database.`);
+                window.location.href = "admin-students.html";
+              } else {
+                alert(`Delete failed: ${json.error || 'Unknown error'}`);
+              }
+            } catch (err) {
+              alert(`Delete error: ${err.message}`);
+            }
+          }
         });
       }
     });

@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' blob:; script-src-elem * 'unsafe-inline' 'unsafe-eval' blob:; style-src * 'unsafe-inline'; font-src * data:; img-src * data: blob:; connect-src *;">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Bot Auto-Responses Editor | Founders Academy Admin</title>
+  <meta name="description" content="Edit every automated Telegram bot reply, prompt, menu response, and greeting in real time.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheets -->
+  <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <link rel="stylesheet" href="/css/styles.css?v=3.0">
+  <link rel="stylesheet" href="/css/auth.css?v=3.0">
+  <link rel="stylesheet" href="/css/admin.css?v=3.0">
+
+  <style>
+    .responses-layout {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .responses-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .placeholder-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0, 136, 204, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(0, 136, 204, 0.3);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .placeholder-pill:hover {
+      background: rgba(0, 136, 204, 0.35);
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 136, 204, 0.25);
+    }
+
+    .telegram-preview-card {
+      background: #17212b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #f5f5f5;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      position: sticky;
+      top: 100px;
+    }
+
+    .telegram-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 20px;
+    }
+
+    .telegram-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0088cc, #005588);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .telegram-bubble {
+      background: #242f3d;
+      border-radius: 16px 16px 16px 4px;
+      padding: 16px 18px;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: #e3e3e3;
+      white-space: pre-wrap;
+      word-break: break-word;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .category-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin: 28px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .category-section-title:first-child {
+      margin-top: 0;
+    }
+
+    .response-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .response-card:focus-within {
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: 0 8px 28px rgba(245, 158, 11, 0.12);
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      padding: 8px 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn:hover {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fff;
+    }
+
+    .response-textarea {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      background: rgba(0, 0, 0, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 0 0 12px 12px !important;
+      color: #fff !important;
+      padding: 16px !important;
+      min-height: 130px;
+      resize: vertical;
+      transition: border-color 0.2s ease;
+    }
+
+    .response-textarea:focus {
+      border-color: var(--primary-gold) !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .card-footer-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Sticky Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-left">
+      <button type="button" class="btn-sidebar-trigger" id="btn-sidebar-trigger" title="Toggle Navigation Sidebar">
+        <i data-lucide="menu"></i>
+        <span>Menu</span>
+      </button>
+
+      <a href="index.html" class="admin-brand">
+        <div class="admin-brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+          <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="admin-brand-title" style="font-size: 1rem;">FOUNDERS ADMIN</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-profile-card" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.04);">
+      <div class="admin-info">
+        <div class="admin-avatar admin-profile-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">AD</div>
+        <div class="admin-name admin-profile-name" style="font-size: 0.85rem;">Administrator</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="admin-brand">
+          <div class="admin-brand-icon">
+            <img src="photo_2026-06-11_09-14-03.jpg" alt="Logo" class="brand-logo-img">
+          </div>
+          <div>
+            <div class="admin-brand-title">FOUNDERS</div>
+            <div class="admin-brand-sub">ADMIN PORTAL</div>
+          </div>
+        </a>
+        <button type="button" class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category-label">Main Dashboard</div>
+        <a href="admin-dashboard.html" class="nav-item-btn">
+          <i data-lucide="layout-dashboard"></i> Overview & Analytics
+        </a>
+
+        <div class="menu-category-label">Academic & Courses</div>
+        <a href="admin-courses.html" class="nav-item-btn">
+          <i data-lucide="book-open"></i> Courses & Cohorts
+        </a>
+        <a href="admin-categories.html" class="nav-item-btn">
+          <i data-lucide="folder-tree"></i> Course Categories
+        </a>
+
+        <div class="menu-category-label">Students & Access</div>
+        <a href="admin-students.html" class="nav-item-btn">
+          <i data-lucide="users"></i> Student Directory
+        </a>
+
+        <div class="menu-category-label">Finance & Audit</div>
+        <a href="admin-transactions.html" class="nav-item-btn">
+          <i data-lucide="credit-card"></i> Transactions & Revenue
+        </a>
+
+        <div class="menu-category-label">Marketing & Communication</div>
+        <a href="admin-broadcast.html" class="nav-item-btn">
+          <i data-lucide="send"></i> Telegram Bot Broadcast
+        </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn active">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
+        <a href="admin-giveaway.html" class="nav-item-btn">
+          <i data-lucide="gift"></i> 1-Time Giveaway Codes
+        </a>
+
+        <div class="menu-category-label">System & Settings</div>
+        <a href="admin-maintenance.html" class="nav-item-btn">
+          <i data-lucide="alert-triangle"></i> Maintenance Mode
+        </a>
+        <a href="admin-settings.html" class="nav-item-btn">
+          <i data-lucide="settings"></i> Portal & Security Settings
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <div class="admin-container">
+        <!-- Page Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--primary-gold); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
+              <i data-lucide="message-square-code"></i> FULL BOT PROMPT MANAGEMENT
+            </div>
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff;">
+              Telegram Bot <span class="gradient-text">Complete Prompt Editor</span>
+            </h1>
+            <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 4px;">
+              Edit all 18 automated bot responses, menu replies, greetings, and system messages in real time.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline" id="btn-reset-defaults" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+              <i data-lucide="rotate-ccw"></i> Reset All Defaults
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-save-all" style="background: linear-gradient(135deg, var(--primary-gold) 0%, #d97706 100%); color: #000; font-weight: 800; padding: 12px 22px;">
+              <i data-lucide="save"></i> Save All 18 Responses
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; gap: 12px;">
+          <i data-lucide="search" style="color: var(--primary-gold); width: 20px; height: 20px;"></i>
+          <input type="text" id="search-responses" placeholder="🔍 Search among all 18 prompts by keyword (e.g. welcome, otp, name, phone, courses, support, giveaway)..." style="background: transparent; border: none; color: #fff; width: 100%; font-size: 0.95rem; outline: none;">
+        </div>
+
+        <div class="responses-layout">
+          <!-- Left Column: Editable Response Cards (All 18 Prompts) -->
+          <div id="responses-editor-container">
+
+            <!-- SECTION 1: AUTHENTICATION & DEEP LINKS -->
+            <div class="category-section-title">
+              <i data-lucide="key-round"></i> 1. Authentication & Deep Links
+            </div>
+
+            <!-- welcome_connect -->
+            <div class="response-card" data-key="welcome_connect">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="link" style="color: #38bdf8;"></i> Student Account Link Prompt (`welcome_connect`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="welcome_connect" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    /start connect_...
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Prompt delivered when student links their Telegram account from dashboard.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+                <span class="placeholder-pill" data-insert="{bot_handle}">+{bot_handle}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="welcome_connect"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- otp_auth -->
+            <div class="response-card" data-key="otp_auth">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="shield-check" style="color: #a855f7;"></i> Web Auth OTP Code (`otp_auth`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="otp_auth" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3);">
+                    /start auth_...
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Message sent when authorizing student 1-tap web browser session.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+                <span class="placeholder-pill" data-insert="{auth_code}">+{auth_code}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="otp_auth"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- reset_password -->
+            <div class="response-card" data-key="reset_password">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="lock" style="color: #f43f5e;"></i> Password Reset Instructions (`reset_password`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="reset_password" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);">
+                    /start reset_...
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Prompt sent when student requests password reset via Telegram link.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="reset_password"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- SECTION 2: GREETINGS & REGISTRATION STEPS -->
+            <div class="category-section-title">
+              <i data-lucide="user-check"></i> 2. Greetings & Registration Flow
+            </div>
+
+            <!-- start_new_user -->
+            <div class="response-card" data-key="start_new_user">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="user-plus" style="color: #34d399;"></i> New Visitor Welcome (`start_new_user`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="start_new_user" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">
+                    /start (New Guest)
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Greeting sent to new Telegram users opening the bot for the first time.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+                <span class="placeholder-pill" data-insert="{bot_handle}">+{bot_handle}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="start_new_user"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- start_registered_user -->
+            <div class="response-card" data-key="start_registered_user">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="graduation-cap" style="color: var(--primary-gold);"></i> Registered Student Welcome (`start_registered_user`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="start_registered_user" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold); border: 1px solid rgba(245, 158, 11, 0.3);">
+                    /start (Active Student)
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Greeting sent when a verified, registered student sends `/start`.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+                <span class="placeholder-pill" data-insert="{phone}">+{phone}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="start_registered_user"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- name_requested -->
+            <div class="response-card" data-key="name_requested">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="user-edit" style="color: #38bdf8;"></i> Step 1: Full Name Request (`name_requested`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="name_requested" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    Registration Step 1
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Prompt asking new user to reply with their Full Name.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="name_requested"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- phone_requested -->
+            <div class="response-card" data-key="phone_requested">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="phone-call" style="color: #fbbf24;"></i> Step 2: Phone Request (`phone_requested`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="phone_requested" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3);">
+                    Registration Step 2
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Prompt asking user to tap the Share Phone Number button.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="phone_requested"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- registration_completed -->
+            <div class="response-card" data-key="registration_completed">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="check-circle-2" style="color: #10b981;"></i> Registration Completion (`registration_completed`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="registration_completed" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    Post Registration
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Confirmation message sent after phone sharing and account creation.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+                <span class="placeholder-pill" data-insert="{phone}">+{phone}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="registration_completed"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- SECTION 3: BOT MAIN MENU BUTTON REPLIES -->
+            <div class="category-section-title">
+              <i data-lucide="layout-grid"></i> 3. Main Menu Persistent Button Replies
+            </div>
+
+            <!-- my_courses_reply -->
+            <div class="response-card" data-key="my_courses_reply">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="book-marked" style="color: #38bdf8;"></i> Button: "📚 My Courses" (`my_courses_reply`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="my_courses_reply" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    Menu Keyboard
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply when student taps the "📚 My Courses" keyboard button.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="my_courses_reply"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- browse_courses_reply -->
+            <div class="response-card" data-key="browse_courses_reply">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="compass" style="color: #34d399;"></i> Button: "🎓 Browse Courses" (`browse_courses_reply`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="browse_courses_reply" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">
+                    Menu Keyboard
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply when user taps the "🎓 Browse Courses" keyboard button.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="browse_courses_reply"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- support_reply -->
+            <div class="response-card" data-key="support_reply">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="life-buoy" style="color: #a855f7;"></i> Button: "💬 Support" (`support_reply`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="support_reply" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3);">
+                    Menu Keyboard
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply when user taps "💬 Support" to contact student support team.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="support_reply"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- giveaway_reply -->
+            <div class="response-card" data-key="giveaway_reply">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="gift" style="color: var(--primary-gold);"></i> Button: "🎟️ Redeem Giveaway" (`giveaway_reply`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="giveaway_reply" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold); border: 1px solid rgba(245, 158, 11, 0.3);">
+                    Menu Keyboard
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply when user taps "🎟️ Redeem Giveaway" to enter voucher code.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="giveaway_reply"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- payment_channels_reply -->
+            <div class="response-card" data-key="payment_channels_reply">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="credit-card" style="color: #38bdf8;"></i> Button: "💳 Payment Channels" (`payment_channels_reply`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="payment_channels_reply" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    Menu Keyboard
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply when user taps "💳 Payment Channels" to view CBE & Telebirr details.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="payment_channels_reply"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- forgot_password_reply -->
+            <div class="response-card" data-key="forgot_password_reply">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="key" style="color: #f43f5e;"></i> Button: "🔑 Forgot Password" (`forgot_password_reply`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="forgot_password_reply" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);">
+                    Menu Keyboard
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply when user taps "🔑 Forgot Password".
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="forgot_password_reply"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- SECTION 4: ADMIN, MAINTENANCE & FALLBACK -->
+            <div class="category-section-title">
+              <i data-lucide="shield"></i> 4. Admin 2FA, System & Fallback Prompts
+            </div>
+
+            <!-- admin_pairing_success -->
+            <div class="response-card" data-key="admin_pairing_success">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="shield-check" style="color: #f59e0b;"></i> Admin 2FA Device Linked (`admin_pairing_success`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="admin_pairing_success" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+                    /link_admin FA-...
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Message sent when an administrator pairs their Telegram chat for 2FA login OTPs.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+                <span class="placeholder-pill" data-insert="{username}">+{username}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="admin_pairing_success"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- admin_pairing_failed -->
+            <div class="response-card" data-key="admin_pairing_failed">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="shield-alert" style="color: #f43f5e;"></i> Admin 2FA Pairing Failed (`admin_pairing_failed`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="admin_pairing_failed" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);">
+                    Invalid Code
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Message sent when admin pairing code is invalid or expired.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="admin_pairing_failed"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- maintenance_on -->
+            <div class="response-card" data-key="maintenance_on">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="alert-triangle" style="color: #f59e0b;"></i> Maintenance Mode Active (`maintenance_on`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="maintenance_on" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+                    Maintenance Active
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Reply sent to public users when maintenance mode is active.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="maintenance_on"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+            <!-- unknown_command -->
+            <div class="response-card" data-key="unknown_command">
+              <div class="card-header-row">
+                <div class="card-title">
+                  <i data-lucide="help-circle" style="color: #94a3b8;"></i> Unknown Command / Fallback Reply (`unknown_command`)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="tool-btn btn-save-card" data-key="unknown_command" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                    <i data-lucide="check"></i> Save
+                  </button>
+                  <span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">
+                    Default Reply
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Default reply sent when user inputs unrecognized text or command.
+              </p>
+              <div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span class="placeholder-pill" data-insert="{first_name}">+{first_name}</span>
+              </div>
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn format-bold"><b>B</b></button>
+                  <button type="button" class="tool-btn format-italic"><i>I</i></button>
+                  <button type="button" class="tool-btn format-code"><code>&lt;&gt;</code></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn btn-copy-card">📋 Copy</button>
+                  <button type="button" class="tool-btn btn-clear-card" style="color: #f87171;">🧹 Clear</button>
+                  <button type="button" class="tool-btn btn-expand-card">↕️ Expand</button>
+                </div>
+              </div>
+              <textarea class="form-control response-textarea" rows="4" data-key="unknown_command"></textarea>
+              <div class="card-footer-info"><span>Markdown Supported</span><span class="char-count">0 chars</span></div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Live Telegram Message Preview Card -->
+          <div>
+            <div class="telegram-preview-card">
+              <div class="telegram-header">
+                <div class="telegram-avatar">
+                  <i data-lucide="bot" style="width: 22px; height: 22px;"></i>
+                </div>
+                <div>
+                  <div style="font-weight: 700; font-size: 1rem; color: #fff;">Founders Academy Bot</div>
+                  <div style="font-size: 0.78rem; color: #0088cc;">@founders_academybot • bot</div>
+                </div>
+              </div>
+
+              <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="eye" style="width: 14px; height: 14px;"></i> Live Telegram Markdown Preview
+              </div>
+
+              <div class="telegram-bubble" id="telegram-preview-bubble">
+                Select or edit any message card on the left to preview formatted Telegram rendering in real time...
+              </div>
+
+              <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="sparkles" style="color: var(--primary-gold); width: 16px; height: 16px;"></i> Markdown Formatting Guide:
+                </div>
+                <ul style="font-size: 0.8rem; color: var(--text-muted); padding-left: 18px; margin: 0; line-height: 1.6;">
+                  <li><code>*bold text*</code> → <strong>bold text</strong></li>
+                  <li><code>_italic text_</code> → <em>italic text</em></li>
+                  <li><code>`code snippet`</code> → <code>code snippet</code></li>
+                  <li>Use <code>\n</code> or hit Enter for newline formatting</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+
+      let activeKey = "welcome_connect";
+      const textareas = document.querySelectorAll(".response-textarea");
+      const previewBubble = document.getElementById("telegram-preview-bubble");
+      const searchInput = document.getElementById("search-responses");
+
+      function updateCharCount(ta) {
+        const card = ta.closest(".response-card");
+        if (!card) return;
+        const countSpan = card.querySelector(".char-count");
+        if (countSpan) {
+          const val = ta.value || "";
+          const chars = val.length;
+          const lines = val ? val.split("\n").length : 0;
+          countSpan.textContent = `${chars} chars | ${lines} line${lines === 1 ? '' : 's'}`;
+        }
+      }
+
+      function updatePreview() {
+        const activeTextarea = document.querySelector(`.response-textarea[data-key="${activeKey}"]`) || textareas[0];
+        if (!activeTextarea) return;
+
+        let rawText = activeTextarea.value || "";
+        updateCharCount(activeTextarea);
+
+        // Replace sample variables for live preview display
+        let formatted = rawText
+          .replace(/\{first_name\}/g, "Abebe")
+          .replace(/\{phone\}/g, "+251911234567")
+          .replace(/\{auth_code\}/g, "784912")
+          .replace(/\{username\}/g, "abebe_dev")
+          .replace(/\{bot_handle\}/g, "@founders_academybot");
+
+        previewBubble.textContent = formatted;
+      }
+
+      // Fetch saved responses from server API
+      async function loadResponses() {
+        try {
+          const res = await fetch("/api/admin/telegram-responses");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+              const resp = data.data;
+              textareas.forEach(ta => {
+                const key = ta.getAttribute("data-key");
+                if (resp[key]) {
+                  ta.value = resp[key];
+                }
+                updateCharCount(ta);
+              });
+              updatePreview();
+            }
+          }
+        } catch (err) {
+          console.warn("Failed to fetch responses from API:", err);
+        }
+      }
+
+      loadResponses();
+
+      // Bind input events to update live preview
+      textareas.forEach(ta => {
+        ta.addEventListener("focus", () => {
+          activeKey = ta.getAttribute("data-key");
+          updatePreview();
+        });
+        ta.addEventListener("input", () => {
+          activeKey = ta.getAttribute("data-key");
+          updatePreview();
+        });
+      });
+
+      // Filter templates via search bar
+      if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          document.querySelectorAll(".response-card").forEach(card => {
+            const text = card.textContent.toLowerCase();
+            const val = card.querySelector(".response-textarea")?.value.toLowerCase() || "";
+            if (!query || text.includes(query) || val.includes(query)) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        });
+      }
+
+      // Formatting Toolbar Event Handlers (Bold, Italic, Code, Copy, Clear, Expand)
+      document.querySelectorAll(".response-card").forEach(card => {
+        const ta = card.querySelector(".response-textarea");
+        if (!ta) return;
+
+        card.querySelector(".format-bold")?.addEventListener("click", () => wrapSelection(ta, "*", "*"));
+        card.querySelector(".format-italic")?.addEventListener("click", () => wrapSelection(ta, "_", "_"));
+        card.querySelector(".format-code")?.addEventListener("click", () => wrapSelection(ta, "`", "`"));
+
+        card.querySelector(".btn-copy-card")?.addEventListener("click", () => {
+          navigator.clipboard.writeText(ta.value);
+          if (window.showToast) window.showToast("📋 Response template copied to clipboard!", "info");
+        });
+
+        card.querySelector(".btn-clear-card")?.addEventListener("click", () => {
+          if (confirm("Are you sure you want to clear this text area?")) {
+            ta.value = "";
+            activeKey = ta.getAttribute("data-key");
+            updatePreview();
+          }
+        });
+
+        card.querySelector(".btn-expand-card")?.addEventListener("click", (e) => {
+          const btn = e.currentTarget;
+          if (ta.rows <= 5) {
+            ta.rows = 12;
+            btn.textContent = "↕️ Compact";
+          } else {
+            ta.rows = 4;
+            btn.textContent = "↕️ Expand";
+          }
+        });
+
+        card.querySelector(".btn-save-card")?.addEventListener("click", async () => {
+          const key = ta.getAttribute("data-key");
+          const val = ta.value;
+          try {
+            const res = await fetch("/api/admin/telegram-responses", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ [key]: val })
+            });
+            const json = await res.json();
+            if (json.success) {
+              if (window.showToast) window.showToast(`✅ Saved '${key}' response!`, "success");
+            } else {
+              if (window.showToast) window.showToast(`Error: ${json.error}`, "error");
+            }
+          } catch (err) {
+            if (window.showToast) window.showToast(`Save failed: ${err.message}`, "error");
+          }
+        });
+      });
+
+      function wrapSelection(ta, prefix, suffix) {
+        const start = ta.selectionStart || 0;
+        const end = ta.selectionEnd || 0;
+        const selected = ta.value.substring(start, end);
+        const replacement = selected ? `${prefix}${selected}${suffix}` : `${prefix}text${suffix}`;
+        ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+        ta.focus();
+        ta.selectionStart = start + prefix.length;
+        ta.selectionEnd = start + prefix.length + (selected ? selected.length : 4);
+        activeKey = ta.getAttribute("data-key");
+        updatePreview();
+      }
+
+      // Bind placeholder pill insert functionality
+      document.querySelectorAll(".placeholder-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+          const insertText = pill.getAttribute("data-insert");
+          const card = pill.closest(".response-card");
+          const ta = card.querySelector(".response-textarea");
+          if (ta) {
+            const start = ta.selectionStart || ta.value.length;
+            const end = ta.selectionEnd || ta.value.length;
+            ta.value = ta.value.substring(0, start) + insertText + ta.value.substring(end);
+            ta.focus();
+            ta.selectionStart = ta.selectionEnd = start + insertText.length;
+            activeKey = ta.getAttribute("data-key");
+            updatePreview();
+          }
+        });
+      });
+
+      // Save All Responses Button
+      document.getElementById("btn-save-all")?.addEventListener("click", async () => {
+        const payload = {};
+        textareas.forEach(ta => {
+          const key = ta.getAttribute("data-key");
+          payload[key] = ta.value;
+        });
+
+        try {
+          const res = await fetch("/api/admin/telegram-responses", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (json.success) {
+            if (window.showToast) window.showToast("🚀 All 18 Telegram responses saved successfully!", "success");
+          } else {
+            if (window.showToast) window.showToast(`Error: ${json.error || "Save failed"}`, "error");
+          }
+        } catch (err) {
+          if (window.showToast) window.showToast(`Save failed: ${err.message}`, "error");
+        }
+      });
+
+      // Reset Defaults Button
+      document.getElementById("btn-reset-defaults")?.addEventListener("click", async () => {
+        if (!confirm("Are you sure you want to reset all 18 bot responses to factory defaults?")) return;
+
+        try {
+          const res = await fetch("/api/admin/telegram-responses/reset", { method: "POST" });
+          const json = await res.json();
+          if (json.success && json.data) {
+            const resp = json.data;
+            textareas.forEach(ta => {
+              const key = ta.getAttribute("data-key");
+              if (resp[key]) {
+                ta.value = resp[key];
+              }
+              updateCharCount(ta);
+            });
+            updatePreview();
+            if (window.showToast) window.showToast("🔄 All 18 Telegram responses reset to defaults!", "info");
+          }
+        } catch (err) {
+          if (window.showToast) window.showToast(`Reset failed: ${err.message}`, "error");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

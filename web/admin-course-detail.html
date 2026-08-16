@@ -196,6 +196,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -239,7 +242,7 @@
           <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-delete-course" style="border-color: rgba(239, 68, 68, 0.4); color: #ef4444;" onclick="deleteCurrentCourse()">
             <i data-lucide="trash-2"></i> Delete Course
           </button>
-          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-edit-course-modal">
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-edit-course-modal" onclick="openEditCourseModal()">
             <i data-lucide="edit-2"></i> Edit Course
           </button>
         </div>
@@ -276,7 +279,7 @@
         </div>
       </div>
 
-      <!-- Grid Layout: Left Telegram Community Access & Right Masterclass Modules -->
+      <!-- Grid Layout: Left Telegram Community Access & Right Course Modules -->
       <div class="dashboard-grid-2col" style="grid-template-columns: 1fr 1fr;">
         <!-- Left: Telegram Links Panel -->
         <div class="dash-panel">
@@ -336,7 +339,7 @@
             <h2 class="panel-title" style="display: flex; align-items: center; gap: 10px; margin: 0 0 4px 0;">
               <i data-lucide="help-circle" style="color: #f59e0b;"></i> Course Quizzes & Assessments
             </h2>
-            <p style="color: var(--text-dim); font-size: 0.85rem; margin: 0;">Create, edit, and manage module quizzes and student assessments for this masterclass in the Quiz Studio.</p>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin: 0;">Create, edit, and manage module quizzes and student assessments for this course in the Quiz Studio.</p>
           </div>
           <div>
             <button type="button" class="btn-dash-action btn-dash-primary" id="btn-create-quiz" onclick="navigateToQuizStudio(event)" style="padding: 12px 22px; font-weight: 700; font-size: 0.92rem; text-decoration: none;">
@@ -391,6 +394,17 @@
           <div class="form-group">
             <label class="form-label" for="edit-course-tg-group"><i data-lucide="messages-square" style="color: #0088cc;"></i> Telegram Group Link</label>
             <input type="text" id="edit-course-tg-group" class="form-input" placeholder="https://t.me/your_group">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-course-coupon-code"><i data-lucide="tag" style="color: var(--primary-gold);"></i> Promo / Coupon Code (Optional)</label>
+            <input type="text" id="edit-course-coupon-code" class="form-input" placeholder="e.g. FOUNDER25 or VIP50" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-course-coupon-discount"><i data-lucide="percent" style="color: var(--accent-emerald);"></i> Coupon Discount (Optional)</label>
+            <input type="text" id="edit-course-coupon-discount" class="form-input" placeholder="e.g. 25% or 2,000 ETB">
           </div>
         </div>
 
@@ -592,10 +606,9 @@
       }
 
       loadCourseData();
-      fetchCourseQuizzes();
+      if (typeof fetchCourseQuizzes === 'function') fetchCourseQuizzes();
 
       // 3. Edit Modal Handlers
-
       const editModal = document.getElementById("edit-course-modal");
       const btnOpen = document.getElementById("btn-open-edit-course-modal");
       const btnClose = document.getElementById("btn-close-edit-course");
@@ -608,28 +621,56 @@
       const inputDuration = document.getElementById("edit-course-duration");
       const inputChannel = document.getElementById("edit-course-tg-channel");
       const inputGroup = document.getElementById("edit-course-tg-group");
+      const inputCouponCode = document.getElementById("edit-course-coupon-code");
+      const inputCouponDiscount = document.getElementById("edit-course-coupon-discount");
       const inputDesc = document.getElementById("edit-course-desc");
       const inputStatus = document.getElementById("edit-course-status");
       const inputStudents = document.getElementById("edit-course-students");
 
-      if (btnOpen && editModal) {
-        btnOpen.addEventListener("click", () => {
-          const c = currentCourseData || {};
-          if (inputTitle) inputTitle.value = c.title || (titleEl ? titleEl.textContent : "");
-          if (inputCat && c.category) inputCat.value = c.category;
-          if (inputPrice) inputPrice.value = c.price || (priceEl ? priceEl.textContent : "");
-          if (inputDuration) inputDuration.value = c.duration || "6 Weeks (24 Hours)";
-          if (inputChannel) inputChannel.value = c.tg_channel || (tgChannelVal ? tgChannelVal.textContent : "");
-          if (inputGroup) inputGroup.value = c.tg_group || (tgGroupVal ? tgGroupVal.textContent : "");
-          if (inputDesc) inputDesc.value = c.description || "";
-          if (inputStatus) {
-            const isActive = c.status === "ON" || c.status === "active";
-            inputStatus.value = isActive ? "active" : "inactive";
-          }
-          if (inputStudents) inputStudents.value = c.enrolled_students || 0;
+      function openEditCourseModal(e) {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        const modal = editModal || document.getElementById("edit-course-modal");
+        if (!modal) return;
+        const c = currentCourseData || {};
 
-          editModal.classList.add("open");
-        });
+        const titleVal = inputTitle || document.getElementById("edit-course-title");
+        const catVal = inputCat || document.getElementById("edit-course-category");
+        const priceVal = inputPrice || document.getElementById("edit-course-price");
+        const durationVal = inputDuration || document.getElementById("edit-course-duration");
+        const channelVal = inputChannel || document.getElementById("edit-course-tg-channel");
+        const groupVal = inputGroup || document.getElementById("edit-course-tg-group");
+        const couponCodeVal = inputCouponCode || document.getElementById("edit-course-coupon-code");
+        const couponDiscountVal = inputCouponDiscount || document.getElementById("edit-course-coupon-discount");
+        const descVal = inputDesc || document.getElementById("edit-course-desc");
+        const statusVal = inputStatus || document.getElementById("edit-course-status");
+        const studentsVal = inputStudents || document.getElementById("edit-course-students");
+
+        const currentTitleEl = titleEl || document.getElementById("course-title");
+        const currentPriceEl = priceEl || document.getElementById("course-price");
+        const currentTgChannelVal = tgChannelVal || document.getElementById("tg-channel-val");
+        const currentTgGroupVal = tgGroupVal || document.getElementById("tg-group-val");
+
+        if (titleVal) titleVal.value = c.title || (currentTitleEl ? currentTitleEl.textContent : "");
+        if (catVal && c.category) catVal.value = c.category;
+        if (priceVal) priceVal.value = c.price || (currentPriceEl ? currentPriceEl.textContent : "");
+        if (durationVal) durationVal.value = c.duration || "6 Weeks (24 Hours)";
+        if (channelVal) channelVal.value = c.tg_channel || (currentTgChannelVal ? currentTgChannelVal.textContent : "");
+        if (groupVal) groupVal.value = c.tg_group || (currentTgGroupVal ? currentTgGroupVal.textContent : "");
+        if (couponCodeVal) couponCodeVal.value = c.coupon_code || "";
+        if (couponDiscountVal) couponDiscountVal.value = c.coupon_discount || "";
+        if (descVal) descVal.value = c.description || "";
+        if (statusVal) {
+          const isActive = c.status === "ON" || c.status === "active";
+          statusVal.value = isActive ? "active" : "inactive";
+        }
+        if (studentsVal) studentsVal.value = c.enrolled_students || 0;
+
+        modal.classList.add("open");
+      }
+      window.openEditCourseModal = openEditCourseModal;
+
+      if (btnOpen && editModal) {
+        btnOpen.addEventListener("click", openEditCourseModal);
       }
 
       if (btnClose && editModal) {
@@ -652,6 +693,8 @@
             description: inputDesc.value.trim(),
             tg_channel: inputChannel.value.trim(),
             tg_group: inputGroup.value.trim(),
+            coupon_code: inputCouponCode ? inputCouponCode.value.trim().toUpperCase() : "",
+            coupon_discount: inputCouponDiscount ? inputCouponDiscount.value.trim() : "",
             status: inputStatus.value,
             enrolled_students: parseInt(inputStudents.value, 10) || 0
           };

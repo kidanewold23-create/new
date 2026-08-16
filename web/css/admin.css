@@ -52,7 +52,7 @@
 }
 
 .admin-sidebar.sidebar-open {
-  transform: translateX(0); /* Appears on click */
+  transform: translateX(0) !important; /* Appears on click */
 }
 
 .sidebar-header {
@@ -947,7 +947,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(8px);
-  z-index: 2000;
+  z-index: 999999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1017,12 +1017,13 @@
   }
 
   .admin-sidebar {
-    width: 100%;
-    position: relative;
+    width: 280px;
+    max-width: 85vw;
+    position: fixed;
     top: 0;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
+    bottom: 0;
+    left: 0;
+    height: 100vh;
   }
 
   .admin-main {
@@ -1369,5 +1370,85 @@
   opacity: 0.9;
 }
 
+/* ==========================================================================
+   LANDING CUSTOMIZER PAGES NAVBAR (CMS TABS NAV) STYLES
+   ========================================================================== */
+.cms-tab-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  -webkit-overflow-scrolling: touch;
+}
 
+.cms-tab-nav::-webkit-scrollbar {
+  height: 4px;
+}
 
+.cms-tab-nav::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-full);
+}
+
+.cms-tab-nav::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-full);
+}
+
+.cms-tab-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.6);
+}
+
+.cms-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.cms-tab-btn i {
+  width: 16px;
+  height: 16px;
+  color: var(--text-dim);
+  transition: color var(--transition-fast);
+}
+
+.cms-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.cms-tab-btn:hover i {
+  color: var(--primary-gold);
+}
+
+.cms-tab-btn.active {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(99, 102, 241, 0.18));
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: var(--primary-gold);
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2);
+}
+
+.cms-tab-btn.active i {
+  color: var(--primary-gold);
+}

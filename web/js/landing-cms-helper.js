@@ -8,7 +8,7 @@ const CMS_SECTIONS = [
   { id: "personas", title: "Who Is It For?", file: "admin-landing-personas.html", icon: "users" },
   { id: "instructors", title: "Instructors & Brands", file: "admin-landing-instructors.html", icon: "award" },
   { id: "guarantee", title: "What You Get & Guarantee", file: "admin-landing-guarantee.html", icon: "package-check" },
-  { id: "stories", title: "Success Stories", file: "admin-landing-stories.html", icon: "trophy" },
+  { id: "stories", title: "Testimonials & Stories", file: "admin-landing-stories.html", icon: "star" },
   { id: "testimonials", title: "Testimonials (CRUD)", file: "admin-landing-testimonials.html", icon: "star" },
   { id: "faqs", title: "FAQs (CRUD)", file: "admin-landing-faqs.html", icon: "help-circle" },
   { id: "footer", title: "Support & Footer", file: "admin-landing-footer.html", icon: "headset" }
@@ -16,23 +16,40 @@ const CMS_SECTIONS = [
 
 /**
  * Render Top Section Quick-Switcher Navigation Bar
- * @param {string} currentSectionId 
+ * @param {string} [currentSectionId] 
  */
 function renderCmsNavTabs(currentSectionId) {
-  const container = document.getElementById("cms-section-nav");
+  const container = document.getElementById("cms-section-nav") || document.getElementById("cms-nav-tabs-container");
   if (!container) return;
 
+  if (!currentSectionId) {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes("admin-landing-hero")) currentSectionId = "hero";
+    else if (path.includes("admin-landing-metrics")) currentSectionId = "metrics";
+    else if (path.includes("admin-landing-personas")) currentSectionId = "personas";
+    else if (path.includes("admin-landing-instructors")) currentSectionId = "instructors";
+    else if (path.includes("admin-landing-guarantee")) currentSectionId = "guarantee";
+    else if (path.includes("admin-landing-stories")) currentSectionId = "stories";
+    else if (path.includes("admin-landing-testimonials")) currentSectionId = "testimonials";
+    else if (path.includes("admin-landing-faqs")) currentSectionId = "faqs";
+    else if (path.includes("admin-landing-footer")) currentSectionId = "footer";
+    else if (path.includes("admin-landing-customizer")) currentSectionId = "hub";
+    else currentSectionId = "hub";
+  }
+
   container.innerHTML = `
-    <div class="cms-tab-nav" style="margin-bottom: 20px; overflow-x: auto; display: flex; gap: 8px; padding-bottom: 8px;">
-      <a href="admin-landing-customizer.html" class="cms-tab-btn ${currentSectionId === 'hub' ? 'active' : ''}" style="text-decoration: none;">
-        <i data-lucide="layout-grid"></i> All Sections Hub
+    <nav class="cms-tab-nav" aria-label="Landing Customizer Section Navigation">
+      <a href="admin-landing-customizer.html" class="cms-tab-btn ${currentSectionId === 'hub' ? 'active' : ''}">
+        <i data-lucide="layout-grid"></i>
+        <span>All Sections Hub</span>
       </a>
       ${CMS_SECTIONS.map((sec, idx) => `
-        <a href="${sec.file}" class="cms-tab-btn ${sec.id === currentSectionId ? 'active' : ''}" style="text-decoration: none;">
-          <i data-lucide="${sec.icon}"></i> ${idx + 1}. ${sec.title}
+        <a href="${sec.file}" class="cms-tab-btn ${sec.id === currentSectionId ? 'active' : ''}">
+          <i data-lucide="${sec.icon}"></i>
+          <span>${idx + 1}. ${sec.title}</span>
         </a>
       `).join("")}
-    </div>
+    </nav>
   `;
 
   if (window.lucide) window.lucide.createIcons();
@@ -84,6 +101,11 @@ async function saveLandingSection(sectionPayload, sectionName = "Section") {
     }
 
     if (data.success) {
+      if (data.data) {
+        try {
+          localStorage.setItem("founders_landing_config", JSON.stringify(data.data));
+        } catch (_e) {}
+      }
       showToast(`✅ ${sectionName} updated & published live to landing page!`, "success");
       return true;
     } else {
@@ -126,6 +148,20 @@ function showToast(message, type = "info") {
   }, 4000);
 }
 
+// Auto-initialize CMS Helper components on DOM load
+function autoInitCmsHelper() {
+  renderCmsNavTabs();
+  if (typeof initClickOnlySidebarToggle === "function") {
+    initClickOnlySidebarToggle();
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", autoInitCmsHelper);
+} else {
+  autoInitCmsHelper();
+}
+
 // Global Exports
 window.renderCmsNavTabs = renderCmsNavTabs;
 window.getLandingConfig = getLandingConfig;
@@ -133,10 +169,3 @@ window.saveLandingSection = saveLandingSection;
 window.showToast = showToast;
 window.CMS_SECTIONS = CMS_SECTIONS;
 
-if (typeof initClickOnlySidebarToggle === "function") {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initClickOnlySidebarToggle);
-  } else {
-    initClickOnlySidebarToggle();
-  }
-}

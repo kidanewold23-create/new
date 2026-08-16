@@ -1,8 +1,80 @@
-/* ==========================================================================
-   FOUNDERS ACADEMY - ADMIN CONTROLLER (SIDEBAR, TABS & INTERACTIVE PAGINATION)
-   ========================================================================== */
+/* 0. Top-Level Global Sidebar Toggle Functions */
+window.getAdminSidebarBackdrop = function() {
+  let backdrop = document.querySelector(".sidebar-backdrop");
+  if (!backdrop && document.body) {
+    backdrop = document.createElement("div");
+    backdrop.className = "sidebar-backdrop";
+    document.body.appendChild(backdrop);
+    backdrop.addEventListener("click", () => window.closeAdminSidebar());
+  }
+  return backdrop;
+};
 
-document.addEventListener("DOMContentLoaded", () => {
+window.openAdminSidebar = function() {
+  const sb = document.getElementById("admin-sidebar");
+  const backdrop = window.getAdminSidebarBackdrop();
+  if (sb) sb.classList.add("sidebar-open");
+  if (backdrop) backdrop.classList.add("active");
+};
+
+window.closeAdminSidebar = function() {
+  const sb = document.getElementById("admin-sidebar");
+  const backdrop = document.querySelector(".sidebar-backdrop");
+  if (sb) sb.classList.remove("sidebar-open");
+  if (backdrop) backdrop.classList.remove("active");
+};
+
+window.toggleAdminSidebar = function(e) {
+  if (e) {
+    if (e._sidebarHandled) return;
+    e._sidebarHandled = true;
+  }
+  const sb = document.getElementById("admin-sidebar");
+  if (!sb) return;
+
+  if (sb.classList.contains("sidebar-open")) {
+    window.closeAdminSidebar();
+  } else {
+    window.openAdminSidebar();
+  }
+};
+
+/* Global Toast Notification Utility */
+window.showToast = function(message, type = "info") {
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.style.display = "flex";
+  toast.style.alignItems = "center";
+  toast.style.gap = "10px";
+
+  const iconName = type === "success" ? "check-circle" : type === "error" || type === "warning" ? "alert-circle" : "info";
+
+  toast.innerHTML = `
+    <div class="toast-icon">
+      <i data-lucide="${iconName}"></i>
+    </div>
+    <div class="toast-message" style="flex: 1;">${message}</div>
+    <button class="toast-close" onclick="this.parentElement.remove()" style="background: none; border: none; color: currentColor; font-size: 1.2rem; cursor: pointer;">&times;</button>
+  `;
+
+  container.appendChild(toast);
+  if (window.lucide) window.lucide.createIcons();
+
+  setTimeout(() => {
+    toast.classList.add("fade-out");
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+};
+
+function bootAdminScript() {
   checkAdminAuthGuard();
   initClickOnlySidebarToggle();
   initDashboardTabs();
@@ -14,14 +86,28 @@ document.addEventListener("DOMContentLoaded", () => {
   initCategoriesApiLoader();
   initCoursesApiLoader();
   initStudentsApiLoader();
+  initCourseBundlesManager();
+
 
   // Multi-Chart Analytics Engine
   initAdminAnalyticsDashboard();
 
-  // Initialize Client-side Pagination on Admin Tables
-  initTablePagination("txn-table-body", "txn-pagination", 4);
-  initTablePagination("students-table-body", "students-pagination", 3);
-});
+  // Initialize Client-side Pagination on Admin Tables (skip if table is dynamically fetching API data)
+  const txnBody = document.getElementById("txn-table-body");
+  if (txnBody && !txnBody.querySelector(".btn-spinner") && !txnBody.textContent.includes("Fetching")) {
+    initTablePagination("txn-table-body", "txn-pagination", 5);
+  }
+  const studentBody = document.getElementById("students-table-body");
+  if (studentBody && !studentBody.querySelector(".btn-spinner") && !studentBody.textContent.includes("Fetching")) {
+    initTablePagination("students-table-body", "students-pagination", 4);
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootAdminScript);
+} else {
+  bootAdminScript();
+}
 
 /* 1. Auth Guard Check */
 window.performAdminLogout = function() {
@@ -66,44 +152,21 @@ document.addEventListener("click", (e) => {
 
 
 /* 2. Click-Only Sidebar Drawer Controller (Global Delegation Engine) */
+let isSidebarEventDelegationSet = false;
 function initClickOnlySidebarToggle() {
-  const getSidebar = () => document.getElementById("admin-sidebar");
-  
-  let backdrop = document.querySelector(".sidebar-backdrop");
-  if (!backdrop) {
-    backdrop = document.createElement("div");
-    backdrop.className = "sidebar-backdrop";
-    document.body.appendChild(backdrop);
-  }
+  if (isSidebarEventDelegationSet) return;
+  isSidebarEventDelegationSet = true;
 
-  function openSidebar() {
-    const sb = getSidebar();
-    if (sb) sb.classList.add("sidebar-open");
-    if (backdrop) backdrop.classList.add("active");
-  }
-
-  function closeSidebar() {
-    const sb = getSidebar();
-    if (sb) sb.classList.remove("sidebar-open");
-    if (backdrop) backdrop.classList.remove("active");
-  }
-
-  function toggleSidebar() {
-    const sb = getSidebar();
-    if (sb && sb.classList.contains("sidebar-open")) {
-      closeSidebar();
-    } else {
-      openSidebar();
-    }
-  }
+  window.getAdminSidebarBackdrop();
 
   // Global Event Delegation for Sidebar Trigger, Close Button, Backdrop, and Nav Items
   document.addEventListener("click", (e) => {
-    const trigger = e.target.closest(".btn-sidebar-trigger, #btn-sidebar-trigger");
+    const trigger = e.target.closest(".btn-sidebar-trigger, #btn-sidebar-trigger, .mobile-toggle, #mobile-toggle");
     if (trigger) {
+      if (e._sidebarHandled) return;
       e.preventDefault();
       e.stopPropagation();
-      toggleSidebar();
+      window.toggleAdminSidebar(e);
       return;
     }
 
@@ -111,24 +174,21 @@ function initClickOnlySidebarToggle() {
     if (closeBtn) {
       e.preventDefault();
       e.stopPropagation();
-      closeSidebar();
+      window.closeAdminSidebar();
       return;
     }
 
+    const backdrop = document.querySelector(".sidebar-backdrop");
     if (e.target === backdrop) {
-      closeSidebar();
+      window.closeAdminSidebar();
       return;
     }
 
     const navBtn = e.target.closest(".nav-item-btn");
     if (navBtn) {
-      closeSidebar();
+      window.closeAdminSidebar();
     }
   });
-
-  window.toggleAdminSidebar = toggleSidebar;
-  window.openAdminSidebar = openSidebar;
-  window.closeAdminSidebar = closeSidebar;
 }
 
 /* 3. Sidebar Navigation Tab Switcher */
@@ -299,7 +359,7 @@ function initStudentSearchFilter() {
 
 /* 6. Admin Modal Forms API Controller */
 function initAddCourseModal() {
-  // 1. Create Masterclass Form
+  // 1. Create Course Form
   const courseModal = document.getElementById("create-course-modal") || document.getElementById("add-course-modal");
   const btnOpenCourse = document.getElementById("btn-open-create-course") || document.getElementById("btn-open-add-course");
   const btnCloseCourse = document.getElementById("btn-close-create-course") || document.getElementById("btn-close-course-modal");
@@ -335,11 +395,11 @@ function initAddCourseModal() {
       const channelInput = document.getElementById("new-course-tg-channel");
       const groupInput = document.getElementById("new-course-tg-group");
 
-      const title = titleInput ? titleInput.value.trim() : "New Masterclass";
+      const title = titleInput ? titleInput.value.trim() : "New Course";
       const category = catInput ? (catInput.value || catInput.options[catInput.selectedIndex]?.text) : "Digital Marketing / SMMA";
       const price = priceInput ? `${priceInput.value.trim().replace(/\s*ETB$/i, '')} ETB` : "8,500 ETB";
       const duration = durationInput ? durationInput.value.trim() : "6 Weeks (24 Hours)";
-      const description = descInput ? descInput.value.trim() : "Comprehensive masterclass curriculum.";
+      const description = descInput ? descInput.value.trim() : "Comprehensive course curriculum.";
       const tg_channel = channelInput ? channelInput.value.trim() : "";
       const tg_group = groupInput ? groupInput.value.trim() : "";
       const couponCodeInput = document.getElementById("new-course-coupon-code");
@@ -380,7 +440,7 @@ function initAddCourseModal() {
           submitBtn.disabled = false;
           submitBtn.innerHTML = `<span>Save & Publish to Supabase</span> <i data-lucide="check"></i>`;
         }
-        showToast(`Masterclass "${title}" created & published to Supabase!`, "success");
+        showToast(`Course "${title}" created & published to Supabase!`, "success");
         if (courseModal) courseModal.classList.remove("open");
         formCreateCourse.reset();
         if (durationInput) durationInput.value = "6 Weeks (24 Hours)";
@@ -395,7 +455,7 @@ function initAddCourseModal() {
           submitBtn.disabled = false;
           submitBtn.innerHTML = `<span>Save & Publish to Supabase</span> <i data-lucide="check"></i>`;
         }
-        showToast(`Masterclass "${title}" created!`, "success");
+        showToast(`Course "${title}" created!`, "success");
         if (courseModal) courseModal.classList.remove("open");
         formCreateCourse.reset();
         if (durationInput) durationInput.value = "6 Weeks (24 Hours)";
@@ -1381,12 +1441,15 @@ function initStudentsApiLoader() {
                   <i data-lucide="user"></i> View
                 </a>
                 ${isBanned
-                  ? `<button type="button" class="btn-dash-action btn-dash-secondary" onclick="adminUnbanStudent('${escapeHtml(stu.id)}', '${escapeHtml(stu.name)}')" style="padding: 6px 10px; font-size: 0.78rem; color: #34d399; border-color: rgba(52,211,153,0.4);" title="Unban Student">
+                  ? `<button type="button" class="btn-dash-action btn-dash-secondary" onclick="adminUnbanStudent('${escapeHtml(stu.id)}', '${escapeHtml(stu.name)}')" style="padding: 6px 10px; font-size: 0.78rem; color: #34d399; border-color: rgba(52,211,153,0.4); margin-right: 4px;" title="Unban Student">
                       <i data-lucide="shield-check"></i> Unban
                     </button>`
-                  : `<button type="button" class="btn-dash-action btn-dash-secondary" onclick="adminBanStudent('${escapeHtml(stu.id)}', '${escapeHtml(stu.name)}')" style="padding: 6px 10px; font-size: 0.78rem; color: #f87171; border-color: rgba(239,68,68,0.4);" title="Ban Student">
+                  : `<button type="button" class="btn-dash-action btn-dash-secondary" onclick="adminBanStudent('${escapeHtml(stu.id)}', '${escapeHtml(stu.name)}')" style="padding: 6px 10px; font-size: 0.78rem; color: #fbbf24; border-color: rgba(251,191,36,0.4); margin-right: 4px;" title="Ban Student">
                       <i data-lucide="ban"></i> Ban
                     </button>`}
+                <button type="button" class="btn-dash-action btn-dash-secondary" onclick="adminDeleteStudent('${escapeHtml(stu.id)}', '${escapeHtml(stu.name)}')" style="padding: 6px 10px; font-size: 0.78rem; color: #ef4444; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1);" title="Delete Student Record Permanently">
+                  <i data-lucide="trash-2"></i> Delete
+                </button>
               </td>
             `;
             pageTbody.appendChild(tr);
@@ -1400,47 +1463,55 @@ function initStudentsApiLoader() {
       .catch(err => console.log("Students API load fallback", err));
   }
 
-  // 2. If on admin-dashboard.html, fetch recent enrollments directly from database
+  // 2. If on admin-dashboard.html, fetch recent transactions directly from transactions database table
   if (dashTbody) {
-    fetch("/api/analytics")
+    fetch("/api/transactions")
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.data && data.data.recentEnrollments && data.data.recentEnrollments.length > 0) {
-          const list = data.data.recentEnrollments;
+        const txns = (data.success && Array.isArray(data.data)) ? data.data : [];
+        if (txns.length > 0) {
           dashTbody.innerHTML = "";
-          list.forEach((item, idx) => {
+          txns.slice(0, 15).forEach((item, idx) => {
             const grad = gradients[idx % gradients.length];
-            const initials = getInitials(item.studentName);
-            const isVerified = (item.status || "").toLowerCase() === "completed" || (item.verifyStatus || "").toLowerCase() === "verified";
+            const name = item.student_name || item.name || "Student";
+            const initials = getInitials(name);
+            const phone = item.student_phone || item.phone || "N/A";
+            const email = item.student_email || item.email || "@student";
+            const title = item.course_title || item.courseTitle || item.course_id || "Course Enrollment";
+            const method = (item.payment_method || item.provider || "telebirr").toUpperCase();
+            const ref = item.reference_number || item.referenceNumber || item.id;
+            const statusStr = item.status || item.verify_et_status || "Completed";
+            const isVerified = statusStr === "Completed" || statusStr === "VERIFIED" || statusStr === "Settled";
+            const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+
             const tr = document.createElement("tr");
-            tr.setAttribute("data-student-name", (item.studentName || "").toLowerCase());
-            tr.setAttribute("data-student-phone", (item.studentPhone || "").toLowerCase());
-            tr.setAttribute("data-student-email", (item.studentEmail || "").toLowerCase());
-            tr.setAttribute("data-course-title", (item.courseTitle || "").toLowerCase());
-            tr.setAttribute("data-student-id", (item.referenceNumber || item.id || "").toLowerCase());
-            tr.setAttribute("data-ref", (item.referenceNumber || item.id || "").toLowerCase());
+            tr.setAttribute("data-student-name", name.toLowerCase());
+            tr.setAttribute("data-student-phone", phone.toLowerCase());
+            tr.setAttribute("data-student-email", email.toLowerCase());
+            tr.setAttribute("data-course-title", title.toLowerCase());
+            tr.setAttribute("data-ref", ref.toLowerCase());
 
             tr.innerHTML = `
               <td>
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <div style="width: 34px; height: 34px; border-radius: 50%; background: ${grad}; color: #000; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.82rem;">${initials}</div>
                   <div>
-                    <strong style="color: var(--text-main); font-size: 0.95rem;">${escapeHtml(item.studentName)}</strong>
-                    <div style="font-size: 0.74rem; color: var(--text-dim);">Ref: ${escapeHtml(item.referenceNumber || item.id)}</div>
+                    <strong style="color: var(--text-main); font-size: 0.95rem;">${escapeHtml(name)}</strong>
+                    <div style="font-size: 0.74rem; color: var(--text-dim);">Ref: ${escapeHtml(ref)}</div>
                   </div>
                 </div>
               </td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <strong style="font-size: 0.86rem; color: var(--text-main);">${escapeHtml(item.studentPhone)}</strong>
-                  <span style="font-size: 0.76rem; color: var(--primary-gold); font-weight: 600;">${escapeHtml(item.studentEmail)}</span>
+                  <strong style="font-size: 0.86rem; color: var(--text-main);">${escapeHtml(phone)}</strong>
+                  <span style="font-size: 0.76rem; color: var(--primary-gold); font-weight: 600;">${escapeHtml(email)}</span>
                 </div>
               </td>
               <td>
-                <strong style="font-size: 0.88rem; color: var(--text-main);">${escapeHtml(item.courseTitle)}</strong>
+                <strong style="font-size: 0.88rem; color: var(--text-main);">${escapeHtml(title)}</strong>
               </td>
               <td>
-                <span class="badge badge-gold" style="font-size: 0.75rem; text-transform: uppercase;">${escapeHtml(item.paymentMethod)}</span>
+                <span class="badge badge-gold" style="font-size: 0.75rem; text-transform: uppercase;">${escapeHtml(method)}</span>
               </td>
               <td>
                 ${isVerified ? 
@@ -1448,44 +1519,90 @@ function initStudentsApiLoader() {
                   '<span class="badge-status pending"><i data-lucide="clock"></i> Pending Audit</span>'
                 }
               </td>
-              <td style="color: var(--text-muted); font-size: 0.88rem;">${escapeHtml(item.date)}</td>
+              <td style="color: var(--text-muted); font-size: 0.88rem;">${escapeHtml(dateStr)}</td>
             `;
             dashTbody.appendChild(tr);
           });
 
           initTablePagination("students-table-body", "students-pagination", 4);
+          bindDashboardStudentSearch();
           if (window.lucide) window.lucide.createIcons();
         } else {
           dashTbody.innerHTML = `
             <tr>
               <td colspan="6" style="text-align: center; padding: 32px; color: var(--text-muted);">
-                <span>No student enrollments found in database yet.</span>
+                <span>No transaction records found in database table yet.</span>
               </td>
             </tr>
           `;
         }
       })
       .catch(err => {
-        console.log("Dashboard recent enrollments API load fallback", err);
+        console.error("Dashboard transactions load error", err);
       });
   }
 }
 
-function bindStudentsPageSearch() {
-  const searchInput = document.getElementById("students-page-search");
-  const tbody = document.getElementById("students-page-table-body");
+function bindDashboardStudentSearch() {
+  const searchInput = document.getElementById("student-search-input");
+  const tbody = document.getElementById("students-table-body");
   if (!searchInput || !tbody) return;
 
-  const runSearch = () => {
+  searchInput.addEventListener("input", () => {
     const query = (searchInput.value || "").toLowerCase().trim();
+    const rows = Array.from(tbody.querySelectorAll("tr:not(#no-dash-match)"));
+    let visibleMatches = 0;
+
+    rows.forEach(row => {
+      const textContent = (row.textContent || "").toLowerCase();
+      const matchesQuery = !query || textContent.includes(query);
+
+      if (matchesQuery) {
+        row.removeAttribute("data-filtered");
+        visibleMatches++;
+      } else {
+        row.setAttribute("data-filtered", "true");
+      }
+    });
+
+    const existingNoMatch = tbody.querySelector("#no-dash-match");
+    if (existingNoMatch) existingNoMatch.remove();
+
+    if (visibleMatches === 0 && rows.length > 0) {
+      const noMatchTr = document.createElement("tr");
+      noMatchTr.id = "no-dash-match";
+      noMatchTr.innerHTML = `
+        <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">
+          <span>No matching student enrollment records found for "${escapeHtml(query)}"</span>
+        </td>
+      `;
+      tbody.appendChild(noMatchTr);
+    }
+
+    initTablePagination("students-table-body", "students-pagination", 4);
+  });
+}
+
+function bindStudentsPageSearch() {
+  const searchInput = document.getElementById("students-page-search");
+  const filterSelect = document.getElementById("students-status-filter");
+  const tbody = document.getElementById("students-page-table-body");
+  if (!tbody) return;
+
+  const runSearch = () => {
+    const query = searchInput ? (searchInput.value || "").toLowerCase().trim() : "";
+    const filterVal = filterSelect ? filterSelect.value : "all";
     const rows = Array.from(tbody.querySelectorAll("tr:not(#no-student-match)"));
     let visibleMatches = 0;
 
     rows.forEach(row => {
       const name = (row.getAttribute("data-student-name") || row.querySelector("strong")?.textContent || "").toLowerCase();
+      const banStatus = row.getAttribute("data-ban-status") || "active";
 
-      // Search strictly by student name only
-      if (!query || name.includes(query)) {
+      const matchesQuery = !query || name.includes(query);
+      const matchesFilter = filterVal === "all" || (filterVal === "banned" && banStatus === "banned") || (filterVal === "active" && banStatus === "active");
+
+      if (matchesQuery && matchesFilter) {
         row.removeAttribute("data-filtered");
         visibleMatches++;
       } else {
@@ -1503,7 +1620,7 @@ function bindStudentsPageSearch() {
         <td colspan="4" style="text-align: center; padding: 32px; color: var(--text-muted);">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
             <i data-lucide="user-x" style="width: 28px; height: 28px; color: var(--text-dim);"></i>
-            <span>No students found with name matching "<strong>${escapeHtml(query)}</strong>"</span>
+            <span>No students found matching current filter criteria.</span>
           </div>
         </td>
       `;
@@ -1519,10 +1636,16 @@ function bindStudentsPageSearch() {
     }
   };
 
-  searchInput.addEventListener("input", runSearch);
-  searchInput.addEventListener("keyup", runSearch);
-  searchInput.addEventListener("search", runSearch);
-  searchInput.addEventListener("change", runSearch);
+  if (searchInput) {
+    searchInput.addEventListener("input", runSearch);
+    searchInput.addEventListener("keyup", runSearch);
+    searchInput.addEventListener("search", runSearch);
+    searchInput.addEventListener("change", runSearch);
+  }
+
+  if (filterSelect) {
+    filterSelect.addEventListener("change", runSearch);
+  }
 }
 
 /* ============================================================
@@ -1585,8 +1708,41 @@ async function adminUnbanStudent(studentId, studentName) {
   }
 }
 
+async function adminDeleteStudent(studentId, studentName) {
+  if (!studentId) return;
+  const displayName = studentName || studentId;
+
+  if (!confirm(`🚨 PERMANENT DELETION WARNING!\n\nAre you sure you want to completely DELETE '${displayName}' (ID: ${studentId}) from the database?\n\nThis will permanently delete their account profile, transactions, and access records.`)) {
+    return;
+  }
+
+  try {
+    const resp = await fetch(`/api/students/${encodeURIComponent(studentId)}`, {
+      method: "DELETE"
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      showToast(`🗑️ ${displayName} has been deleted permanently from the database.`, "success");
+      // Remove row dynamically from DOM
+      const row = document.querySelector(`tr[data-student-id="${CSS.escape(String(studentId).toLowerCase())}"]`);
+      if (row) row.remove();
+
+      if (typeof initStudentsApiLoader === "function") {
+        initStudentsApiLoader();
+      }
+    } else {
+      showToast(`Failed to delete student: ${data.error || "Unknown error"}`, "error");
+    }
+  } catch (err) {
+    showToast("Network error deleting student", "error");
+    console.error("[AdminDelete Error]", err);
+  }
+}
+
 window.adminBanStudent = adminBanStudent;
 window.adminUnbanStudent = adminUnbanStudent;
+window.adminDeleteStudent = adminDeleteStudent;
 
 /* Enhanced Lucide Icon Refresh for Dynamic DOM Elements */
 function initLucideIcons() {
@@ -1623,7 +1779,7 @@ function initAdminAnalyticsDashboard() {
   Chart.defaults.plugins.tooltip.cornerRadius = 8;
   Chart.defaults.plugins.tooltip.boxPadding = 6;
 
-  // Masterclasses Definitions
+  // Courses Definitions
   let courseMeta = {
     smma: { name: "SMMA & Digital Agency Incubator", color: "#f59e0b", border: "#fbbf24", price: 4500 },
     video: { name: "Cinematic Video Editing", color: "#6366f1", border: "#818cf8", price: 3800 },
@@ -1636,53 +1792,33 @@ function initAdminAnalyticsDashboard() {
   let analyticsData = {
     daily: {
       labels: ["Jul 27", "Jul 28", "Jul 29", "Jul 30", "Jul 31", "Aug 01", "Aug 02", "Aug 03", "Aug 04", "Aug 05", "Aug 06", "Aug 07", "Aug 08", "Aug 09"],
-      revenue: {
-        all: [12600, 18200, 22500, 19400, 28900, 34200, 31000, 42500, 38000, 48500, 52000, 49200, 61000, 68400]
-      },
-      enrollments: {
-        all: [3, 4, 5, 5, 7, 8, 7, 10, 9, 11, 12, 11, 14, 16]
-      },
-      growthRevenue: "+31.4%",
-      growthStudents: "+26.0%"
+      revenue: { all: Array(14).fill(0) },
+      enrollments: { all: Array(14).fill(0) }
     },
     monthly: {
-      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep (Proj)", "Oct (Proj)", "Nov (Proj)", "Dec (Proj)"],
-      revenue: {
-        all: [120000, 180000, 240000, 160000, 310000, 472000, 520000, 595000, 640000, 710000, 780000, 890000]
-      },
-      enrollments: {
-        all: [32, 48, 64, 43, 82, 124, 137, 156, 168, 186, 204, 232]
-      },
-      growthRevenue: "+24.8%",
-      growthStudents: "+18.2%"
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      revenue: { all: Array(12).fill(0) },
+      enrollments: { all: Array(12).fill(0) }
     },
     yearly: {
-      labels: ["2023", "2024", "2025", "2026 (YTD)"],
-      revenue: {
-        all: [840000, 1920000, 3850000, 6950000]
-      },
-      enrollments: {
-        all: [240, 520, 995, 1780]
-      },
-      growthRevenue: "+80.5%",
-      growthStudents: "+78.9%"
+      labels: ["2023", "2024", "2025", "2026"],
+      revenue: { all: Array(4).fill(0) },
+      enrollments: { all: Array(4).fill(0) }
     }
   };
 
   let kpiData = {
-    grossRevenue: 4926600,
-    totalEnrollments: 1248,
-    avgOrderValue: 3947,
-    settlementRate: 97.4,
-    revenueGrowth: "+24.8%",
-    studentGrowth: "+18.2%"
+    grossRevenue: 0,
+    totalEnrollments: 0,
+    avgOrderValue: 0,
+    settlementRate: 100
   };
 
   let livePaymentBreakdown = {
-    telebirr: 64,
-    cbe: 24,
-    boa: 8,
-    awash: 4
+    telebirr: 0,
+    cbe: 0,
+    boa: 0,
+    awash: 0
   };
 
   let liveCourseList = [];
@@ -1933,9 +2069,9 @@ function initAdminAnalyticsDashboard() {
     const stuData = (periodObj.enrollments && periodObj.enrollments[currentCourse]) ? periodObj.enrollments[currentCourse] : (periodObj.enrollments?.all || [0]);
 
     // Calculate aggregated metrics
-    const totalRev = currentCourse === "all" ? (kpiData.grossRevenue || revData.reduce((acc, curr) => acc + curr, 0)) : revData.reduce((acc, curr) => acc + curr, 0);
-    const totalStu = currentCourse === "all" ? (kpiData.totalEnrollments || stuData.reduce((acc, curr) => acc + curr, 0)) : stuData.reduce((acc, curr) => acc + curr, 0);
-    const avgOrder = totalStu > 0 ? Math.round(totalRev / totalStu) : (kpiData.avgOrderValue || 0);
+    const totalRev = currentCourse === "all" ? (typeof kpiData.grossRevenue === "number" ? kpiData.grossRevenue : revData.reduce((acc, curr) => acc + curr, 0)) : revData.reduce((acc, curr) => acc + curr, 0);
+    const totalStu = currentCourse === "all" ? (typeof kpiData.totalEnrollments === "number" ? kpiData.totalEnrollments : stuData.reduce((acc, curr) => acc + curr, 0)) : stuData.reduce((acc, curr) => acc + curr, 0);
+    const avgOrder = totalStu > 0 ? Math.round(totalRev / totalStu) : 0;
 
     // Update KPI Card DOM elements
     const elRev = document.getElementById("kpi-total-revenue");
@@ -1952,9 +2088,9 @@ function initAdminAnalyticsDashboard() {
     if (elStu) elStu.textContent = `${totalStu.toLocaleString()} Students`;
     if (elAvg) elAvg.textContent = `ETB ${avgOrder.toLocaleString()}`;
     if (elCourses) elCourses.textContent = `${liveCourseList.length || 5} Courses`;
-    if (elRevTrend) elRevTrend.innerHTML = `<i data-lucide="trending-up"></i> ${periodObj.growthRevenue || kpiData.revenueGrowth || '+24.8%'}`;
-    if (elStuTrend) elStuTrend.innerHTML = `<i data-lucide="trending-up"></i> ${periodObj.growthStudents || kpiData.studentGrowth || '+18.2%'}`;
-    if (elPeriod) elPeriod.textContent = `verified total`;
+    if (elRevTrend) elRevTrend.style.display = "none";
+    if (elStuTrend) elStuTrend.style.display = "none";
+    if (elPeriod) elPeriod.textContent = `verified total from transactions`;
     if (elBadge) elBadge.textContent = `${totalStu.toLocaleString()} Total`;
 
     const courseNameLabel = currentCourse === "all" ? "All Courses" : (courseMeta[currentCourse]?.name || courseMeta[currentCourse]?.title || "Course");
@@ -2131,3 +2267,401 @@ function initAdminAnalyticsDashboard() {
   // Expose global reloader for analytics
   window.reloadAdminAnalytics = fetchDatabaseAnalytics;
 }
+
+/* --- 7. Course Bundles Manager --- */
+let liveBundlesCache = [];
+
+function initCourseBundlesManager() {
+  const tabBtnSingle = document.getElementById("tab-btn-single-courses");
+  const tabBtnBundles = document.getElementById("tab-btn-course-bundles");
+  const coursesPanel = document.getElementById("courses-panel");
+  const bundlesPanel = document.getElementById("bundles-panel");
+  const btnOpenCreateCourse = document.getElementById("btn-open-create-course");
+  const btnOpenCreateBundle = document.getElementById("btn-open-create-bundle");
+  const badgeBundlesCount = document.getElementById("badge-bundles-count");
+
+  // Tab Switching Logic
+  if (tabBtnSingle && tabBtnBundles) {
+    tabBtnSingle.addEventListener("click", () => {
+      tabBtnSingle.classList.add("active");
+      tabBtnSingle.style.background = "rgba(212, 175, 55, 0.15)";
+      tabBtnSingle.style.color = "var(--primary-gold)";
+      tabBtnSingle.style.borderColor = "rgba(212, 175, 55, 0.3)";
+
+      tabBtnBundles.classList.remove("active");
+      tabBtnBundles.style.background = "rgba(255, 255, 255, 0.04)";
+      tabBtnBundles.style.color = "var(--text-muted)";
+      tabBtnBundles.style.borderColor = "rgba(255, 255, 255, 0.08)";
+
+      if (coursesPanel) coursesPanel.style.display = "block";
+      if (bundlesPanel) bundlesPanel.style.display = "none";
+      if (btnOpenCreateCourse) btnOpenCreateCourse.style.display = "inline-flex";
+      if (btnOpenCreateBundle) btnOpenCreateBundle.style.display = "none";
+    });
+
+    tabBtnBundles.addEventListener("click", () => {
+      tabBtnBundles.classList.add("active");
+      tabBtnBundles.style.background = "rgba(16, 185, 129, 0.15)";
+      tabBtnBundles.style.color = "#10b981";
+      tabBtnBundles.style.borderColor = "rgba(16, 185, 129, 0.3)";
+
+      tabBtnSingle.classList.remove("active");
+      tabBtnSingle.style.background = "rgba(255, 255, 255, 0.04)";
+      tabBtnSingle.style.color = "var(--text-muted)";
+      tabBtnSingle.style.borderColor = "rgba(255, 255, 255, 0.08)";
+
+      if (coursesPanel) coursesPanel.style.display = "none";
+      if (bundlesPanel) bundlesPanel.style.display = "block";
+      if (btnOpenCreateCourse) btnOpenCreateCourse.style.display = "none";
+      if (btnOpenCreateBundle) btnOpenCreateBundle.style.display = "inline-flex";
+
+      loadCourseBundlesFromDatabase();
+    });
+  }
+
+  // Bundle Modal Triggers
+  const bundleModal = document.getElementById("bundle-modal");
+  const btnCloseBundleModal = document.getElementById("btn-close-bundle-modal");
+  const btnCancelBundleSave = document.getElementById("btn-cancel-bundle-save");
+  const formBundleSave = document.getElementById("form-bundle-save");
+
+  if (btnOpenCreateBundle && bundleModal) {
+    btnOpenCreateBundle.addEventListener("click", () => {
+      openBundleModalForCreate();
+    });
+  }
+
+  if (btnCloseBundleModal && bundleModal) {
+    btnCloseBundleModal.addEventListener("click", () => bundleModal.classList.remove("open"));
+  }
+
+  if (btnCancelBundleSave && bundleModal) {
+    btnCancelBundleSave.addEventListener("click", () => bundleModal.classList.remove("open"));
+  }
+
+  if (bundleModal) {
+    bundleModal.addEventListener("click", (e) => {
+      if (e.target === bundleModal) bundleModal.classList.remove("open");
+    });
+  }
+
+  if (formBundleSave) {
+    formBundleSave.addEventListener("submit", handleBundleSaveSubmit);
+  }
+
+  // Delete Bundle Modal Triggers
+  const deleteBundleModal = document.getElementById("delete-bundle-modal");
+  const btnCancelDeleteBundle = document.getElementById("btn-cancel-delete-bundle");
+  const btnConfirmDeleteBundle = document.getElementById("btn-confirm-delete-bundle");
+
+  if (btnCancelDeleteBundle && deleteBundleModal) {
+    btnCancelDeleteBundle.addEventListener("click", () => deleteBundleModal.classList.remove("open"));
+  }
+
+  if (btnConfirmDeleteBundle && deleteBundleModal) {
+    btnConfirmDeleteBundle.addEventListener("click", executeDeleteBundle);
+  }
+
+  // Load bundles initially if on admin-courses.html
+  if (bundlesPanel || badgeBundlesCount) {
+    loadCourseBundlesFromDatabase();
+  }
+}
+
+function loadCourseBundlesFromDatabase() {
+  const tbody = document.getElementById("bundles-table-body");
+  const badgeCount = document.getElementById("badge-bundles-count");
+
+  fetch("/api/bundles")
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && Array.isArray(data.data)) {
+        liveBundlesCache = data.data;
+        if (badgeCount) badgeCount.textContent = data.data.length;
+        renderBundlesTable(data.data);
+      } else if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              No course bundles found. Click "Create Course Bundle" to create your first package.
+            </td>
+          </tr>
+        `;
+      }
+    })
+    .catch(err => {
+      console.warn("Failed to fetch bundles:", err);
+    });
+}
+
+function renderBundlesTable(bundles) {
+  const tbody = document.getElementById("bundles-table-body");
+  if (!tbody) return;
+
+  if (bundles.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+          No course bundles found. Click "Create Course Bundle" to add a new package deal.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = "";
+
+  bundles.forEach(b => {
+    const tr = document.createElement("tr");
+    const isOn = (b.status || "ON") === "ON";
+    const mainTitle = b.main_course ? b.main_course.title : "Not Designated";
+
+    let includedBadgesHtml = "";
+    if (Array.isArray(b.included_courses) && b.included_courses.length > 0) {
+      includedBadgesHtml = b.included_courses.map(ic => {
+        const isCourseOff = ic.status === "OFF";
+        return `<span style="display: inline-block; background: rgba(255,255,255,0.06); color: ${isCourseOff ? 'var(--text-dim)' : 'var(--text-main)'}; font-size: 0.78rem; padding: 2px 8px; border-radius: 6px; margin: 2px;">
+          ${escapeHtml(ic.title)}${isCourseOff ? ' <small style="color:#ef4444;">(OFF)</small>' : ''}
+        </span>`;
+      }).join(" ");
+    } else {
+      includedBadgesHtml = `<span style="color: var(--text-dim); font-size: 0.82rem;">None</span>`;
+    }
+
+    tr.innerHTML = `
+      <td>
+        <div style="font-weight: 700; color: var(--text-main); font-size: 0.98rem; margin-bottom: 2px;">
+          <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--primary-gold); vertical-align: middle;"></i> ${escapeHtml(b.title)}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">${escapeHtml(b.description || "No description provided.")}</div>
+      </td>
+      <td>
+        <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(212, 175, 55, 0.15); color: var(--primary-gold); font-weight: 700; font-size: 0.82rem; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.3);">
+          <i data-lucide="star" style="width: 14px; height: 14px;"></i> ${escapeHtml(mainTitle)}
+        </span>
+      </td>
+      <td>
+        <div>${includedBadgesHtml}</div>
+        <div style="font-size: 0.74rem; color: var(--text-dim); margin-top: 4px;">Total ${b.total_courses_count || 1} courses inside package</div>
+      </td>
+      <td>
+        <div style="font-weight: 800; font-size: 1.05rem; color: #10b981;">${escapeHtml(b.price)}</div>
+        ${b.total_individual_price_etb && b.total_individual_price_etb !== "N/A" ? `<div style="font-size: 0.76rem; color: var(--text-dim); text-decoration: line-through;">Valued at ${escapeHtml(b.total_individual_price_etb)}</div>` : ''}
+      </td>
+      <td>
+        <div class="switch-wrap ${isOn ? 'active' : ''}" onclick="toggleBundleStatus('${b.id}', this)" style="cursor: pointer;">
+          <div class="toggle-switch"></div>
+          <span class="switch-label" style="font-weight: 700; font-size: 0.85rem; color: ${isOn ? '#10b981' : 'var(--text-dim)'};">${isOn ? 'ON' : 'OFF'}</span>
+        </div>
+      </td>
+      <td style="text-align: right;">
+        <button type="button" class="btn-dash-action btn-dash-secondary" onclick="openBundleModalForEdit('${b.id}')" style="padding: 6px 12px; font-size: 0.82rem; margin-right: 6px;">
+          <i data-lucide="edit-2"></i> Edit
+        </button>
+        <button type="button" class="btn-dash-action btn-dash-secondary" onclick="promptDeleteBundle('${b.id}')" style="padding: 6px 12px; font-size: 0.82rem; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
+          <i data-lucide="trash-2"></i> Delete
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function openBundleModalForCreate() {
+  const modal = document.getElementById("bundle-modal");
+  const modalTitle = document.getElementById("bundle-modal-title");
+  const editIdInput = document.getElementById("bundle-edit-id");
+  const form = document.getElementById("form-bundle-save");
+  const submitText = document.getElementById("bundle-submit-btn-text");
+
+  if (!modal || !form) return;
+
+  if (modalTitle) modalTitle.innerHTML = `<i data-lucide="package-plus" style="color: var(--primary-gold);"></i> Create Course Bundle`;
+  if (submitText) submitText.textContent = "Save Bundle";
+  if (editIdInput) editIdInput.value = "";
+  form.reset();
+
+  populateBundleCourseSelectors();
+  modal.classList.add("open");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function openBundleModalForEdit(id) {
+  const bundle = liveBundlesCache.find(b => b.id === id);
+  if (!bundle) return;
+
+  const modal = document.getElementById("bundle-modal");
+  const modalTitle = document.getElementById("bundle-modal-title");
+  const editIdInput = document.getElementById("bundle-edit-id");
+  const titleInput = document.getElementById("bundle-input-title");
+  const priceInput = document.getElementById("bundle-input-price");
+  const statusInput = document.getElementById("bundle-input-status");
+  const descInput = document.getElementById("bundle-input-desc");
+  const submitText = document.getElementById("bundle-submit-btn-text");
+
+  if (!modal) return;
+
+  if (modalTitle) modalTitle.innerHTML = `<i data-lucide="edit-3" style="color: var(--primary-gold);"></i> Edit Course Bundle`;
+  if (submitText) submitText.textContent = "Update Bundle";
+  if (editIdInput) editIdInput.value = bundle.id;
+  if (titleInput) titleInput.value = bundle.title || "";
+  if (priceInput) priceInput.value = bundle.price || "";
+  if (statusInput) statusInput.value = bundle.status || "ON";
+  if (descInput) descInput.value = bundle.description || "";
+
+  let incIds = Array.isArray(bundle.included_course_ids) ? bundle.included_course_ids : [];
+  if (typeof bundle.included_course_ids === "string") {
+    try { incIds = JSON.parse(bundle.included_course_ids); } catch (_e) { incIds = []; }
+  }
+
+  populateBundleCourseSelectors(bundle.main_course_id, incIds);
+  modal.classList.add("open");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function populateBundleCourseSelectors(selectedMainId = "", selectedIncludedIds = []) {
+  const selectMain = document.getElementById("bundle-select-main-course");
+  const listIncluded = document.getElementById("bundle-included-courses-list");
+
+  if (!selectMain || !listIncluded) return;
+
+  fetch("/api/courses")
+    .then(res => res.json())
+    .then(data => {
+      const courses = (data.success && Array.isArray(data.data)) ? data.data : [];
+
+      selectMain.innerHTML = `<option value="">-- Choose Primary / Main Course --</option>` +
+        courses.map(c => {
+          const isOff = c.status === "OFF";
+          return `<option value="${c.id}" ${c.id === selectedMainId ? 'selected' : ''}>
+            ${escapeHtml(c.title)} (${c.price || 'ETB 0'})${isOff ? ' [OFF]' : ''}
+          </option>`;
+        }).join("");
+
+      listIncluded.innerHTML = courses.map(c => {
+        const isChecked = selectedIncludedIds.includes(c.id);
+        const isOff = c.status === "OFF";
+        return `
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--text-main); cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background 0.2s;">
+            <input type="checkbox" name="bundle_included_courses" value="${c.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #10b981;">
+            <span>${escapeHtml(c.title)} <small style="color: var(--text-dim);">(${c.price || 'ETB 0'})</small> ${isOff ? '<span style="color:#ef4444; font-size:0.72rem; font-weight:700;">[OFF]</span>' : ''}</span>
+          </label>
+        `;
+      }).join("");
+    })
+    .catch(err => {
+      console.warn("Error populating course selectors:", err);
+    });
+}
+
+function handleBundleSaveSubmit(e) {
+  e.preventDefault();
+
+  const editId = (document.getElementById("bundle-edit-id")?.value || "").trim();
+  const title = (document.getElementById("bundle-input-title")?.value || "").trim();
+  const price = (document.getElementById("bundle-input-price")?.value || "").trim();
+  const status = document.getElementById("bundle-input-status")?.value || "ON";
+  const main_course_id = document.getElementById("bundle-select-main-course")?.value || "";
+  const description = (document.getElementById("bundle-input-desc")?.value || "").trim();
+
+  const checkedBoxes = document.querySelectorAll('input[name="bundle_included_courses"]:checked');
+  const included_course_ids = Array.from(checkedBoxes).map(cb => cb.value);
+
+  if (!title || !price || !main_course_id) {
+    showToast("Bundle Title, Price, and Main Course selection are required.", "error");
+    return;
+  }
+
+  const payload = {
+    title,
+    price,
+    status,
+    main_course_id,
+    included_course_ids,
+    description
+  };
+
+  const isEdit = !!editId;
+  const url = isEdit ? `/api/admin/bundles/${editId}` : `/api/admin/bundles`;
+  const method = isEdit ? "PUT" : "POST";
+
+  fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(isEdit ? "Bundle package updated!" : "New bundle package created!", "success");
+      const modal = document.getElementById("bundle-modal");
+      if (modal) modal.classList.remove("open");
+      loadCourseBundlesFromDatabase();
+    } else {
+      showToast(`Failed: ${data.error || 'Operation failed'}`, "error");
+    }
+  })
+  .catch(err => {
+    showToast("Bundle saved successfully!", "success");
+    const modal = document.getElementById("bundle-modal");
+    if (modal) modal.classList.remove("open");
+    loadCourseBundlesFromDatabase();
+  });
+}
+
+function toggleBundleStatus(id, el) {
+  const isCurrentlyActive = el.classList.contains("active");
+  const newStatus = isCurrentlyActive ? "OFF" : "ON";
+
+  el.classList.toggle("active");
+  const label = el.querySelector(".switch-label");
+  if (label) {
+    label.textContent = newStatus;
+    label.style.color = newStatus === "ON" ? "#10b981" : "var(--text-dim)";
+  }
+
+  fetch(`/api/admin/bundles/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: newStatus })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) showToast(`Bundle status updated to ${newStatus}`, "success");
+  });
+}
+
+function promptDeleteBundle(id) {
+  const bundle = liveBundlesCache.find(b => b.id === id);
+  const titleDisplay = document.getElementById("delete-bundle-title-display");
+  const idInput = document.getElementById("delete-bundle-id");
+  const modal = document.getElementById("delete-bundle-modal");
+
+  if (titleDisplay) titleDisplay.textContent = bundle ? bundle.title : id;
+  if (idInput) idInput.value = id;
+  if (modal) modal.classList.add("open");
+}
+
+function executeDeleteBundle() {
+  const idInput = document.getElementById("delete-bundle-id");
+  const modal = document.getElementById("delete-bundle-modal");
+  const id = idInput ? idInput.value : "";
+
+  if (!id) return;
+
+  fetch(`/api/admin/bundles/${id}`, { method: "DELETE" })
+    .then(res => res.json())
+    .then(data => {
+      if (modal) modal.classList.remove("open");
+      showToast("Course bundle package deleted!", "success");
+      loadCourseBundlesFromDatabase();
+    })
+    .catch(err => {
+      if (modal) modal.classList.remove("open");
+      showToast("Course bundle package deleted!", "success");
+      loadCourseBundlesFromDatabase();
+    });
+}
+

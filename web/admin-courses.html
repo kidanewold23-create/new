@@ -100,6 +100,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-giveaway.html" class="nav-item-btn">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
         </a>
@@ -138,18 +141,31 @@
       <header class="dash-topbar">
         <div>
           <h1 class="dash-title">Courses & Access Links</h1>
-          <p class="dash-subtitle">Manage Supabase live course curriculum, Telegram private access links, and pricing in real time</p>
+          <p class="dash-subtitle">Manage Supabase live course curriculum, Telegram private access links, and course packages in real time</p>
         </div>
 
         <div class="topbar-actions" style="display: flex; gap: 10px; align-items: center;">
           <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-create-course">
             <i data-lucide="plus-circle"></i> Create New Course
           </button>
+          <button type="button" class="btn-dash-action btn-dash-primary" id="btn-open-create-bundle" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
+            <i data-lucide="package-plus"></i> Create Course Bundle
+          </button>
         </div>
       </header>
 
+      <!-- Navigation Tabs (Single Courses vs Bundles) -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px;">
+        <button type="button" id="tab-btn-single-courses" class="nav-item-btn active" style="padding: 10px 20px; font-weight: 600; border-radius: 8px; background: rgba(212, 175, 55, 0.15); color: var(--primary-gold); border: 1px solid rgba(212, 175, 55, 0.3); display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i data-lucide="book-open"></i> Single Courses
+        </button>
+        <button type="button" id="tab-btn-course-bundles" class="nav-item-btn" style="padding: 10px 20px; font-weight: 600; border-radius: 8px; background: rgba(255, 255, 255, 0.04); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i data-lucide="layers"></i> Course Bundles & Packages <span id="badge-bundles-count" style="background: var(--primary-gold); color: #000; font-size: 0.72rem; padding: 2px 7px; border-radius: 12px; font-weight: 700;">-</span>
+        </button>
+      </div>
+
       <!-- Main Course List Table Panel -->
-      <div class="dash-panel">
+      <div class="dash-panel" id="courses-panel">
         <div class="table-filter-row" style="flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
           <div class="search-input-box" style="flex: 1; min-width: 260px;">
             <i data-lucide="search"></i>
@@ -194,6 +210,40 @@
 
         <!-- Courses Table Pagination Footer -->
         <div class="table-pagination-footer" id="courses-pagination"></div>
+      </div>
+
+      <!-- Course Bundles Table Panel -->
+      <div class="dash-panel" id="bundles-panel" style="display: none;">
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="layers" style="color: var(--primary-gold);"></i> Course Bundles & Package Deals
+          </h2>
+          <p style="font-size: 0.86rem; color: var(--text-muted);">
+            Sell multiple courses together as a single discounted package. Select 1 Main Course and include additional active or unlisted (OFF) courses.
+          </p>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table" id="bundles-table">
+            <thead>
+              <tr>
+                <th>Bundle Title & Description</th>
+                <th>Main Course</th>
+                <th>Included Courses</th>
+                <th>Package Price</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bundles-table-body">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                  Loading course bundles...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   </div>
@@ -395,8 +445,95 @@
     </div>
   </div>
 
+  <!-- 4. CREATE / EDIT Course Bundle Modal -->
+  <div class="admin-modal-overlay" id="bundle-modal">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <div class="panel-header" style="margin-bottom: 20px;">
+        <h2 class="panel-title" id="bundle-modal-title"><i data-lucide="package-plus" style="color: var(--primary-gold);"></i> Create Course Bundle</h2>
+        <button type="button" id="btn-close-bundle-modal" style="color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="form-bundle-save">
+        <input type="hidden" id="bundle-edit-id">
+
+        <div class="form-group">
+          <label class="form-label" for="bundle-input-title">Bundle Package Title *</label>
+          <input type="text" id="bundle-input-title" class="form-input" placeholder="e.g. Ultimate Agency & Content Creation Package" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="bundle-input-price">Package Price (ETB) *</label>
+            <input type="text" id="bundle-input-price" class="form-input" placeholder="e.g. 18,000 ETB" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bundle-input-status">Package Status *</label>
+            <select id="bundle-input-status" class="form-input" style="height: 50px;">
+              <option value="ON">ON (Active in Storefront)</option>
+              <option value="OFF">OFF (Inactive / Draft)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bundle-select-main-course"><i data-lucide="star" style="color: var(--primary-gold);"></i> Select Main Course (1 Required) *</label>
+          <select id="bundle-select-main-course" class="form-input" style="height: 50px;" required>
+            <option value="">-- Choose Primary / Main Course --</option>
+          </select>
+          <div style="font-size: 0.76rem; color: var(--text-dim); margin-top: 4px;">
+            The main course is highlighted as the core curriculum of this package.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i data-lucide="check-square" style="color: #10b981;"></i> Included Bonus Courses (Select 1 or More)</label>
+          <div id="bundle-included-courses-list" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Rendered checkboxes -->
+          </div>
+          <div style="font-size: 0.76rem; color: var(--text-dim); margin-top: 4px;">
+            Note: You can include courses even if their status is set to OFF (for unlisted/exclusive bundle bonuses). Links for all contained courses will be delivered to enrolled students.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bundle-input-desc">Bundle Description</label>
+          <textarea id="bundle-input-desc" class="form-input" style="height: 90px; padding: 10px 14px; font-family: inherit;" placeholder="Describe what makes this bundle valuable..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-cancel-bundle-save" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn-auth-submit" style="flex: 2; margin-top: 0; background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-hover) 100%); color: #000; font-weight: 700;">
+            <span id="bundle-submit-btn-text">Save Bundle</span>
+            <i data-lucide="check-circle-2"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. DELETE Bundle Confirmation Modal -->
+  <div class="admin-modal-overlay" id="delete-bundle-modal">
+    <div class="admin-modal-card" style="max-width: 480px; text-align: center; padding: 32px 24px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <i data-lucide="trash-2" style="width: 28px; height: 28px;"></i>
+      </div>
+      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 8px;">Delete Course Bundle?</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 24px;">
+        Are you sure you want to delete bundle package <strong id="delete-bundle-title-display" style="color: var(--text-main);">-</strong>? This action cannot be undone.
+      </p>
+      <input type="hidden" id="delete-bundle-id">
+      <div style="display: flex; gap: 12px;">
+        <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-cancel-delete-bundle" style="flex: 1;">Cancel</button>
+        <button type="button" class="btn-dash-action btn-dash-primary" id="btn-confirm-delete-bundle" style="flex: 1; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff;">
+          Delete Bundle
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin Scripts -->
   <script src="js/admin.js?v=2.3"></script>
 </body>
 </html>
+
 

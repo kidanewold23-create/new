@@ -37,7 +37,14 @@ function loadEnv() {
 
 loadEnv();
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
+process.on("unhandledRejection", (reason) => {
+  console.error("⚠️ [Bot UnhandledRejection Warning]:", reason?.message || reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("⚠️ [Bot UncaughtException Warning]:", err?.message || err);
+});
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || "8659500401:AAESuYgRssThu3J-22ky6FkPOB9aHJf7QRg";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://icdjgtfiqwwdqtvwuyaw.supabase.co";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "sb_publishable_7SjYAbvNDwTXOVBlkuox-g_wMj58uUK";
 
@@ -51,10 +58,83 @@ const TELEGRAM_API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 // 2. Supabase Database Client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const userCache = new Map();
-let coursesCache = [];
-let lastCoursesFetchTime = 0;
-const CACHE_TTL = 30000;
+export const registrationStates = new Map();
+export function clearBotUserCache() {
+  registrationStates.clear();
+}
+const userLanguages = new Map();
+
+export function getUserLanguage(userId) {
+  return userLanguages.get(userId) || "en";
+}
+
+export function setUserLanguage(userId, lang) {
+  userLanguages.set(userId, lang);
+}
+
+export async function getFormattedBotResponse(responseKey, vars = {}) {
+  let responses = {};
+  try {
+    responses = await dbStore.getTelegramResponses();
+  } catch (_e) {
+    responses = dbStore.DEFAULT_TELEGRAM_RESPONSES || {};
+  }
+
+  let text = responses[responseKey] || dbStore.DEFAULT_TELEGRAM_RESPONSES?.[responseKey] || "";
+
+  // Replace placeholders: {first_name}, {phone}, {auth_code}, {bot_handle}, {username}, {name}, etc.
+  Object.keys(vars).forEach(k => {
+    const regex = new RegExp(`\\{${k}\\}`, "gi");
+    text = text.replace(regex, vars[k] || "");
+  });
+
+  return text;
+}
+
+export function getPhoneRequestKeyboard() {
+  return {
+    keyboard: [
+      [
+        {
+          text: "📱 Share Phone Number & Complete Registration 🚀",
+          request_contact: true
+        }
+      ]
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true
+  };
+}
+
+export function getValidWebAppUrl(path = "/student-dashboard.html") {
+  const domain = process.env.PUBLIC_DOMAIN || process.env.BASE_URL || "https://foundersacademy.et";
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  if (domain.startsWith("https://")) {
+    return `${domain}${cleanPath}`;
+  }
+  return `https://foundersacademy.et${cleanPath}`;
+}
+
+export function getMainMenuReplyKeyboard() {
+  return {
+    keyboard: [
+      [
+        { text: "📚 My Courses" },
+        { text: "🎓 Browse Courses" }
+      ],
+      [
+        { text: "🎟️ Redeem Giveaway" },
+        { text: "💬 Support" }
+      ],
+      [
+        { text: "🔑 Forgot Password" },
+        { text: "💳 Payment Channels" }
+      ]
+    ],
+    resize_keyboard: true,
+    is_persistent: true
+  };
+}
 
 export function cleanPhoneDigits(phone) {
   if (!phone) return "";
@@ -104,22 +184,15 @@ if (typeof globalThis !== "undefined") {
 }
 
 export async function getActiveCoursesFast() {
-  const now = Date.now();
-  if (coursesCache.length > 0 && (now - lastCoursesFetchTime) < CACHE_TTL) {
-    return coursesCache;
-  }
-
   try {
     const { data: courses, error } = await supabase.from("courses").select("*");
     if (!error && courses) {
-      coursesCache = courses.filter((c) => c.status === "ON" || c.status === "active");
-      lastCoursesFetchTime = now;
+      return courses.filter((c) => c.status === "ON" || c.status === "active");
     }
   } catch (err) {
-    console.error("[Bot Supabase Fast-Cache Warning]:", err);
+    console.error("[Bot Supabase Query Warning]:", err);
   }
-
-  return coursesCache;
+  return [];
 }
 
 export async function getMaintenanceStatus() {
@@ -136,106 +209,221 @@ export async function getMaintenanceStatus() {
   return { status: "OFF" };
 }
 
-export async function isUserRegistered(telegramId) {
-  if (!telegramId) return false;
-
-  const numericId = Number(telegramId);
+export async function findPhoneNumberForTelegramUser(telegramId, username = "") {
+  if (!telegramId) return "";
   const stringId = String(telegramId);
-
-  // 1. Check in-memory RAM cache
-  if (userCache.has(numericId)) {
-    const cached = userCache.get(numericId);
-    if (cached?.phone_number && cached.phone_number.trim() !== "") return true;
-  }
-  if (userCache.has(stringId)) {
-    const cached = userCache.get(stringId);
-    if (cached?.phone_number && cached.phone_number.trim() !== "") return true;
-  }
-
+  const numericId = Number(telegramId);
   const tgIdStr = `TG-${stringId}`;
+  const rawUsername = username ? username.replace(/^@/, "").trim() : "";
+  const cleanUsername = rawUsername ? `@${rawUsername}` : "";
 
-  // 2. Check Supabase students table
+  // Helper to extract phone from record regardless of column name
+  const extractPhone = (rec) => {
+    if (!rec) return "";
+    const val = rec.phone || rec.phone_number || rec.phonenumber || rec.student_phone;
+    return val && String(val).trim() !== "" ? String(val).trim() : "";
+  };
+
+  // 1. Check students table in Supabase
   try {
-    const { data: student } = await supabase
+    const { data: list } = await supabase
       .from("students")
-      .select("id, name, phone, email")
-      .eq("id", tgIdStr)
-      .maybeSingle();
+      .select("*")
+      .or(`id.eq.${tgIdStr},telegram_id.eq.${stringId},chat_id.eq.${stringId}${cleanUsername ? `,username.eq.${cleanUsername}` : ''}`);
 
-    if (student && student.phone && student.phone.trim() !== "") {
-      const userObj = {
-        telegram_id: numericId,
-        first_name: student.name ? student.name.split(" ")[0] : "Student",
-        phone_number: student.phone
-      };
-      userCache.set(numericId, userObj);
-      userCache.set(stringId, userObj);
-      return true;
+    if (list && Array.isArray(list) && list.length > 0) {
+      const matchWithPhone = list.find(s => Boolean(extractPhone(s)));
+      if (matchWithPhone) return extractPhone(matchWithPhone);
     }
+  } catch (_e) {}
 
-    // 3. Check Supabase telegram_users table by telegram_id
-    const { data: tgUser } = await supabase
+  // 2. Check telegram_users table in Supabase
+  try {
+    const { data: list } = await supabase
       .from("telegram_users")
       .select("*")
-      .or(`telegram_id.eq.${numericId},telegram_id.eq.${stringId}`)
-      .maybeSingle();
+      .or(`telegram_id.eq.${numericId},telegram_id.eq.${stringId}${rawUsername ? `,username.eq.${rawUsername}` : ''}`);
 
-    if (tgUser && tgUser.phone_number && tgUser.phone_number.trim() !== "") {
-      const userObj = {
-        telegram_id: numericId,
-        first_name: tgUser.first_name || "Student",
-        last_name: tgUser.last_name || "",
-        username: tgUser.username,
-        phone_number: tgUser.phone_number
-      };
-      userCache.set(numericId, userObj);
-      userCache.set(stringId, userObj);
-      return true;
+    if (list && Array.isArray(list) && list.length > 0) {
+      const matchWithPhone = list.find(u => Boolean(extractPhone(u)));
+      if (matchWithPhone) return extractPhone(matchWithPhone);
     }
+  } catch (_e) {}
 
-    // 4. Check dbStore.getStudents() for matching student ID or phone
+  // 3. Check transactions table in Supabase
+  try {
+    const { data: txns } = await supabase
+      .from("transactions")
+      .select("student_phone, student_name, metadata")
+      .or(`student_name.eq.${stringId},student_name.eq.${tgIdStr}${cleanUsername ? `,student_name.eq.${cleanUsername}` : ''}`);
+
+    if (txns && Array.isArray(txns) && txns.length > 0) {
+      const match = txns.find(t => Boolean(extractPhone(t)));
+      if (match) return extractPhone(match);
+    }
+  } catch (_e) {}
+
+  // 4. Check dbStore.getStudents()
+  try {
     const allStudents = await dbStore.getStudents();
     const match = allStudents.find(s => {
-      if (!s.phone || s.phone.trim() === "") return false;
+      const p = extractPhone(s);
+      if (!p) return false;
       const sId = String(s.id || "");
-      return sId === tgIdStr || sId === stringId || sId.includes(stringId);
+      const sTg = String(s.telegram_id || "");
+      const sChat = String(s.chat_id || "");
+      const sUser = String(s.username || "");
+      return sId === tgIdStr || sId === stringId || sTg === stringId || sChat === stringId || (cleanUsername && sUser === cleanUsername);
     });
 
-    if (match) {
-      const userObj = {
-        telegram_id: numericId,
-        first_name: match.name ? match.name.split(" ")[0] : "Student",
-        phone_number: match.phone
-      };
-      userCache.set(numericId, userObj);
-      userCache.set(stringId, userObj);
-      return true;
+    if (match) return extractPhone(match);
+  } catch (_e) {}
+
+  return "";
+}
+
+export async function isUserRegistered(telegramId) {
+  if (!telegramId) return false;
+  const phone = await findPhoneNumberForTelegramUser(telegramId);
+  return Boolean(phone && phone.trim() !== "");
+}
+
+export async function findNameForPhoneNumber(phone) {
+  const cleanP = cleanPhoneDigits(phone);
+  if (!cleanP) return "";
+
+  try {
+    const allStudents = await dbStore.getStudents();
+    const match = allStudents.find(s => {
+      const sPhoneClean = cleanPhoneDigits(s.phone);
+      return sPhoneClean && (sPhoneClean === cleanP || cleanP.endsWith(sPhoneClean) || sPhoneClean.endsWith(cleanP)) && s.name && s.name.trim() !== "";
+    });
+    if (match) return match.name.trim();
+  } catch (_e) {}
+
+  try {
+    const { data: txns } = await supabase.from("transactions").select("student_name, student_phone");
+    if (txns && Array.isArray(txns)) {
+      const match = txns.find(t => {
+        const tPhoneClean = cleanPhoneDigits(t.student_phone);
+        return tPhoneClean && (tPhoneClean === cleanP || cleanP.endsWith(tPhoneClean) || tPhoneClean.endsWith(cleanP)) && t.student_name && t.student_name.trim() !== "";
+      });
+      if (match) return match.student_name.trim();
     }
-  } catch (err) {
-    console.error("[Bot DB Check Error]:", err);
+  } catch (_e) {}
+
+  return "";
+}
+
+export async function ensureTelegramUserInStudents(from) {
+  if (!from || !from.id) return null;
+
+  const telegramId = from.id;
+  const stringId = String(telegramId);
+  const tgIdStr = `TG-${stringId}`;
+
+  const rawUsername = from.username ? from.username.replace(/^@/, "").trim() : "";
+  const cleanUsername = rawUsername ? `@${rawUsername}` : "";
+  const fullName = [from.first_name, from.last_name].filter(Boolean).join(" ").trim() || (cleanUsername || `User_${stringId}`);
+  const userEmail = cleanUsername || `user_${stringId}@foundersacademy.et`;
+  const formattedDate = new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+
+  let studentObj = null;
+
+  // 1. Fetch student list from Supabase
+  try {
+    const { data: list } = await supabase
+      .from("students")
+      .select("*")
+      .or(`id.eq.${tgIdStr},telegram_id.eq.${stringId},chat_id.eq.${stringId}`);
+    if (list && Array.isArray(list) && list.length > 0) {
+      studentObj = list.find(s => (s.phone || s.phone_number || s.phonenumber) && String(s.phone || s.phone_number || s.phonenumber).trim() !== "") || list[0];
+    }
+  } catch (_e) {}
+
+  // 2. Fetch from dbStore if not found in Supabase
+  if (!studentObj) {
+    try {
+      const allStudents = await dbStore.getStudents();
+      studentObj = allStudents.find(s => {
+        const sId = String(s.id || "");
+        return sId === tgIdStr || sId === stringId || String(s.telegram_id) === stringId || String(s.chat_id) === stringId;
+      });
+    } catch (_e) {}
   }
 
-  return false;
+  // 3. Search for any phone number associated with this chat ID / Telegram user across ALL tables
+  const existingPhone = await findPhoneNumberForTelegramUser(telegramId, from.username);
+
+  // If student is missing or phone was empty, attach existingPhone!
+  if (!studentObj) {
+    const newPayload = {
+      id: tgIdStr,
+      name: "",
+      phone: existingPhone || "",
+      email: userEmail,
+      username: cleanUsername,
+      telegram_id: stringId,
+      chat_id: stringId,
+      telegram_username: rawUsername,
+      joined_date: formattedDate
+    };
+
+    try {
+      await supabase.from("students").upsert([newPayload], { onConflict: "id" });
+      await dbStore.addStudent(newPayload);
+      console.log(`[Bot DB] ⚡ Stored new student in students: ${stringId} Phone: ${existingPhone}`);
+    } catch (err) {
+      console.error("[Bot DB Upsert Error]:", err);
+    }
+
+    studentObj = newPayload;
+  } else {
+    const updates = {};
+    if (existingPhone && (!studentObj.phone || String(studentObj.phone).trim() === "")) {
+      updates.phone = existingPhone;
+      studentObj.phone = existingPhone;
+    }
+    if (cleanUsername && studentObj.username !== cleanUsername) {
+      updates.username = cleanUsername;
+      updates.telegram_username = rawUsername;
+    }
+    if (!studentObj.telegram_id || studentObj.telegram_id !== stringId) {
+      updates.telegram_id = stringId;
+      updates.chat_id = stringId;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      try {
+        await supabase.from("students").update(updates).eq("id", studentObj.id);
+        await dbStore.updateStudent(studentObj.id, updates);
+        Object.assign(studentObj, updates);
+      } catch (_e) {}
+    }
+  }
+
+  return studentObj;
 }
 
 export async function registerBotUser(user) {
   const numericId = Number(user.telegram_id);
   const stringId = String(user.telegram_id);
 
-  userCache.set(numericId, user);
-  userCache.set(stringId, user);
-
-  const cleanUsername = user.username ? user.username.replace(/^@/, "").trim() : "";
+  const rawUsername = user.username ? user.username.replace(/^@/, "").trim() : "";
+  const cleanUsername = rawUsername ? `@${rawUsername}` : "";
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ").trim() || (cleanUsername ? `@${cleanUsername}` : `User_${user.telegram_id}`);
   const userEmail = cleanUsername ? `@${cleanUsername}` : `user_${user.telegram_id}@foundersacademy.et`;
   const formattedDate = new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
 
   const studentPayload = {
     id: `TG-${user.telegram_id}`,
-    name: fullName,
-    phone: user.phone_number,
+    name: "",
+    phone: user.phone_number || "",
     email: userEmail,
-    telegram_username: cleanUsername,
+    username: cleanUsername,
+    telegram_id: stringId,
+    chat_id: stringId,
+    telegram_username: rawUsername,
     joined_date: formattedDate
   };
 
@@ -247,13 +435,15 @@ export async function registerBotUser(user) {
           telegram_id: user.telegram_id,
           first_name: user.first_name || "",
           last_name: user.last_name || "",
-          username: cleanUsername,
-          phone_number: user.phone_number,
+          username: rawUsername,
+          phone_number: user.phone_number || "",
           is_verified: true,
           registered_at: new Date().toISOString()
         }], { onConflict: "telegram_id" });
       } catch (_e) { /* fallback */ }
-      console.log(`[Bot Supabase] ⚡ Fast Synced Registered Student: ${fullName} (${studentPayload.id})`);
+
+      await dbStore.addStudent(studentPayload);
+      console.log(`[Bot Supabase] ⚡ Fast Synced Student: ${fullName} (${studentPayload.id}) Phone: ${user.phone_number} Username: ${cleanUsername}`);
     } catch (err) {
       console.error("[Bot Supabase Sync Error]:", err);
     }
@@ -287,12 +477,12 @@ export async function findEnrollmentInvitesByPhone(phoneNumber, studentName = "S
 
       for (const txn of userTxns) {
         if (txn.status === "Completed" || txn.status === "VERIFIED" || txn.status === "Settled") {
-          const courseKey = txn.course_id || txn.masterclass_title || "unknown";
+          const courseKey = txn.course_id || txn.course_title || "unknown";
           
           if (processedCourses.has(courseKey)) continue;
           processedCourses.add(courseKey);
 
-          const course = allCourses.find((c) => c.id === txn.course_id || c.title === txn.masterclass_title) || allCourses[0];
+          const course = allCourses.find((c) => c.id === txn.course_id || c.title === txn.course_title) || allCourses[0];
 
           // Reuse existing 1-time links stored in DB if available
           let channelInvite = txn.metadata?.oneTimeLinks?.channel || "";
@@ -329,7 +519,7 @@ export async function findEnrollmentInvitesByPhone(phoneNumber, studentName = "S
           } catch (_e) {}
 
           foundInvites.push({
-            title: course?.title || txn.masterclass_title || "Masterclass",
+            title: course?.title || txn.course_title || "Course",
             channelLink: channelInvite || dbChannel,
             groupLink: groupInvite || dbGroup,
             txnId: txn.id,
@@ -362,44 +552,6 @@ export async function telegramApi(method, payload = {}) {
     console.error(`[Bot Network Error] ${method}:`, err);
     return { ok: false, error: err };
   }
-}
-
-// 4. UI Keyboards & Menus (Playful & Clear)
-
-export function getPhoneRequestKeyboard() {
-  return {
-    keyboard: [
-      [
-        {
-          text: "📱 Share Phone Number & Get Started 🚀",
-          request_contact: true
-        }
-      ]
-    ],
-    resize_keyboard: true,
-    one_time_keyboard: true
-  };
-}
-
-export function getMainMenuReplyKeyboard() {
-  return {
-    keyboard: [
-      [
-        { text: "🔗 Links" },
-        { text: "💬 Support" }
-      ],
-      [
-        { text: "📚 Courses" },
-        { text: "🎟️ Redeem Giveaway" }
-      ],
-      [
-        { text: "🔑 Forgot Password" },
-        { text: "💳 Payment Channels" }
-      ]
-    ],
-    resize_keyboard: true,
-    is_persistent: true
-  };
 }
 
 // 5. Message & Button Action Handlers (Playful & Educational)
@@ -448,19 +600,27 @@ export async function handleMessage(msg) {
       await dbStore.authorizeStudentTelegramOtpFromBot(authCode, from);
     }
 
+    const otpMsgText = await getFormattedBotResponse("otp_auth", { first_name: firstName, auth_code: authCode });
     await telegramApi("sendMessage", {
       chat_id: chatId,
-      text: `🎉 *Founders Academy Web Authentication Successful!* 🚀\n\nHello *${firstName}*,\nYour web browser session has been authorized.\n\n🔑 *Security Code:* \`${authCode}\`\n\n_You can now return to your browser!_`,
+      text: otpMsgText,
       parse_mode: "Markdown"
     });
     return;
   }
 
+  // 0. Student Password Reset Telegram Deep Link Handler (e.g. /start resetpassword, /start reset_251912345678)
+  if (upperText.startsWith("/START RESETPASSWORD") || upperText.startsWith("/START RESET_") || upperText.startsWith("/START RESET")) {
+    await handleForgotPassword(chatId, from, text);
+    return;
+  }
+
   // 0. Student Account Telegram Linking Handler (e.g. /start connect_251912345678)
   if (upperText.startsWith("/START CONNECT_") || upperText.startsWith("/START CONNECT")) {
+    const connectMsgText = await getFormattedBotResponse("welcome_connect", { first_name: firstName });
     await telegramApi("sendMessage", {
       chat_id: chatId,
-      text: `👋 *Welcome to Founders Academy Student Verification!* 🎓\n\nHello *${firstName}*,\nTo link your Telegram account to your Founders Academy student profile, please tap the button below to share your phone number.`,
+      text: connectMsgText,
       parse_mode: "Markdown",
       reply_markup: {
         keyboard: [
@@ -473,22 +633,23 @@ export async function handleMessage(msg) {
     return;
   }
 
-  // 0. Admin 2FA Pairing Code Handler (e.g. /link_admin FA-89241 or FA-89241 or /start admin_FA-89241)
+  // 0. Admin 2FA Pairing Code Handler (e.g. /link_admin FA-89241, /start admin_FA-89241, /start link_FA-89241, or FA-89241)
+  const pairingMatch = text.match(/FA-\d{5}/i);
   if (
+    pairingMatch ||
     upperText.startsWith("/LINK_ADMIN") || 
     upperText.startsWith("/START ADMIN_") || 
+    upperText.startsWith("/START LINK_") || 
     upperText.startsWith("FA-") || 
     upperText.startsWith("/ADMIN")
   ) {
-    let pairingCode = upperText
+    let pairingCode = pairingMatch ? pairingMatch[0].toUpperCase() : upperText
       .replace("/LINK_ADMIN", "")
       .replace("/START ADMIN_", "")
+      .replace("/START LINK_", "")
       .replace("/ADMIN", "")
+      .replace("/START", "")
       .trim();
-
-    if (!pairingCode.startsWith("FA-") && upperText.startsWith("FA-")) {
-      pairingCode = upperText;
-    }
 
     let pairResult = await dbStore.pairTelegramAdmin(pairingCode, {
       id: telegramId,
@@ -516,7 +677,7 @@ export async function handleMessage(msg) {
     if (pairResult.success) {
       await telegramApi("sendMessage", {
         chat_id: chatId,
-        text: `🔐 *Admin 2FA Device Successfully Linked!*\n\nHello *${firstName}* (@${from.username || 'admin'}), this Telegram chat is now officially registered as the *Founders Academy Super Admin 2FA Authenticator*.\n\n🛡️ *Security:* Whenever an administrator logs into the portal, a secure 6-digit one-time password (OTP) will be sent here directly.`,
+        text: `🔐 *Admin 2FA Device Successfully Linked!*\n\nHello *${firstName}* (@${from.username || 'admin'}), this Telegram chat is now officially registered as a *Founders Academy Super Admin 2FA Authenticator*.\n\n🛡️ *Security:* Whenever an administrator logs into the portal, a secure 6-digit one-time password (OTP) will be sent here directly.`,
         parse_mode: "Markdown"
       });
       return;
@@ -530,9 +691,11 @@ export async function handleMessage(msg) {
     }
   }
 
-  // Check if sender is the registered Admin
+  // Check if sender is a registered Admin (Supports Multi-Admin Team)
   const adminSec = await dbStore.getAdminSecurity();
-  const isLinkedAdmin = adminSec?.telegramAdminChatId && String(adminSec.telegramAdminChatId) === String(telegramId);
+  const linkedList = Array.isArray(adminSec?.linkedAdminChats) ? adminSec.linkedAdminChats : [];
+  const isLinkedAdmin = (adminSec?.telegramAdminChatId && String(adminSec.telegramAdminChatId) === String(telegramId)) ||
+    linkedList.some(a => String(a.chatId).trim() === String(telegramId).trim());
 
   // Admin Quick Management Commands via Telegram (Available even during Maintenance Mode)
   if (isLinkedAdmin) {
@@ -587,122 +750,209 @@ export async function handleMessage(msg) {
     return;
   }
 
-  // 1. Check Contact Sharing (Phone Number)
-  if (msg.contact) {
-    const rawPhone = msg.contact.phone_number || "";
-    const phoneNumber = rawPhone.startsWith("+") ? rawPhone : `+${rawPhone}`;
-    const cleanDigits = rawPhone.replace(/\D/g, "");
+  // --- REGISTRATION & RECOGNITION GUARD ---
+  let currentStudent = await ensureTelegramUserInStudents(from);
 
-    await registerBotUser({
-      telegram_id: telegramId,
-      first_name: from.first_name || "",
-      last_name: from.last_name || "",
-      username: from.username || "",
-      phone_number: phoneNumber,
-      registered_at: new Date().toISOString()
-    });
+  // 1. HIGH-PRIORITY CONTACT & PHONE NUMBER HANDLER
+  let sharedPhone = "";
+  if (msg.contact && msg.contact.phone_number) {
+    const rawP = String(msg.contact.phone_number).trim();
+    sharedPhone = rawP.startsWith("+") ? rawP : `+${rawP}`;
+  } else if (!currentStudent?.phone || currentStudent.phone.trim() === "") {
+    const cleanDigits = cleanPhoneDigits(text);
+    if (cleanDigits && cleanDigits.length >= 9 && (text.startsWith("+") || text.startsWith("09") || text.startsWith("07") || text.startsWith("251"))) {
+      sharedPhone = text.startsWith("+") ? text.trim() : `+251${cleanDigits.slice(-9)}`;
+    }
+  }
 
-    // Link student record in Supabase students table
-    try {
-      const { data: allStudents } = await supabase.from("students").select("*");
-      if (allStudents && allStudents.length > 0) {
-        const targetStudent = allStudents.find(s => {
-          const sDigits = (s.phone || "").replace(/\D/g, "");
-          return cleanDigits.slice(-9) && sDigits.endsWith(cleanDigits.slice(-9));
-        });
-
-        if (targetStudent) {
-          await supabase.from("students").update({
-            telegram_id: telegramId,
-            chat_id: telegramId,
-            telegram_username: from.username || ""
-          }).eq("id", targetStudent.id);
-
-          await dbStore.updateStudent(targetStudent.id, {
-            telegram_id: telegramId,
-            chat_id: telegramId,
-            telegram_username: from.username || ""
-          });
-
-          console.log(`[Bot Supabase] 🎯 Linked Telegram ID ${telegramId} to student record: ${targetStudent.id} (${targetStudent.name})`);
-        }
-      }
-    } catch (err) {
-      console.error("[Bot Student Link Error]:", err);
+  if (sharedPhone) {
+    let studentName = (currentStudent?.name && currentStudent.name.trim() !== "") ? currentStudent.name.trim() : "";
+    if (!studentName) {
+      studentName = await findNameForPhoneNumber(sharedPhone);
     }
 
-    console.log(`[Bot] Checking course enrollments for phone: ${phoneNumber}...`);
-    const invites = await findEnrollmentInvitesByPhone(phoneNumber, firstName);
+    // Store shared phone number to students.phone in database and memory immediately!
+    await dbStore.saveStudentPhone(telegramId, sharedPhone, studentName);
+    if (currentStudent) {
+      currentStudent.phone = sharedPhone;
+      if (studentName) currentStudent.name = studentName;
+    }
 
-    if (invites.length > 0) {
-      let inviteMsg = `🎉 *Boom! You're in, ${firstName}! Course Access Unlocked!* 🎓🔥\n\n`;
-      inviteMsg += `We found your verified masterclass enrollment in the Founders roster:\n\n`;
-
-      const inlineKeyboardButtons = [];
-
-      invites.forEach((item, idx) => {
-        inviteMsg += `*${idx + 1}. 🚀 ${item.title}*\n`;
-        if (item.channelLink) {
-          inviteMsg += `📢 *Classroom Channel:* ${item.channelLink}\n`;
-          inlineKeyboardButtons.push([{ text: `📢 Join ${item.title.substring(0, 18)} Channel`, url: item.channelLink }]);
-        }
-        if (item.groupLink) {
-          inviteMsg += `💬 *Mastermind Group:* ${item.groupLink}\n`;
-          inlineKeyboardButtons.push([{ text: `💬 Join ${item.title.substring(0, 18)} Group`, url: item.groupLink }]);
-        }
-        inviteMsg += `\n`;
-      });
-
-      inviteMsg += `🔒 _Pro Tip: These invite links are uniquely forged for you and single-use only._`;
-
+    // IF FULL NAME IS NOT FOUND FOR THIS PHONE NUMBER -> ASK FOR FULL NAME (STEP 2 OF 2)
+    if (!studentName) {
+      registrationStates.set(chatId, { state: "AWAITING_FULL_NAME", pendingPhone: sharedPhone });
       await telegramApi("sendMessage", {
         chat_id: chatId,
-        text: inviteMsg,
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: inlineKeyboardButtons
-        }
-      });
-    } else {
-      await telegramApi("sendMessage", {
-        chat_id: chatId,
-        text: `🎉 *Awesome, ${firstName}! Your student profile is officially active!* 🌟\n\nYour verified phone number (\`${phoneNumber}\`) has been linked to your Founders Academy account.\n\nReady to master high-income digital skills? Explore our masterclasses below! 🚀`,
+        text: `✍️ *Account Registration (Step 2 of 2)*\n\nThank you for sharing your phone number! 📱\nNow, please reply to this message with your *Full Name* (First and Last Name) to complete your student profile:`,
         parse_mode: "Markdown"
       });
+      return;
     }
 
+    const rawUsername = from.username ? from.username.replace(/^@/, "").trim() : "";
+    const cleanUsername = rawUsername ? `@${rawUsername}` : "";
+    const generatedPassword = currentStudent?.password_hash || String(Math.floor(100000 + Math.random() * 900000));
+
+    const updatePayload = {
+      name: studentName,
+      phone: sharedPhone,
+      password_hash: generatedPassword,
+      username: cleanUsername,
+      telegram_id: String(telegramId),
+      chat_id: String(telegramId),
+      telegram_username: rawUsername
+    };
+
+    try {
+      await supabase.from("students").upsert([{
+        id: `TG-${telegramId}`,
+        email: cleanUsername || `user_${telegramId}@foundersacademy.et`,
+        ...updatePayload
+      }], { onConflict: "id" });
+
+      await supabase.from("students").update(updatePayload).eq("telegram_id", String(telegramId));
+      await supabase.from("students").update(updatePayload).eq("chat_id", String(telegramId));
+    } catch (err) {
+      console.error("[Bot Contact Supabase Update Error]:", err);
+    }
+
+    try {
+      await supabase.from("telegram_users").upsert([{
+        telegram_id: Number(telegramId),
+        first_name: from.first_name || "",
+        last_name: from.last_name || "",
+        username: rawUsername,
+        phone_number: sharedPhone,
+        is_verified: true,
+        registered_at: new Date().toISOString()
+      }], { onConflict: "telegram_id" });
+    } catch (_e) {}
+
+    await dbStore.updateStudent(`TG-${telegramId}`, updatePayload);
+
+    if (currentStudent) {
+      currentStudent.name = studentName;
+      currentStudent.phone = sharedPhone;
+      currentStudent.password_hash = generatedPassword;
+    }
+
+    registrationStates.delete(chatId);
+
+    console.log(`[Bot] ✅ SUCCESSFULLY REGISTERED PHONE FOR ${studentName} (${telegramId}): ${sharedPhone}`);
+
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `🎉 *Registration Complete, ${studentName}!* 🌟\n\nYour account is now fully verified:\n👤 *Full Name*: ${studentName}\n📱 *Phone*: \`${sharedPhone}\`\n🔑 *Password*: \`${generatedPassword}\`\n\nChoose an option from the menu below to get started! 🚀`,
+      parse_mode: "Markdown"
+    });
+
+    await sendMainMenu(chatId, studentName);
+    return;
+  }
+
+  // 2. REGISTRATION CONTROLLER: STEP 1 (PHONE) -> STEP 2 (FULL NAME)
+  const regState = registrationStates.get(chatId)?.state;
+  const hasPhone = currentStudent && currentStudent.phone && currentStudent.phone.trim() !== "";
+
+  // Step 2 Response Handler: User replies with Full Name
+  if (regState === "AWAITING_FULL_NAME" && text && !text.startsWith("/")) {
+    const enteredFullName = text.trim();
+    const pendingPhone = registrationStates.get(chatId)?.pendingPhone || currentStudent?.phone || "";
+
+    if (pendingPhone) {
+      await dbStore.saveStudentPhone(telegramId, pendingPhone, enteredFullName);
+    } else {
+      await dbStore.updateStudent(`TG-${telegramId}`, { name: enteredFullName });
+    }
+
+    if (currentStudent) {
+      currentStudent.name = enteredFullName;
+      if (pendingPhone) currentStudent.phone = pendingPhone;
+    }
+
+    registrationStates.delete(chatId);
+
+    const generatedPassword = currentStudent?.password_hash || String(Math.floor(100000 + Math.random() * 900000));
+    const updatePayload = {
+      name: enteredFullName,
+      phone: pendingPhone,
+      password_hash: generatedPassword
+    };
+    await dbStore.saveStudentPhone(telegramId, pendingPhone, enteredFullName);
+    await dbStore.updateStudent(`TG-${telegramId}`, updatePayload);
+    try {
+      await supabase.from("students").update(updatePayload).eq("id", `TG-${telegramId}`);
+      await supabase.from("students").update(updatePayload).eq("telegram_id", String(telegramId));
+      await supabase.from("students").update(updatePayload).eq("chat_id", String(telegramId));
+    } catch (_e) {}
+
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `🎉 *Registration Complete, ${enteredFullName}!* 🌟\n\nYour account is now fully verified:\n👤 *Full Name*: ${enteredFullName}\n📱 *Phone*: \`${pendingPhone || 'N/A'}\`\n🔑 *Password*: \`${generatedPassword}\`\n\nChoose an option from the menu below to get started! 🚀`,
+      parse_mode: "Markdown"
+    });
+
+    await sendMainMenu(chatId, enteredFullName);
+    return;
+  }
+
+  // Step 1 Check: If phone is missing, ASK FOR PHONE NUMBER FIRST (STEP 1 OF 2)
+  if (!hasPhone) {
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `📱 *Account Registration (Step 1 of 2)*\n\nWelcome to **Founders Academy**! 🎓\nPlease tap the button below to share your *Phone Number* to get started:`,
+      parse_mode: "Markdown",
+      reply_markup: getPhoneRequestKeyboard()
+    });
+    return;
+  }
+
+  // Step 2 Check: If phone exists but name is missing for that number, ASK FOR FULL NAME (STEP 2 OF 2)
+  const hasName = currentStudent && currentStudent.name && currentStudent.name.trim() !== "";
+  if (!hasName) {
+    registrationStates.set(chatId, { state: "AWAITING_FULL_NAME", pendingPhone: currentStudent.phone });
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `✍️ *Account Registration (Step 2 of 2)*\n\nThank you for verifying your phone! 📱\nPlease reply to this message with your *Full Name* (First and Last Name) to complete your student profile:`,
+      parse_mode: "Markdown"
+    });
+    return;
+  }
+
+
+
+  // --- REGISTERED USER PATH (Chat ID DOES have phone number in database) ---
+  registrationStates.delete(chatId);
+
+  const rawUsername = from.username ? from.username.replace(/^@/, "").trim() : "";
+  const cleanUsername = rawUsername ? `@${rawUsername}` : "";
+  if (cleanUsername) {
+    try {
+      await supabase.from("students").update({
+        username: cleanUsername,
+        telegram_username: rawUsername
+      }).or(`id.eq.TG-${telegramId},telegram_id.eq.${telegramId},chat_id.eq.${telegramId}`);
+    } catch (_e) {}
+  }
+
+  // Handle /start for registered users (Send main menu directly without asking for phone number)
+  if (upperText === "/START" || upperText === "/START MAIN" || upperText === "START") {
     await sendMainMenu(chatId, firstName);
     return;
   }
 
-  // 2. Auto-register user in cache/DB on interaction
-  try {
-    await registerBotUser({
-      telegram_id: telegramId,
-      first_name: firstName,
-      last_name: from.last_name || "",
-      username: from.username || "",
-      phone_number: "",
-      registered_at: new Date().toISOString()
+  // If registered user re-shares contact
+  if (msg.contact) {
+    const rawPhone = msg.contact.phone_number || "";
+    const phoneNumber = rawPhone.startsWith("+") ? rawPhone : `+${rawPhone}`;
+    await telegramApi("sendMessage", {
+      chat_id: chatId,
+      text: `✅ *Profile Already Verified!* 🌟\n\nYour account is linked to \`${phoneNumber}\`. Choose where you'd like to go next below:`,
+      parse_mode: "Markdown"
     });
-  } catch (_e) {}
-
-  // 2b. Check if the user is banned
-  try {
-    const banStatus = await dbStore.isStudentBanned(telegramId);
-    if (banStatus && banStatus.banned) {
-      await telegramApi("sendMessage", {
-        chat_id: chatId,
-        text: `🚫 *Your Account Has Been Suspended*\n\n` +
-          `Your Founders Academy Bot access has been restricted by an administrator.\n\n` +
-          `*Reason:* ${banStatus.reason || "Violation of platform terms"}\n\n` +
-          `If you believe this is a mistake, please contact support:\n👉 @foundersupportt`,
-        parse_mode: "Markdown"
-      });
-      console.log(`[Bot] 🚫 Banned user blocked: ${firstName} (${telegramId}). Reason: ${banStatus.reason}`);
-      return;
-    }
-  } catch (_e) {}
+    await sendMainMenu(chatId, firstName);
+    return;
+  }
 
   // 3. Menu Button & Giveaway Handlers
   if (text.startsWith("/redeem") || text.startsWith("/giveaway") || text.startsWith("/code") || text.includes("Giveaway") || text.includes("Redeem")) {
@@ -736,8 +986,18 @@ export async function handleMessage(msg) {
     return;
   }
 
-  if (text.includes("Links") || text === "/links" || text.includes("ሊንክ")) {
-    await onLinksClicked(chatId, from, msg);
+  if (
+    text.includes("My Courses") ||
+    text.includes("my_courses") ||
+    text === "/mycourses" ||
+    text === "/my_courses" ||
+    text.includes("Enrolled") ||
+    text.includes("Links") ||
+    text === "/links" ||
+    text.includes("ሊንክ") ||
+    text.includes("ትምህርቶቼ")
+  ) {
+    await onMyCoursesClicked(chatId, from, msg);
     return;
   }
 
@@ -746,7 +1006,14 @@ export async function handleMessage(msg) {
     return;
   }
 
-  if (text.includes("Courses") || text === "/courses" || text.includes("ኮርሶች")) {
+  if (
+    text.includes("Browse Courses") ||
+    text.includes("All Courses") ||
+    text.includes("Catalog") ||
+    text === "/courses" ||
+    text.includes("Courses") ||
+    text.includes("ኮርሶች")
+  ) {
     await onCoursesClicked(chatId, from, msg);
     return;
   }
@@ -761,19 +1028,7 @@ export async function handleMessage(msg) {
     return;
   }
 
-  // If user already has registered phone number, show main menu directly without asking again
-  const hasPhone = await isUserRegistered(telegramId);
-  if (!hasPhone) {
-    await telegramApi("sendMessage", {
-      chat_id: chatId,
-      text: `👋 *Welcome to Founders Academy!* 🎓\n\nHello *${firstName}*,\nTo access your student portal and courses, please tap the button below to share your phone number:`,
-      parse_mode: "Markdown",
-      reply_markup: getPhoneRequestKeyboard()
-    });
-    return;
-  }
-
-  console.log(`[Bot] Greeting existing learner: ${firstName} (${telegramId})`);
+  console.log(`[Bot] Greeting registered learner: ${firstName} (${telegramId})`);
   await sendMainMenu(chatId, firstName);
 }
 
@@ -804,7 +1059,7 @@ async function handleGiveawayRedemption(chatId, from, rawCode) {
       const statusMsg = `🎟️ *GIVEAWAY CODE STATUS CARD* 🔍\n\n` +
         `📋 *Code:* \`${res.code || codeClean}\`\n` +
         `⚡ *Status:* 🔴 *OUTDATED / ALREADY REDEEMED*\n` +
-        `📘 *Course:* ${res.courseTitle || 'Founders Masterclass'}\n` +
+        `📘 *Course:* ${res.courseTitle || 'Founders Course'}\n` +
         `👤 *Redeemed By:* ${uName} ${uUser}\n` +
         `📅 *Redeemed Date:* ${dateStr}\n\n` +
         `❌ *Redemption Failed:* This 1-time giveaway code has already been redeemed by another student and is no longer valid.`;
@@ -818,7 +1073,7 @@ async function handleGiveawayRedemption(chatId, from, rawCode) {
       const statusMsg = `🎟️ *GIVEAWAY CODE STATUS CARD* 🔍\n\n` +
         `📋 *Code:* \`${res.code || codeClean}\`\n` +
         `⚡ *Status:* ⏳ *REVOKED BY ADMIN*\n` +
-        `📘 *Course:* ${res.courseTitle || 'Founders Masterclass'}\n\n` +
+        `📘 *Course:* ${res.courseTitle || 'Founders Course'}\n\n` +
         `❌ *Redemption Failed:* This giveaway code has been cancelled by the administrator.`;
 
       await telegramApi("sendMessage", {
@@ -977,72 +1232,113 @@ export async function handleForgotPassword(chatId, user, text) {
   const trimmed = (text || "").trim();
   const upper = trimmed.toUpperCase();
 
-  // Reset password execution (e.g. /resetpassword MyNewPassword123)
-  if (upper.startsWith("/RESETPASSWORD ") || upper.startsWith("/RESET_PASSWORD ") || upper.startsWith("/RESETPASS ")) {
-    const parts = trimmed.split(/\s+/);
-    const newPass = parts.slice(1).join(" ").trim();
+  // Extract phone number from deep link if present (e.g. /start reset_0912345678 or reset_251912345678)
+  let phoneInLink = "";
+  const matchPhone = trimmed.match(/reset_(\d+)/i);
+  if (matchPhone) {
+    phoneInLink = matchPhone[1];
+  }
 
-    if (!newPass || newPass.length < 4) {
-      await telegramApi("sendMessage", {
-        chat_id: chatId,
-        text: `❌ *Password Too Short*\n\nYour new password must be at least 4 characters long.\n\n*Usage:* \`/resetpassword YourNewPassword123\``,
-        parse_mode: "Markdown"
+  // Check if user specified a password: /resetpassword MyNewPass123 OR /reset MyNewPass123 OR directly typed password
+  let newPass = "";
+  if (upper.startsWith("/RESETPASSWORD ") || upper.startsWith("/RESET_PASSWORD ") || upper.startsWith("/RESETPASS ") || upper.startsWith("/RESET ")) {
+    const parts = trimmed.split(/\s+/);
+    newPass = parts.slice(1).join(" ").trim();
+  } else if (!upper.startsWith("/START") && !upper.includes("FORGOT") && !upper.includes("RESET") && trimmed.length >= 4) {
+    newPass = trimmed;
+  }
+
+  // If no custom password provided yet, generate a random 8-character password automatically
+  let isAutoGenerated = false;
+  if (!newPass || newPass.length < 4) {
+    isAutoGenerated = true;
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let rand = "";
+    for (let i = 0; i < 6; i++) {
+      rand += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    newPass = `FA-${rand}`;
+  }
+
+  try {
+    const cleanTgId = String(telegramId);
+    let studentRecord = null;
+
+    // 1. Search by deep link phone number (if present)
+    if (phoneInLink) {
+      const allStudents = await dbStore.getStudents();
+      const cleanLinkPhone = phoneInLink.replace(/\D/g, "");
+      studentRecord = allStudents.find(s => {
+        const sPhone = (s.phone || "").replace(/\D/g, "");
+        return sPhone && cleanLinkPhone && (sPhone === cleanLinkPhone || sPhone.endsWith(cleanLinkPhone.slice(-9)) || cleanLinkPhone.endsWith(sPhone.slice(-9)));
       });
-      return;
     }
 
-    try {
-      const cleanTgId = String(telegramId);
+    // 2. Search Supabase by Telegram ID / Chat ID
+    if (!studentRecord) {
       const { data: student } = await supabase
         .from("students")
         .select("*")
         .or(`id.eq.TG-${cleanTgId},telegram_id.eq.${cleanTgId},chat_id.eq.${cleanTgId}`)
         .maybeSingle();
 
-      if (student) {
-        await supabase.from("students").update({ password_hash: newPass }).eq("id", student.id);
-        await dbStore.updateStudent(student.id, { password_hash: newPass });
-
-        await telegramApi("sendMessage", {
-          chat_id: chatId,
-          text: `🎉 *Password Reset Successfully!* 🔐\n\nHello *${firstName}*,\nYour student portal password has been updated to:\n🔑 \`${newPass}\`\n\nYou can now log in at:\n👉 https://new-nu-umber.vercel.app/student-login.html`,
-          parse_mode: "Markdown"
-        });
-        return;
-      }
-
-      // Check userCache for phone
-      const cached = userCache.get(telegramId);
-      const userPhone = cached?.phone_number;
-      if (userPhone) {
-        const res = await dbStore.resetStudentPassword({ phone: userPhone, newPassword: newPass });
-        if (res.success) {
-          await telegramApi("sendMessage", {
-            chat_id: chatId,
-            text: `🎉 *Password Reset Successfully!* 🔐\n\nHello *${firstName}*,\nYour student portal password has been updated to:\n🔑 \`${newPass}\`\n\nYou can now log in at:\n👉 https://new-nu-umber.vercel.app/student-login.html`,
-            parse_mode: "Markdown"
-          });
-          return;
-        }
-      }
-    } catch (err) {
-      console.error("[Bot Password Reset Error]:", err);
+      if (student) studentRecord = student;
     }
 
-    await telegramApi("sendMessage", {
-      chat_id: chatId,
-      text: `⚠️ *Student Account Not Found*\n\nWe couldn't find a student account linked to your Telegram profile.\n\nPlease tap **📱 Share Phone Number** first to link your account!`,
-      parse_mode: "Markdown",
-      reply_markup: getPhoneRequestKeyboard()
-    });
-    return;
+    // 3. Search by telegram_id / phone in dbStore
+    if (!studentRecord) {
+      const allStudents = await dbStore.getStudents();
+      const found = allStudents.find(s => {
+        const sTgId = String(s.telegram_id || s.chat_id || "");
+        return sTgId === cleanTgId || String(s.id) === `TG-${cleanTgId}`;
+      });
+      if (found) studentRecord = found;
+    }
+
+    if (studentRecord) {
+      // Reset student password in Supabase and dbStore memory!
+      await dbStore.resetStudentPassword({ phone: studentRecord.phone, newPassword: newPass });
+      await dbStore.updateStudent(studentRecord.id, { password_hash: newPass, telegram_id: cleanTgId, chat_id: String(chatId) });
+
+      const loginUrl = getValidWebAppUrl("/student-auth.html");
+
+      await telegramApi("sendMessage", {
+        chat_id: chatId,
+        text: `🎉 *PASSWORD RESET SUCCESSFUL!* 🔐✨\n\n` +
+          `Hello *${firstName}*,\n` +
+          `Your Founders Academy student account password has been updated:\n\n` +
+          `👤 *Account:* ${studentRecord.name || 'Student'} (${studentRecord.phone})\n` +
+          `🔑 *New Password:* \`${newPass}\`\n\n` +
+          `👉 *Log in to your student portal:* ${loginUrl}\n\n` +
+          `_Tip: Tap the password above to copy it with 1-click and log in immediately!_`,
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "🔑 Open Student Login Portal", url: loginUrl }]
+          ]
+        }
+      });
+      return;
+    }
+  } catch (err) {
+    console.error("[Bot Password Reset Error]:", err);
   }
 
-  // Prompt user with reset instructions
+  // Fallback: Save state so next contact share or message resets password
+  registrationStates.set(chatId, { action: "awaiting_password_reset", phone: phoneInLink });
+
   await telegramApi("sendMessage", {
     chat_id: chatId,
-    text: `🔑 *Founders Academy Password Reset* 🔐\n\nHello *${firstName}*,\nTo reset your student portal password, reply with this command:\n\n👉 \`/resetpassword your_new_password\`\n\n*Example:*\n\`/resetpassword Founders2026!\`\n\n_Your new password will be updated instantly in your student account!_`,
-    parse_mode: "Markdown"
+    text: `⚠️ *Student Account Identification Required*\n\n` +
+      `Hello *${firstName}*,\nTo update your password, please tap **📱 Share Phone Number & Reset Password** below so we can find your registered student profile!`,
+    parse_mode: "Markdown",
+    reply_markup: {
+      keyboard: [
+        [{ text: "📱 Share Phone Number & Reset Password", request_contact: true }]
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: true
+    }
   });
 }
 
@@ -1108,7 +1404,7 @@ async function onReferralClicked(chatId, user, msg) {
   } else {
     await telegramApi("sendMessage", {
       chat_id: chatId,
-      text: `👥 *Founders Academy Student Referral Program* 🎁✨\n\nInvite your friends to master high-income skills! Your unique referral link is:\n👉 \`${refLink}\`\n\nEarn bonus discount points and free masterclass vouchers whenever a friend registers using your link!`,
+      text: `👥 *Founders Academy Student Referral Program* 🎁✨\n\nInvite your friends to master high-income skills! Your unique referral link is:\n👉 \`${refLink}\`\n\nEarn bonus discount points and free course vouchers whenever a friend registers using your link!`,
       parse_mode: "Markdown"
     });
   }
@@ -1116,68 +1412,129 @@ async function onReferralClicked(chatId, user, msg) {
 
 // Action Handlers (Playful & Educational)
 
-async function onLinksClicked(chatId, user, msg) {
-  console.log(`[Bot Handler] 'Links' selected by ${user?.first_name || user?.id}`);
+export async function onMyCoursesClicked(chatId, user, msg) {
+  const telegramId = user.id;
+  const firstName = user.first_name || "Student";
+  console.log(`[Bot Handler] 'My Courses' selected by ${firstName} (${telegramId})`);
 
-  let phone = userCache.get(user.id)?.phone_number || "";
+  let phone = "";
   if (!phone) {
-    const tgIdStr = `TG-${user.id}`;
-    const { data: student } = await supabase.from("students").select("phone").eq("id", tgIdStr).maybeSingle();
-    if (student?.phone) phone = student.phone;
+    const cleanTgId = String(telegramId);
+    try {
+      const { data: student } = await supabase
+        .from("students")
+        .select("phone")
+        .or(`id.eq.TG-${cleanTgId},telegram_id.eq.${cleanTgId},chat_id.eq.${cleanTgId}`)
+        .maybeSingle();
+      if (student?.phone) phone = student.phone;
+    } catch (_e) {}
   }
   if (!phone) {
-    const { data: tgUser } = await supabase.from("telegram_users").select("phone_number").eq("telegram_id", user.id).maybeSingle();
-    if (tgUser?.phone_number) phone = tgUser.phone_number;
+    try {
+      const { data: tgUser } = await supabase.from("telegram_users").select("phone_number").eq("telegram_id", telegramId).maybeSingle();
+      if (tgUser?.phone_number) phone = tgUser.phone_number;
+    } catch (_e) {}
   }
 
-  let inviteButtons = [];
-  let linksMsg = `🔗 *Founders Academy Learning Portals* 🎓\n\n`;
+  // 1. Fetch verified enrolled courses from dbStore student roster
+  const searchKey = phone || `TG-${telegramId}` || String(telegramId);
+  let enrolledCourses = [];
+  try {
+    const studentInfo = await dbStore.getStudentCoursesWithLinks(searchKey);
+    if (studentInfo && Array.isArray(studentInfo.courses)) {
+      enrolledCourses = studentInfo.courses;
+    }
+  } catch (_e) {}
 
+  // 2. Fetch 1-time classroom invite links if phone is linked
   let invites = [];
   if (phone) {
-    invites = await findEnrollmentInvitesByPhone(phone, user.first_name || "Student");
+    try {
+      invites = await findEnrollmentInvitesByPhone(phone, firstName);
+    } catch (_e) {}
   }
 
-  if (invites.length > 0) {
-    linksMsg += `🌟 *Your Masterclass Access Status:*\n\n`;
-    invites.forEach((item, idx) => {
-      linksMsg += `*${idx + 1}. 🎯 ${item.title}*\n`;
+  const webAppUrl = getValidWebAppUrl("/student-dashboard.html");
+  let inviteButtons = [
+    [{ text: "🚀 Open Student Dashboard (Mini App)", web_app: { url: webAppUrl } }]
+  ];
+
+  let msgText = `📚 *My Enrolled Courses & Portals* 🎓\n\n`;
+  msgText += `👤 *Student:* ${firstName}\n`;
+  if (phone) msgText += `📱 *Linked Phone:* \`${phone}\`\n`;
+  msgText += `\n`;
+
+  const addedTitles = new Set();
+  let courseCount = 0;
+
+  // Render enrolled courses from database transactions & roster
+  enrolledCourses.forEach(c => {
+    const title = c.title || "Course";
+    if (!addedTitles.has(title)) {
+      addedTitles.add(title);
+      courseCount++;
+      msgText += `*${courseCount}. 🎯 ${title}*\n`;
+      msgText += `   • 🏷️ *Category:* ${c.category || "Course"}\n`;
+      msgText += `   • ⚡ *Status:* 🟢 *${c.status || "Verified Active"}*\n`;
+      if (c.tg_channel) {
+        msgText += `   • 📢 *Classroom Channel:* ${c.tg_channel}\n`;
+        inviteButtons.push([{ text: `📢 Join ${title.substring(0, 18)} Channel`, url: c.tg_channel }]);
+      }
+      if (c.tg_group) {
+        msgText += `   • 💬 *Mastermind Group:* ${c.tg_group}\n`;
+        inviteButtons.push([{ text: `💬 Join ${title.substring(0, 18)} Group`, url: c.tg_group }]);
+      }
+      msgText += `\n`;
+    }
+  });
+
+  // Render 1-time single-use classroom invite links if available
+  invites.forEach(item => {
+    const title = item.title || "Course";
+    if (!addedTitles.has(title)) {
+      addedTitles.add(title);
+      courseCount++;
+      msgText += `*${courseCount}. 🎯 ${title}*\n`;
       if (item.alreadyClaimed) {
-        linksMsg += `   • ⚠️ *Status:* Single-use join link already redeemed.\n`;
-        linksMsg += `   • 💡 *Note:* Each ticket allows 1 entry. To join the next cohort, enroll at foundersacademy.et\n`;
-        inviteButtons.push([{ text: `🎓 Re-Buy / Enroll ${item.title.substring(0, 18)}`, url: "https://foundersacademy.et" }]);
+        msgText += `   • ⚠️ *Status:* Single-use join link already claimed.\n`;
+        msgText += `   • 💡 *Note:* Access your full course materials inside the Mini App below!\n`;
       } else {
+        msgText += `   • ⚡ *Status:* 🟢 *Active Invites Ready*\n`;
         if (item.channelLink) {
-          linksMsg += `   • 📢 *Classroom Channel:* ${item.channelLink}\n`;
-          inviteButtons.push([{ text: `📢 Join ${item.title.substring(0, 18)} Channel`, url: item.channelLink }]);
+          msgText += `   • 📢 *Classroom Channel:* ${item.channelLink}\n`;
+          inviteButtons.push([{ text: `📢 Join ${title.substring(0, 18)} Channel`, url: item.channelLink }]);
         }
         if (item.groupLink) {
-          linksMsg += `   • 💬 *Mastermind Group:* ${item.groupLink}\n`;
-          inviteButtons.push([{ text: `💬 Join ${item.title.substring(0, 18)} Group`, url: item.groupLink }]);
+          msgText += `   • 💬 *Mastermind Group:* ${item.groupLink}\n`;
+          inviteButtons.push([{ text: `💬 Join ${title.substring(0, 18)} Group`, url: item.groupLink }]);
         }
       }
-      linksMsg += `\n`;
-    });
-    linksMsg += `🔒 _Note: Invite links are 1-time single-use only per enrolled ticket._\n\n`;
+      msgText += `\n`;
+    }
+  });
+
+  if (courseCount === 0) {
+    msgText += `💡 *You haven't enrolled in any courses yet!*\n\n`;
+    msgText += `Master high-income skills in SMMA, Video Editing, Content Creation, and AI Automation.\n\n`;
+    msgText += `Tap *🎓 Browse Courses* to explore available courses and secure your seat!\n\n`;
   } else {
-    linksMsg += `💡 *You haven't unlocked any masterclasses yet!*\n\n`;
-    linksMsg += `Don't miss out on acquiring high-income skills in SMMA, Video Editing, and Viral Content.\n`;
-    linksMsg += `Head over to our portal, enroll in a course, and your private mastermind links will appear right here!\n\n`;
-    inviteButtons.push([{ text: "🎓 Browse Masterclasses & Enroll", url: "https://foundersacademy.et" }]);
+    msgText += `🔒 _Note: Single-use classroom links expire after initial entry for security._\n\n`;
   }
 
-  linksMsg += `🌐 Website: https://foundersacademy.et\n💬 Mentor Support: @foundersupportt`;
+  msgText += `💬 Mentor Support: @foundersupportt`;
   inviteButtons.push([{ text: "💬 Talk to Mentor Support", url: "https://t.me/foundersupportt" }]);
 
   await telegramApi("sendMessage", {
     chat_id: chatId,
-    text: linksMsg,
+    text: msgText,
     parse_mode: "Markdown",
     reply_markup: {
       inline_keyboard: inviteButtons
     }
   });
 }
+
+export const onLinksClicked = onMyCoursesClicked;
 
 async function onSupportClicked(chatId, user, msg) {
   console.log(`[Bot Handler] 'Support' selected by ${user?.first_name || user?.id}`);
@@ -1208,13 +1565,13 @@ async function onCoursesClicked(chatId, user, msg) {
     if (activeCourses.length === 0) {
       await telegramApi("sendMessage", {
         chat_id: chatId,
-        text: `📚 *Founders Academy Masterclasses* 💡\n\nNew cohort courses are currently being finalized! Check back in a few moments or ask @foundersupportt for the upcoming cohort schedule.`,
+        text: `📚 *Founders Academy Courses* 💡\n\nNew cohort courses are currently being finalized! Check back in a few moments or ask @foundersupportt for the upcoming cohort schedule.`,
         parse_mode: "Markdown"
       });
       return;
     }
 
-    let messageText = `📚 *Founders Academy Masterclass Catalog* 🚀💡\n\nHere are our active industry-leading masterclasses engineered to build real-world skills and income:\n\n`;
+    let messageText = `📚 *Founders Academy Course Catalog* 🚀💡\n\nHere are our active industry-leading courses engineered to build real-world skills and income:\n\n`;
 
     activeCourses.forEach((course, index) => {
       const title = course.title || "Untitled Course";
@@ -1269,11 +1626,110 @@ async function onCertificateClicked(chatId, user, msg) {
   });
 }
 
-// 6. Long Polling Engine
+// 6. Telegram Bot Engine (Webhook & Long Polling Support)
 let isRunning = false;
 let lastUpdateId = 0;
 
-export async function startBot() {
+export async function processTelegramUpdate(update) {
+  if (!update) return;
+
+  if (update.callback_query) {
+    try {
+      const cb = update.callback_query;
+      const maint = await getMaintenanceStatus();
+      if (maint && maint.status === "ON") {
+        const adminSec = await dbStore.getAdminSecurity();
+        const isFromAdmin = adminSec?.telegramAdminChatId && String(adminSec.telegramAdminChatId) === String(cb.from?.id);
+        if (!isFromAdmin) {
+          await telegramApi("answerCallbackQuery", {
+            callback_query_id: cb.id,
+            text: "🚧 Founders Academy Bot is currently paused in maintenance mode.",
+            show_alert: true
+          });
+          return;
+        }
+      }
+
+      await telegramApi("answerCallbackQuery", { callback_query_id: cb.id });
+
+      const cbChatId = cb.message?.chat?.id || cb.from?.id;
+      const cbData = cb.data || "";
+
+      if (cbData.startsWith("set_lang_")) {
+        const lang = cbData.replace("set_lang_", "");
+        setUserLanguage(cb.from.id, lang);
+        const langNames = { am: "አማርኛ", om: "Afaan Oromoo", en: "English" };
+        await telegramApi("sendMessage", {
+          chat_id: cbChatId,
+          text: `✅ Language set to *${langNames[lang] || 'English'}*!`,
+          parse_mode: "Markdown"
+        });
+        await sendMainMenu(cbChatId, cb.from?.first_name || "Student");
+      } else if (cbData === "cmd_courses" || cbData === "browse_courses") {
+        await onCoursesClicked(cbChatId, cb.from, cb.message);
+      } else if (cbData === "cmd_mycourses" || cbData === "my_courses") {
+        await onMyCoursesClicked(cbChatId, cb.from, cb.message);
+      } else if (cbData === "cmd_support" || cbData === "support") {
+        await onSupportClicked(cbChatId, cb.from, cb.message);
+      } else if (cbData === "cmd_bank" || cbData === "payment_channels") {
+        await onBankPaymentClicked(cbChatId, cb.from, cb.message);
+      } else if (cbData === "cmd_giveaway" || cbData === "redeem_giveaway") {
+        await handleGiveawayRedemption(cbChatId, cb.from, "");
+      } else if (cbData === "cmd_forgot") {
+        await handleForgotPassword(cbChatId, cb.from, "");
+      }
+    } catch (cbErr) {
+      console.error("[Bot Webhook Error] Exception handling callback_query:", cbErr);
+    }
+  }
+
+  if (update.message) {
+    try {
+      await handleMessage(update.message);
+    } catch (msgErr) {
+      console.error("[Bot Webhook Error] Exception handling message:", msgErr);
+    }
+  }
+}
+
+export async function setupWebhook(domainOrUrl) {
+  if (!BOT_TOKEN) return false;
+
+  let webhookUrl = domainOrUrl || process.env.WEBHOOK_URL || "";
+  if (!webhookUrl) return false;
+
+  if (!webhookUrl.startsWith("http")) {
+    webhookUrl = `https://${webhookUrl}`;
+  }
+
+  if (!webhookUrl.startsWith("https://")) {
+    console.warn("⚠️ [Bot Webhook Warning] Webhook requires a secure https:// URL.");
+    return false;
+  }
+
+  const targetEndpoint = `${webhookUrl.replace(/\/$/, "")}/api/telegram/webhook`;
+
+  try {
+    const res = await telegramApi("setWebhook", {
+      url: targetEndpoint,
+      allowed_updates: ["message", "callback_query"],
+      drop_pending_updates: true
+    });
+
+    if (res.ok) {
+      console.log(`🚀 [Bot Webhook] ULTRA FAST WEBHOOK SET: ${targetEndpoint}`);
+      return true;
+    } else {
+      console.warn(`[Bot Webhook Warning] setWebhook:`, res.description || res);
+    }
+  } catch (err) {
+    console.error("[Bot Webhook Error] setWebhook failed:", err);
+  }
+  return false;
+}
+
+// 6. Bot Lifecycle & Polling Engine
+export async function startBot(options = {}) {
   if (!BOT_TOKEN) {
     console.error("❌ Cannot start bot: Missing BOT_TOKEN.");
     return;
@@ -1288,12 +1744,28 @@ export async function startBot() {
     }
   }
 
-  try {
-    await telegramApi("deleteWebhook", { drop_pending_updates: false });
-  } catch (_e) {}
-
   console.log("⚡ Pre-warming Supabase database cache & 1-time invite link engine...");
   await getActiveCoursesFast();
+
+  const webhookDomain = options.webhookUrl || process.env.WEBHOOK_URL || process.env.WEB_APP_URL || "";
+  const preferWebhook = options.useWebhook !== false && (process.env.USE_WEBHOOK === "true" || !!webhookDomain);
+
+  if (preferWebhook && webhookDomain) {
+    const isWebhookActive = await setupWebhook(webhookDomain);
+    if (isWebhookActive) {
+      console.log("==================================================");
+      console.log(`⚡ Telegram Bot Active: @${me.result.username} (${me.result.first_name})`);
+      console.log(`⚡ Mode: WEBHOOK (Ultra-Fast Event Driven)`);
+      console.log("==================================================");
+      return;
+    }
+  }
+
+  // Fallback to Polling Mode if no webhook URL set or local fallback needed
+  try {
+    await telegramApi("deleteWebhook", { drop_pending_updates: true });
+    console.log("🧹 [Bot Webhook] Running in Local Long-Polling Mode.");
+  } catch (_e) {}
 
   console.log("==================================================");
   console.log(`🤖 Telegram Bot Active: @${me.result.username} (${me.result.first_name})`);
@@ -1302,7 +1774,6 @@ export async function startBot() {
   console.log("==================================================");
 
   isRunning = true;
-
   let conflictLogged = false;
 
   while (isRunning) {
@@ -1316,30 +1787,7 @@ export async function startBot() {
         conflictLogged = false;
         for (const update of updatesRes.result) {
           lastUpdateId = update.update_id;
-
-          if (update.callback_query) {
-            const maint = await getMaintenanceStatus();
-            if (maint && maint.status === "ON") {
-              const adminSec = await dbStore.getAdminSecurity();
-              const isFromAdmin = adminSec?.telegramAdminChatId && String(adminSec.telegramAdminChatId) === String(update.callback_query.from?.id);
-              if (!isFromAdmin) {
-                await telegramApi("answerCallbackQuery", {
-                  callback_query_id: update.callback_query.id,
-                  text: "🚧 Founders Academy Bot is currently paused in maintenance mode.",
-                  show_alert: true
-                });
-                continue;
-              }
-            }
-          }
-
-          if (update.message) {
-            try {
-              await handleMessage(update.message);
-            } catch (msgErr) {
-              console.error(`[Bot Error] Exception handling message:`, msgErr);
-            }
-          }
+          await processTelegramUpdate(update);
         }
       } else {
         if (!conflictLogged && updatesRes.description?.includes("Conflict")) {
@@ -1355,12 +1803,12 @@ export async function startBot() {
   }
 }
 
-export function stopBot() {
+function stopBot() {
   isRunning = false;
   console.log("[Bot] Stopping polling...");
 }
 
 // If executed directly
-if (import.meta.main || process.argv[1]?.endsWith("bot.js") || process.argv[1]?.endsWith("bot.ts")) {
+if (process.argv[1]?.endsWith("bot.js") || process.argv[1]?.endsWith("bot.ts")) {
   startBot();
 }

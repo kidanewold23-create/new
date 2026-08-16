@@ -139,6 +139,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-giveaway.html" class="nav-item-btn">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
         </a>
@@ -219,9 +222,16 @@
               <label class="form-label" for="inst-tag">Section Tag</label>
               <input type="text" id="inst-tag" class="form-input" placeholder="WORLD-CLASS MENTORS">
             </div>
-            <div class="form-group" style="grid-column: span 2;">
+            <div class="form-group">
               <label class="form-label" for="inst-title">Section Title</label>
               <input type="text" id="inst-title" class="form-input" placeholder="Learn Directly From 7-Figure Agency Founders">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inst-status">Section Display Status (ON/OFF)</label>
+              <select id="inst-status" class="form-input" style="height: 48px;">
+                <option value="active">Active (ON - Visible on index.html & navbar link shown)</option>
+                <option value="inactive">Hidden / Inactive (OFF - Hide Section & Hide Navbar Link)</option>
+              </select>
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
@@ -264,6 +274,55 @@
   <script src="js/landing-cms-helper.js"></script>
   <script src="js/admin.js"></script>
   <script>
+    async function saveInstructorsToBackend(showToastMsg = true) {
+      const rawLogos = document.getElementById("inst-logos")?.value || "";
+      const logosArr = rawLogos.split(",").map(l => l.trim()).filter(Boolean);
+
+      const boxes = document.querySelectorAll(".mentor-cms-box");
+      const mentorsList = [];
+      for (let idx = 0; idx < boxes.length; idx++) {
+        const box = boxes[idx];
+        const isEnabled = box.querySelector(".m-enabled-checkbox")?.checked;
+        const photoInput = box.querySelector(".m-photo");
+        let photoUrl = photoInput?.value?.trim() || "";
+
+        if (photoUrl.includes("ibb.co/") && !photoUrl.includes("i.ibb.co")) {
+          try {
+            const res = await fetch("/api/resolve-image-url?url=" + encodeURIComponent(photoUrl));
+            const json = await res.json();
+            if (json.success && json.directUrl) {
+              photoUrl = json.directUrl;
+              if (photoInput) photoInput.value = photoUrl;
+            }
+          } catch (_e) {}
+        }
+
+        mentorsList.push({
+          id: box.dataset.id || `ins-${idx + 1}`,
+          name: box.querySelector(".m-name")?.value.trim() || "",
+          role: box.querySelector(".m-role")?.value.trim() || "",
+          photo: photoUrl,
+          bio: box.querySelector(".m-bio")?.value.trim() || "",
+          stat1: box.querySelector(".m-stat1")?.value.trim() || "",
+          stat2: box.querySelector(".m-stat2")?.value.trim() || "",
+          status: isEnabled ? "active" : "disabled"
+        });
+      }
+
+      const payload = {
+        instructors: {
+          sectionTag: (document.getElementById("inst-tag")?.value || "").trim(),
+          sectionTitle: (document.getElementById("inst-title")?.value || "").trim(),
+          sectionSubtitle: (document.getElementById("inst-sub")?.value || "").trim(),
+          status: document.getElementById("inst-status")?.value || "active",
+          partnerLogos: logosArr,
+          mentors: mentorsList
+        }
+      };
+
+      return await saveLandingSection(payload, showToastMsg ? "Instructors & Brands Section" : null);
+    }
+
     function renderMentorBox(m, index) {
       const isEnabled = m.status !== "disabled" && m.status !== "OFF";
       const mentorId = m.id || `ins-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -336,8 +395,9 @@
       const checkbox = box.querySelector(".m-enabled-checkbox");
       const badge = box.querySelector(".mentor-status-badge");
       const toggleLabel = checkbox ? checkbox.nextElementSibling : null;
+      const nameInput = box.querySelector(".m-name");
 
-      checkbox.addEventListener("change", () => {
+      checkbox.addEventListener("change", async () => {
         const active = checkbox.checked;
         if (active) {
           box.style.opacity = "1";
@@ -348,6 +408,7 @@
             badge.textContent = "🟢 Active (ON)";
           }
           if (toggleLabel) toggleLabel.textContent = "ON";
+          showToast(`🟢 Enabled ${nameInput.value.trim() || 'Instructor'}`, "success");
         } else {
           box.style.opacity = "0.65";
           box.style.borderColor = "rgba(239, 68, 68, 0.4)";
@@ -357,24 +418,53 @@
             badge.textContent = "🔴 Disabled (OFF)";
           }
           if (toggleLabel) toggleLabel.textContent = "OFF";
+          showToast(`🔴 Disabled ${nameInput.value.trim() || 'Instructor'}`, "info");
         }
+        await saveInstructorsToBackend(false);
       });
 
       // Event listener for Name change -> Update box header title live
-      const nameInput = box.querySelector(".m-name");
       const titleElem = box.querySelector(".mentor-box-title");
       nameInput.addEventListener("input", () => {
         if (titleElem) titleElem.textContent = `Instructor #${index + 1}: ${nameInput.value.trim() || 'New Instructor'}`;
       });
 
+      // Event listener for Photo URL change -> Auto-resolve ImgBB webpage links to raw direct URLs
+      const photoInput = box.querySelector(".m-photo");
+      if (photoInput) {
+        const resolveFn = async () => {
+          const val = photoInput.value.trim();
+          if (val.includes("ibb.co/") && !val.includes("i.ibb.co")) {
+            try {
+              const res = await fetch("/api/resolve-image-url?url=" + encodeURIComponent(val));
+              const json = await res.json();
+              if (json.success && json.directUrl) {
+                photoInput.value = json.directUrl;
+                showToast("✨ Converted ImgBB webpage link to direct image URL!", "success");
+              }
+            } catch (_e) {}
+          }
+        };
+
+        photoInput.addEventListener("blur", resolveFn);
+        photoInput.addEventListener("change", resolveFn);
+        photoInput.addEventListener("paste", () => setTimeout(resolveFn, 100));
+        photoInput.addEventListener("input", () => {
+          if (photoInput.value.includes("ibb.co/") && !photoInput.value.includes("i.ibb.co")) {
+            setTimeout(resolveFn, 300);
+          }
+        });
+      }
+
       // Event listener for Remove Button
       const removeBtn = box.querySelector(".btn-remove-mentor");
-      removeBtn.addEventListener("click", () => {
+      removeBtn.addEventListener("click", async () => {
         const instName = nameInput.value.trim() || `Instructor #${index + 1}`;
         if (confirm(`Are you sure you want to remove ${instName}?`)) {
           box.remove();
           reindexMentorBoxes();
-          showToast(`Removed ${instName}`, "info");
+          showToast(`🗑️ Removed ${instName}`, "info");
+          await saveInstructorsToBackend(false);
         }
       });
 
@@ -395,6 +485,9 @@
 
       const config = await getLandingConfig();
       if (config && config.instructors) {
+        if (document.getElementById("inst-status")) {
+          document.getElementById("inst-status").value = (config.instructors.status || config.instructorsStatus) === "inactive" ? "inactive" : "active";
+        }
         document.getElementById("inst-tag").value = config.instructors.sectionTag || "";
         document.getElementById("inst-title").value = config.instructors.sectionTitle || "";
         document.getElementById("inst-sub").value = config.instructors.sectionSubtitle || "";
@@ -444,37 +537,8 @@
       }
 
       // Save Instructors Handler
-      document.getElementById("btn-save-section")?.addEventListener("click", () => {
-        const rawLogos = document.getElementById("inst-logos").value;
-        const logosArr = rawLogos.split(",").map(l => l.trim()).filter(Boolean);
-
-        const boxes = document.querySelectorAll(".mentor-cms-box");
-        const mentorsList = [];
-        boxes.forEach((box, idx) => {
-          const isEnabled = box.querySelector(".m-enabled-checkbox")?.checked;
-          mentorsList.push({
-            id: box.dataset.id || `ins-${idx + 1}`,
-            name: box.querySelector(".m-name")?.value.trim() || "",
-            role: box.querySelector(".m-role")?.value.trim() || "",
-            photo: box.querySelector(".m-photo")?.value.trim() || "",
-            bio: box.querySelector(".m-bio")?.value.trim() || "",
-            stat1: box.querySelector(".m-stat1")?.value.trim() || "",
-            stat2: box.querySelector(".m-stat2")?.value.trim() || "",
-            status: isEnabled ? "active" : "disabled"
-          });
-        });
-
-        const payload = {
-          instructors: {
-            sectionTag: document.getElementById("inst-tag").value.trim(),
-            sectionTitle: document.getElementById("inst-title").value.trim(),
-            sectionSubtitle: document.getElementById("inst-sub").value.trim(),
-            partnerLogos: logosArr,
-            mentors: mentorsList
-          }
-        };
-
-        saveLandingSection(payload, "Instructors & Brands Section");
+      document.getElementById("btn-save-section")?.addEventListener("click", async () => {
+        await saveInstructorsToBackend(true);
       });
     });
   </script>

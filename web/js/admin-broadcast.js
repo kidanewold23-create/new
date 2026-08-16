@@ -22,6 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const logsTableBody = document.getElementById("table-broadcast-logs");
   const summaryBox = document.getElementById("broadcast-result-summary");
 
+  // Image Attachment Elements
+  const imageUrlInput = document.getElementById("broadcast-image-url");
+  const imageFileInput = document.getElementById("broadcast-image-file");
+  const btnClearImage = document.getElementById("btn-clear-image");
+  const composerImagePreview = document.getElementById("composer-image-preview");
+  const composerPreviewImg = document.getElementById("composer-preview-img");
+  const previewImageContainer = document.getElementById("preview-image-container");
+  const previewImageElement = document.getElementById("preview-image-element");
+  const charCounter = document.getElementById("char-counter");
+
+  let currentPhotoData = "";
+
   // Set current time in Telegram preview
   const now = new Date();
   previewTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -43,9 +55,123 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadRecipientsMetric();
 
+  // Client-side image optimization helper (resizes max dimension to 1600px)
+  function optimizeImageForUpload(dataUrl, callback) {
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 1600;
+      let width = img.width;
+      let height = img.height;
+      if (width <= maxDim && height <= maxDim) {
+        callback(dataUrl);
+        return;
+      }
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const mime = dataUrl.startsWith("data:image/png") ? "image/png" : "image/jpeg";
+      const resized = canvas.toDataURL(mime, 0.88);
+      callback(resized);
+    };
+    img.onerror = function() {
+      callback(dataUrl);
+    };
+    img.src = dataUrl;
+  }
+
+  // Handle Image File Selection (Convert to Data URL Base64)
+  if (imageFileInput) {
+    imageFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        if (file.size > 20 * 1024 * 1024) {
+          showToast("⚠️ Image file is too large. Please select an image under 20MB.", "error");
+          imageFileInput.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const rawData = evt.target.result;
+          optimizeImageForUpload(rawData, (optimizedData) => {
+            currentPhotoData = optimizedData;
+            if (imageUrlInput) imageUrlInput.value = "";
+            updateLivePreview();
+            showToast("📷 Image attached successfully!", "info");
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Handle Image URL input typing/pasting
+  if (imageUrlInput) {
+    imageUrlInput.addEventListener("input", () => {
+      const val = imageUrlInput.value.trim();
+      currentPhotoData = val;
+      if (imageFileInput) imageFileInput.value = "";
+      updateLivePreview();
+    });
+  }
+
+  // Clear Image handler
+  if (btnClearImage) {
+    btnClearImage.addEventListener("click", () => {
+      currentPhotoData = "";
+      if (imageUrlInput) imageUrlInput.value = "";
+      if (imageFileInput) imageFileInput.value = "";
+      updateLivePreview();
+      showToast("Image removed.", "info");
+    });
+  }
+
   // 2. Real-time Live Preview Handler
   function updateLivePreview() {
     const rawText = messageInput.value.trim();
+
+    // Image preview state
+    if (currentPhotoData) {
+      if (composerImagePreview && composerPreviewImg) {
+        composerPreviewImg.src = currentPhotoData;
+        composerImagePreview.style.display = "block";
+      }
+      if (previewImageContainer && previewImageElement) {
+        previewImageElement.src = currentPhotoData;
+        previewImageContainer.style.display = "block";
+      }
+      if (btnClearImage) btnClearImage.style.display = "inline-flex";
+    } else {
+      if (composerImagePreview) composerImagePreview.style.display = "none";
+      if (previewImageContainer) previewImageContainer.style.display = "none";
+      if (btnClearImage) btnClearImage.style.display = "none";
+    }
+
+    // Character Counter & Caption Limits
+    const charCount = messageInput.value.length;
+    const maxChars = currentPhotoData ? 1024 : 4096;
+    if (charCounter) {
+      charCounter.textContent = `${charCount} / ${maxChars}${currentPhotoData ? ' (Caption)' : ''}`;
+      if (charCount > maxChars) {
+        charCounter.style.color = "#ef4444";
+        charCounter.style.fontWeight = "bold";
+      } else {
+        charCounter.style.color = "var(--color-text-muted, #94a3b8)";
+        charCounter.style.fontWeight = "normal";
+      }
+    }
 
     if (!rawText) {
       previewTextContent.innerHTML = "<span style='color: #8293a4;'>Type your message on the left to see live preview...</span>";
@@ -74,6 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       previewButtonContainer.style.display = "none";
     }
+
+    if (window.lucide) window.lucide.createIcons();
   }
 
   messageInput.addEventListener("input", updateLivePreview);
@@ -107,8 +235,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const audienceSelect = document.getElementById("broadcast-audience");
     const audience = audienceSelect ? audienceSelect.value : "all";
 
-    if (!message) {
-      showToast("Please enter a broadcast message before sending.", "error");
+    if (!message && !currentPhotoData) {
+      showToast("Please enter a broadcast message or attach an image before sending.", "error");
       return;
     }
 
@@ -117,7 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!confirm("🚀 Are you sure you want to broadcast this message to registered Telegram users in Supabase?")) {
+    const confirmPrompt = currentPhotoData 
+      ? "🖼️ Are you sure you want to broadcast this photo message to registered Telegram users?" 
+      : "🚀 Are you sure you want to broadcast this message to registered Telegram users in Supabase?";
+
+    if (!confirm(confirmPrompt)) {
       return;
     }
 
@@ -132,6 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
+          imageUrl: currentPhotoData || undefined,
           buttonText: buttonText || undefined,
           buttonUrl: buttonUrl || undefined,
           audience
@@ -149,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const deliveredCount = json.stats?.delivered !== undefined ? json.stats.delivered : (json.logs ? json.logs.filter(l => String(l.status).includes("Delivered")).length : 0);
         const failedCount = json.stats?.failed !== undefined ? json.stats.failed : (json.logs ? json.logs.filter(l => !String(l.status).includes("Delivered")).length : 0);
         const totalRecipients = json.stats?.total !== undefined ? json.stats.total : (deliveredCount + failedCount);
-        const audienceLabel = audience === "verified" ? "📱 Verified Phone Users" : "📢 All Registered Telegram Users";
+        const audienceLabel = "📢 All Registered Telegram Users";
         const timeSent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         // Remove placeholder if present
@@ -162,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>
-            <strong style="color: var(--text-main); font-size: 0.95rem;">${audienceLabel}</strong>
+            <strong style="color: var(--text-main); font-size: 0.95rem;">${audienceLabel} ${currentPhotoData ? '📷 (Photo)' : ''}</strong>
           </td>
           <td><strong style="font-size: 0.95rem;">${totalRecipients} Users</strong></td>
           <td>
@@ -197,6 +330,9 @@ document.addEventListener("DOMContentLoaded", () => {
     messageInput.value = "";
     btnTextInput.value = "";
     btnUrlInput.value = "";
+    currentPhotoData = "";
+    if (imageUrlInput) imageUrlInput.value = "";
+    if (imageFileInput) imageFileInput.value = "";
     updateLivePreview();
     summaryBox.style.display = "none";
     showToast("Broadcast form reset.", "info");

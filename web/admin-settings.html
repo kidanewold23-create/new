@@ -20,6 +20,204 @@
   <!-- Stylesheets -->
 
   <link rel="icon" type="image/jpeg" href="photo_2026-06-11_09-14-03.jpg">
+  <style>
+    .dashboard-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Panel Card */
+    .dash-panel {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-gold, #f59e0b);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Password Wrap & Eye Toggle */
+    .password-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-wrap .form-input {
+      padding-right: 44px;
+    }
+
+    .btn-toggle-password {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted, #94a3b8);
+      cursor: pointer;
+      padding: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease;
+      border-radius: 4px;
+    }
+
+    .btn-toggle-password:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-toggle-password i {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Settings Submit Buttons */
+    .btn-settings-submit {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #0b0f17;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-settings-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+    }
+
+    .btn-settings-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Action Buttons */
+    .btn-dash-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-dash-primary {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0b0f17;
+      border: none;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+    }
+
+    .btn-dash-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-dash-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+    }
+
+    .btn-dash-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .badge-gold {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--primary-gold, #f59e0b);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+  </style>
   <link rel="stylesheet" href="/css/styles.css?v=3.0">
   <link rel="stylesheet" href="/css/auth.css?v=3.0">
   <link rel="stylesheet" href="/css/admin.css?v=3.0">
@@ -100,6 +298,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-giveaway.html" class="nav-item-btn">
           <i data-lucide="gift"></i> 1-Time Giveaway Codes
         </a>
@@ -135,7 +336,7 @@
     <!-- Main Content Area -->
     <main class="admin-main">
       <!-- Top Header Bar -->
-      <header class="dash-topbar">
+      <header class="dash-topbar" style="margin-bottom: 24px;">
         <div>
           <h1 class="dash-title">Admin Account & Portal Settings</h1>
           <p class="dash-subtitle">Update your admin login username, change security password, and configure 2FA preferences</p>
@@ -143,7 +344,7 @@
       </header>
 
       <!-- Settings Grid -->
-      <div class="dashboard-grid-2col" style="grid-template-columns: 1fr 1fr;">
+      <div class="dashboard-grid-2col">
         <!-- Panel 1: Credentials Form -->
         <div class="dash-panel">
           <div class="panel-header">
@@ -215,10 +416,8 @@
               </div>
             </div>
 
-            <button type="submit" class="btn-auth-submit" style="margin-top: 24px;">
-              <span class="btn-text">Save & Update Credentials</span>
-              <div class="btn-spinner"></div>
-              <i data-lucide="check-circle" class="btn-text"></i>
+            <button type="submit" class="btn-settings-submit" style="margin-top: 24px; width: 100%;">
+              <i data-lucide="check-circle"></i> Save & Update Credentials
             </button>
           </form>
         </div>
@@ -227,23 +426,23 @@
         <div class="dash-panel" id="panel-security-2fa">
           <div class="panel-header">
             <h2 class="panel-title">
-              <i data-lucide="shield-check" style="color: var(--accent-indigo);"></i> Security & 2FA Preferences
+              <i data-lucide="shield-check" style="color: #6366f1;"></i> Security & 2FA Preferences
             </h2>
             <span class="badge badge-gold" id="badge-2fa-status"><i data-lucide="lock"></i> 2FA Enabled</span>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 20px;">
             <!-- 2FA Master Switch -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;">
               <div>
-                <strong style="display: block; font-size: 0.95rem;">2FA Security OTP Verification</strong>
+                <strong style="display: block; font-size: 0.95rem; color: #fff;">2FA Security OTP Verification</strong>
                 <span style="font-size: 0.82rem; color: var(--text-muted);">Requires a 6-digit OTP code sent to Telegram when logging in</span>
               </div>
               <input type="checkbox" id="toggle-2fa-setting" checked style="width: 22px; height: 22px; accent-color: var(--primary-gold); cursor: pointer;" onchange="toggle2FAPreference(this.checked)">
             </div>
 
             <!-- Telegram Admin 2FA Card (Multi-Admin Linkage System) -->
-            <div id="telegram-2fa-card" style="padding: 22px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02);">
+            <div id="telegram-2fa-card" style="padding: 22px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02);">
               
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
                 <div>
@@ -254,16 +453,16 @@
                     Generate linkage codes to add multiple admin chats. Any team member who submits the linkage code to the Telegram bot becomes an authorized admin receiver.
                   </p>
                 </div>
-                <span class="badge-status active" id="badge-active-admins-count"><i data-lucide="users"></i> <span id="txt-admins-count-num">0</span> Linked Admins</span>
+                <span class="badge badge-gold" id="badge-active-admins-count"><i data-lucide="users"></i> <span id="txt-admins-count-num">0</span> Linked Admins</span>
               </div>
 
               <!-- Multi-Admin Linkage Generator Box -->
-              <div style="padding: 18px; background: rgba(217, 119, 6, 0.06); border: 1px solid rgba(217, 119, 6, 0.25); border-radius: var(--radius-md); margin-bottom: 20px;">
+              <div style="padding: 18px; background: rgba(217, 119, 6, 0.06); border: 1px solid rgba(217, 119, 6, 0.25); border-radius: 10px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
                   <div style="font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-gold); font-weight: 700;">
                     ⚡ Multi-Admin Telegram Linkage Code Generator
                   </div>
-                  <button type="button" class="btn-dash-action btn-dash-primary" id="btn-generate-pairing-code" onclick="generateAdminPairingCode()" style="padding: 6px 14px; font-size: 0.82rem;">
+                  <button type="button" class="btn-dash-action btn-dash-primary" id="btn-generate-pairing-code" onclick="generateAdminPairingCode()">
                     <i data-lucide="key-round"></i> Generate New Linkage Code
                   </button>
                 </div>
@@ -275,7 +474,7 @@
                       <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Active Team Linkage Code</div>
                       <span id="txt-pairing-code" style="font-family: monospace; font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: 0.1em;">FA-89241</span>
                     </div>
-                    <button type="button" class="btn-dash-action btn-dash-secondary" onclick="copyPairingCode()" style="padding: 6px 12px; font-size: 0.8rem;">
+                    <button type="button" class="btn-dash-action btn-dash-secondary" onclick="copyPairingCode()">
                       <i data-lucide="copy"></i> Copy Code
                     </button>
                   </div>
@@ -288,7 +487,7 @@
                   </div>
 
                   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a id="btn-1click-tg-link" href="https://t.me/founders_academybot" target="_blank" class="btn-auth-submit" style="margin: 0; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; width: auto;">
+                    <a id="btn-1click-tg-link" href="https://t.me/founders_academybot" target="_blank" class="btn-dash-action btn-dash-primary">
                       <i data-lucide="send"></i> 1-Click Connect in Telegram
                     </a>
                   </div>
@@ -299,10 +498,10 @@
               <div style="margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                   <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="shield-check" style="color: var(--accent-emerald); width: 18px; height: 18px;"></i>
+                    <i data-lucide="shield-check" style="color: #10b981; width: 18px; height: 18px;"></i>
                     Authorized Admin Telegram Chats (<span id="txt-linked-admins-counter">0</span>)
                   </h4>
-                  <button type="button" class="btn-auth-submit" id="btn-test-otp" onclick="sendTestOtpToTelegram()" style="margin: 0; padding: 6px 14px; font-size: 0.8rem; width: auto;">
+                  <button type="button" class="btn-dash-action btn-dash-secondary" id="btn-test-otp" onclick="sendTestOtpToTelegram()">
                     <i data-lucide="send"></i> Test Broadcast 2FA OTP
                   </button>
                 </div>
@@ -319,8 +518,8 @@
                   ➕ Add Telegram Chat ID Manually:
                 </label>
                 <div style="display: flex; gap: 8px;">
-                  <input type="text" id="manual-admin-chatid-input" class="form-input" placeholder="e.g. 6241860023" style="flex: 1; padding: 8px 12px; font-size: 0.88rem;">
-                  <button type="button" class="btn-dash-action btn-dash-primary" onclick="saveManualAdminChatId()" style="padding: 8px 16px; white-space: nowrap; font-size: 0.88rem;">
+                  <input type="text" id="manual-admin-chatid-input" class="form-input" placeholder="e.g. 6241860023" style="flex: 1; font-size: 0.88rem;">
+                  <button type="button" class="btn-dash-action btn-dash-primary" onclick="saveManualAdminChatId()" style="white-space: nowrap;">
                     <i data-lucide="plus-circle"></i> Add Admin Chat
                   </button>
                 </div>
@@ -330,7 +529,7 @@
           </div>
         </div>
         
-        <!-- Panel 3: Merchant Bank & Telebirr Accounts Manager (No API Section, Enable/Disable Toggles, Multi-Account Support) -->
+        <!-- Panel 3: Merchant Bank & Telebirr Accounts Manager -->
         <div class="dash-panel" style="grid-column: 1 / -1; margin-top: 24px;">
           <div class="panel-header" style="margin-bottom: 20px;">
             <div>
@@ -349,7 +548,7 @@
             <div style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 24px;">
               
               <!-- 1. Commercial Bank of Ethiopia (CBE) Section -->
-              <div style="padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(217, 119, 6, 0.3); background: rgba(217, 119, 6, 0.04);">
+              <div style="padding: 20px; border-radius: 12px; border: 1px solid rgba(217, 119, 6, 0.3); background: rgba(217, 119, 6, 0.04);">
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217, 119, 6, 0.2); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
                   <div style="display: flex; align-items: center; gap: 10px;">
                     <i data-lucide="building-2" style="color: var(--primary-gold); width: 22px; height: 22px;"></i>
@@ -360,7 +559,7 @@
                       <input type="checkbox" id="toggle-cbe-enabled" checked style="width: 18px; height: 18px; accent-color: var(--primary-gold);">
                       Enable CBE Channel
                     </label>
-                    <button type="button" class="btn-dash-action btn-dash-primary" onclick="addCbeAccountRow()" style="padding: 6px 12px; font-size: 0.8rem;">
+                    <button type="button" class="btn-dash-action btn-dash-primary" onclick="addCbeAccountRow()">
                       <i data-lucide="plus"></i> Add CBE Account
                     </button>
                   </div>
@@ -372,7 +571,7 @@
               </div>
 
               <!-- 2. Telebirr Merchant Channel Section -->
-              <div style="padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(0, 136, 204, 0.3); background: rgba(0, 136, 204, 0.04);">
+              <div style="padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 136, 204, 0.3); background: rgba(0, 136, 204, 0.04);">
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0, 136, 204, 0.2); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
                   <div style="display: flex; align-items: center; gap: 10px;">
                     <i data-lucide="smartphone" style="color: #0088cc; width: 22px; height: 22px;"></i>
@@ -383,7 +582,7 @@
                       <input type="checkbox" id="toggle-telebirr-enabled" checked style="width: 18px; height: 18px; accent-color: #0088cc;">
                       Enable Telebirr Channel
                     </label>
-                    <button type="button" class="btn-dash-action btn-dash-primary" onclick="addTelebirrNumberRow()" style="padding: 6px 12px; font-size: 0.8rem; background: #0088cc; border-color: #0088cc;">
+                    <button type="button" class="btn-dash-action btn-dash-primary" onclick="addTelebirrNumberRow()" style="background: #0088cc; border-color: #0088cc;">
                       <i data-lucide="plus"></i> Add Telebirr Number
                     </button>
                   </div>
@@ -398,15 +597,13 @@
 
             <!-- Save Action Bar -->
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <button type="submit" class="btn-auth-submit" style="margin: 0; max-width: 340px;">
-                <span class="btn-text">Save All Payment Accounts & Channels</span>
-                <div class="btn-spinner"></div>
-                <i data-lucide="save" class="btn-text"></i>
+              <button type="submit" class="btn-settings-submit" id="btn-submit-bank-accounts">
+                <i data-lucide="save"></i> Save All Payment Accounts & Channels
               </button>
             </div>
 
           </form>
-        </div> </div>
+        </div>
       </div>
     </main>
   </div>
@@ -1035,6 +1232,5 @@
       }
     });
   </script>
-  <script src="js/admin.js"></script>
 </body>
 </html>

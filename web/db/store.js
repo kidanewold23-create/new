@@ -10,7 +10,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "sb_publishable_7SjYA
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function telegramApi(method, params = {}) {
-  const BOT_TOKEN = (typeof Deno !== "undefined" && Deno.env ? Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") : "") || (typeof process !== "undefined" && process.env ? (process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN) : "") || "8659500401:AAGD5Kr9kgWgDnO4TCebJ1sY9i4o1h7Dth8";
+  const BOT_TOKEN = (typeof Deno !== "undefined" && Deno.env ? Deno.env.get("TELEGRAM_BOT_TOKEN") || Deno.env.get("BOT_TOKEN") : "") || (typeof process !== "undefined" && process.env ? (process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN) : "") || "8659500401:AAESuYgRssThu3J-22ky6FkPOB9aHJf7QRg";
   if (!BOT_TOKEN) return { ok: false, description: "BOT_TOKEN missing" };
   try {
     const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
@@ -93,51 +93,7 @@ const defaultCourses = [
 
 const defaultStudents = [];
 
-const defaultTransactions = [
-  {
-    id: "TXN-884920",
-    student_name: "Abebe Bikila",
-    student_phone: "+251 91 123 4567",
-    student_email: "abebe.b@gmail.com",
-    masterclass_title: "SMMA & Agency Growth Accelerator",
-    course_id: "course-smma-accelerator",
-    payment_method: "telebirr",
-    reference_number: "TLB-9938102",
-    amount: "ETB 10,000",
-    status: "Completed",
-    verify_et_status: "VERIFIED",
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString()
-  },
-  {
-    id: "TXN-884921",
-    student_name: "Tigist Haile",
-    student_phone: "+251 92 888 9900",
-    student_email: "tigist.h@yahoo.com",
-    masterclass_title: "Video Editing & Post-Production Masterclass",
-    course_id: "course-video-editing",
-    payment_method: "cbe",
-    reference_number: "FT240108829",
-    account_suffix: "12345678",
-    amount: "ETB 8,500",
-    status: "Completed",
-    verify_et_status: "VERIFIED",
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString()
-  },
-  {
-    id: "TXN-884922",
-    student_name: "Dawit Yilma",
-    student_phone: "+251 94 333 2211",
-    student_email: "dawit.y@gmail.com",
-    masterclass_title: "Content Creation & Short Form Viral Blueprint",
-    course_id: "course-content-creation",
-    payment_method: "boa",
-    reference_number: "BOA-7729104",
-    amount: "ETB 6,500",
-    status: "Pending",
-    verify_et_status: "PENDING_AUDIT",
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-  }
-];
+const defaultTransactions = [];
 
 const courseStatusOverrides = {};
 const courseOverrides = {};
@@ -149,6 +105,8 @@ const categoryNameOverrides = {};
 const deletedCategoryIds = new Set();
 const addedCategories = [];
 
+let inMemoryTransactions = [...defaultTransactions];
+let inMemoryGiveaways = [];
 let inMemoryMaintenance = {
   status: "OFF",
   title: "System Under Scheduled Upgrades & Maintenance",
@@ -338,11 +296,36 @@ const defaultQuizSubmissions = [
 let inMemoryCategories = [...defaultCategories];
 let inMemoryCourses = [...defaultCourses];
 let inMemoryStudents = [...defaultStudents];
-let inMemoryTransactions = [...defaultTransactions];
 let inMemoryQuizzes = JSON.parse(JSON.stringify(defaultQuizzes));
 let inMemoryQuizSubmissions = JSON.parse(JSON.stringify(defaultQuizSubmissions));
 
+const defaultBundles = [
+  {
+    id: "bundle-ultimate-agency",
+    title: "Ultimate Agency & Content Creation Package",
+    description: "Combine SMMA Growth Accelerator, Video Editing Course, and Short-Form Viral Blueprint into one high-impact learning path.",
+    price: "18,000 ETB",
+    main_course_id: "course-smma-accelerator",
+    included_course_ids: ["course-video-editing", "course-content-creation"],
+    status: "ON",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "bundle-ai-creator",
+    title: "AI Automation & Digital Media Bundle",
+    description: "Master AI Bot Workflows along with Graphic Design & Brand Identity to scale your modern agency.",
+    price: "13,500 ETB",
+    main_course_id: "course-ai-automation",
+    included_course_ids: ["course-graphic-design"],
+    status: "ON",
+    created_at: new Date().toISOString()
+  }
+];
+
+let inMemoryBundles = JSON.parse(JSON.stringify(defaultBundles));
+
 let maintenanceLoaded = false;
+
 
 
 export const dbStore = {
@@ -474,7 +457,7 @@ export const dbStore = {
     const newQuiz = {
       id: quizId,
       course_id: courseId,
-      title: (quizData.title || "New Masterclass Quiz").trim(),
+      title: (quizData.title || "New Course Quiz").trim(),
       description: (quizData.description || "").trim(),
       time_limit_mins: parseInt(quizData.time_limit_mins, 10) || 15,
       passing_score: parseInt(quizData.passing_score, 10) || 70,
@@ -666,7 +649,7 @@ export const dbStore = {
     const courseId = `course-${Date.now()}`;
     const newCourse = {
       id: courseId,
-      title: courseData.title || "New Masterclass",
+      title: courseData.title || "New Course",
       category: courseData.category || "Digital Marketing / SMMA",
       price: courseData.price || "8,500 ETB",
       duration: courseData.duration || "6 Weeks (24 Hours)",
@@ -740,9 +723,133 @@ export const dbStore = {
     return true;
   },
 
+  // --- Course Bundles CRUD ---
+  getCourseBundles: async () => {
+    let rawBundles = [];
+    try {
+      const { data, error } = await supabase.from("course_bundles").select("*");
+      if (!error && data && data.length > 0) {
+        rawBundles = data;
+      }
+    } catch (_e) {}
+
+    if (rawBundles.length === 0) {
+      rawBundles = [...inMemoryBundles];
+    } else {
+      inMemoryBundles.forEach(mb => {
+        if (!rawBundles.some(rb => rb.id === mb.id)) {
+          rawBundles.push(mb);
+        }
+      });
+    }
+
+    const allCourses = await dbStore.getCourses();
+
+    return rawBundles.map(b => {
+      const mainCourse = allCourses.find(c => c.id === b.main_course_id) || null;
+      let incIds = Array.isArray(b.included_course_ids) ? b.included_course_ids : [];
+      if (typeof b.included_course_ids === "string") {
+        try { incIds = JSON.parse(b.included_course_ids); } catch (_e) { incIds = []; }
+      }
+
+      // Include courses even if OFF/inactive as long as they exist in catalog
+      const includedCourses = incIds.map(cid => allCourses.find(c => c.id === cid)).filter(Boolean);
+      
+      const allContainedCourses = mainCourse ? [mainCourse, ...includedCourses.filter(c => c.id !== mainCourse.id)] : includedCourses;
+      
+      let totalIndividualPriceNum = 0;
+      allContainedCourses.forEach(c => {
+        const num = parseInt(String(c.price || "").replace(/[^0-9]/g, ""), 10) || 0;
+        totalIndividualPriceNum += num;
+      });
+
+      return {
+        ...b,
+        main_course: mainCourse,
+        included_courses: includedCourses,
+        all_contained_courses: allContainedCourses,
+        total_courses_count: allContainedCourses.length,
+        total_individual_price_etb: totalIndividualPriceNum ? `${totalIndividualPriceNum.toLocaleString()} ETB` : "N/A"
+      };
+    });
+  },
+
+  getCourseBundleById: async (id) => {
+    const bundles = await dbStore.getCourseBundles();
+    return bundles.find(b => b.id === id || String(b.id).toLowerCase() === String(id).toLowerCase()) || null;
+  },
+
+  addCourseBundle: async (bundleData) => {
+    const bundleId = `bundle-${Date.now()}`;
+    const mainCourseId = bundleData.main_course_id || bundleData.mainCourseId || "";
+    let incCourseIds = Array.isArray(bundleData.included_course_ids) ? bundleData.included_course_ids : (Array.isArray(bundleData.includedCourseIds) ? bundleData.includedCourseIds : []);
+
+    const newBundle = {
+      id: bundleId,
+      title: (bundleData.title || "New Course Package").trim(),
+      description: (bundleData.description || "").trim(),
+      price: (bundleData.price || "15,000 ETB").trim(),
+      main_course_id: mainCourseId,
+      included_course_ids: incCourseIds,
+      status: bundleData.status || "ON",
+      created_at: new Date().toISOString()
+    };
+
+    inMemoryBundles.unshift(newBundle);
+
+    try {
+      await supabase.from("course_bundles").insert([newBundle]);
+    } catch (_e) {}
+
+    return newBundle;
+  },
+
+  updateCourseBundle: async (id, updateData) => {
+    const target = inMemoryBundles.find(b => b.id === id);
+    if (target) {
+      if (updateData.title !== undefined) target.title = updateData.title.trim();
+      if (updateData.description !== undefined) target.description = updateData.description.trim();
+      if (updateData.price !== undefined) target.price = updateData.price.trim();
+      if (updateData.main_course_id !== undefined) target.main_course_id = updateData.main_course_id;
+      if (updateData.mainCourseId !== undefined) target.main_course_id = updateData.mainCourseId;
+      if (updateData.included_course_ids !== undefined) target.included_course_ids = updateData.included_course_ids;
+      if (updateData.includedCourseIds !== undefined) target.included_course_ids = updateData.includedCourseIds;
+      if (updateData.status !== undefined) target.status = updateData.status;
+    }
+
+    try {
+      const payload = {};
+      if (updateData.title !== undefined) payload.title = updateData.title.trim();
+      if (updateData.description !== undefined) payload.description = updateData.description.trim();
+      if (updateData.price !== undefined) payload.price = updateData.price.trim();
+      if (updateData.main_course_id !== undefined) payload.main_course_id = updateData.main_course_id;
+      if (updateData.mainCourseId !== undefined) payload.main_course_id = updateData.mainCourseId;
+      if (updateData.included_course_ids !== undefined) payload.included_course_ids = updateData.included_course_ids;
+      if (updateData.includedCourseIds !== undefined) payload.included_course_ids = updateData.includedCourseIds;
+      if (updateData.status !== undefined) payload.status = updateData.status;
+
+      await supabase.from("course_bundles").update(payload).eq("id", id);
+    } catch (_e) {}
+
+    return target || { id, ...updateData };
+  },
+
+  deleteCourseBundle: async (id) => {
+    inMemoryBundles = inMemoryBundles.filter(b => b.id !== id);
+    try {
+      await supabase.from("course_bundles").delete().eq("id", id);
+    } catch (_e) {}
+    return true;
+  },
+
   // --- Students CRUD ---
+  clearStudentsCache: () => {
+    inMemoryStudents.length = 0;
+    inMemoryTransactions.length = 0;
+  },
   getStudents: async () => {
     let tgUsersMap = new Map();
+    let tgUsersPhoneMap = new Map();
     try {
       const { data: tgUsers } = await supabase.from("telegram_users").select("*");
       if (tgUsers && Array.isArray(tgUsers)) {
@@ -750,22 +857,30 @@ export const dbStore = {
           if (u.telegram_id) {
             tgUsersMap.set(String(u.telegram_id), u);
           }
+          if (u.phone_number) {
+            const pDigits = String(u.phone_number).replace(/\D/g, "");
+            if (pDigits.length >= 9) {
+              tgUsersPhoneMap.set(pDigits.slice(-9), u);
+            }
+          }
         });
       }
     } catch (_e) {}
 
     try {
       const { data, error } = await supabase.from("students").select("*");
-      if (!error && data) {
-        return data
+      if (data && Array.isArray(data)) {
+        const fetchedStudents = data
           .filter(r => r.id && !String(r.id).startsWith("CONFIG_") && !String(r.id).startsWith("STORE_"))
           .map(r => {
             let cleanTgId = "";
             if (String(r.id).startsWith("TG-")) cleanTgId = String(r.id).replace(/^TG-/, "");
             else if (/^\d{6,}$/.test(String(r.id))) cleanTgId = String(r.id);
+            else if (r.telegram_id) cleanTgId = String(r.telegram_id);
+            else if (r.chat_id) cleanTgId = String(r.chat_id);
 
-            const tgUser = cleanTgId ? tgUsersMap.get(cleanTgId) : null;
-            let tgHandle = r.telegram_username || r.username || (tgUser ? tgUser.username : "");
+            let tgHandle = r.telegram_username || r.username || "";
+            const resolvedTgId = r.telegram_id || r.chat_id || cleanTgId || "";
 
             if (!tgHandle && r.email) {
               if (r.email.startsWith("@")) {
@@ -781,29 +896,38 @@ export const dbStore = {
 
             return {
               id: r.id,
-              name: r.name || (tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") : "Student"),
-              phone: r.phone || (tgUser ? tgUser.phone_number : ""),
+              name: r.name || "",
+              phone: r.phone || "",
               email: r.email || (tgHandle ? `@${tgHandle}` : ""),
+              username: tgHandle ? `@${tgHandle}` : (r.username || ""),
               telegram_username: tgHandle || "",
+              telegram_id: resolvedTgId || null,
+              chat_id: resolvedTgId || null,
               joined_date: r.joined_date || (r.created_at ? new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "Recent"),
-              status: r.status || "Active",
-              is_banned: r.is_banned || false,
+              status: r.status || (r.is_banned ? "Banned" : "Active"),
+              is_banned: r.is_banned || r.status === "Banned" || false,
               ban_reason: r.ban_reason || null,
-              banned_at: r.banned_at || null
+              banned_at: r.banned_at || null,
+              password_hash: r.password_hash || r.password || null
             };
           });
+
+        return fetchedStudents;
       }
     } catch (_e) {}
-    return inMemoryStudents;
+    return [];
   },
   addStudent: async (student) => {
     const newStu = {
       id: student.id || `STU-${Math.floor(10000 + Math.random() * 90000)}`,
-      name: student.name || "New Student",
+      name: student.name !== undefined ? student.name : "",
       phone: student.phone || "",
       email: student.email || student.username || "",
       username: student.username || student.email || "",
       password_hash: student.password_hash || student.password || "",
+      telegram_id: student.telegram_id || "",
+      chat_id: student.chat_id || "",
+      telegram_username: student.telegram_username || "",
       status: student.status || "Active",
       joined_date: student.joined_date || new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
     };
@@ -821,75 +945,223 @@ export const dbStore = {
     return newStu;
   },
   updateStudent: async (id, data) => {
+    const rawId = String(id || "").trim();
+    const cleanTgId = rawId.replace(/^TG-/, "").trim();
+    const candidateIds = Array.from(new Set([rawId, `TG-${cleanTgId}`, cleanTgId].filter(Boolean)));
     try {
-      await supabase.from("students").update(data).eq("id", id);
+      await supabase.from("students").update(data).in("id", candidateIds);
+      if (cleanTgId) {
+        await supabase.from("students").update(data).eq("telegram_id", cleanTgId);
+        await supabase.from("students").update(data).eq("chat_id", cleanTgId);
+      }
     } catch (_e) { /* fallback */ }
-    const stu = inMemoryStudents.find(s => s.id === id || s.id.replace(/^[#]/, "") === id.replace(/^[#]/, ""));
-    if (stu) {
-      Object.assign(stu, data);
-      return stu;
+
+    let updated = null;
+    inMemoryStudents.forEach(s => {
+      const sId = String(s.id || "").trim();
+      const sTg = String(s.telegram_id || "").trim();
+      const sChat = String(s.chat_id || "").trim();
+      if (candidateIds.includes(sId) || sTg === cleanTgId || sChat === cleanTgId) {
+        Object.assign(s, data);
+        updated = s;
+      }
+    });
+    return updated || { id: rawId, ...data };
+  },
+  saveStudentPhone: async (telegramId, phone, name = "") => {
+    const rawTgId = String(telegramId || "").trim();
+    const cleanTgId = rawTgId.replace(/^TG-/, "").trim();
+    const cleanPhone = String(phone || "").trim();
+    if (!cleanTgId || !cleanPhone) return false;
+
+    const candidateIds = Array.from(new Set([rawTgId, `TG-${cleanTgId}`, cleanTgId].filter(Boolean)));
+    const payload = {
+      phone: cleanPhone,
+      telegram_id: cleanTgId,
+      chat_id: cleanTgId
+    };
+    if (name && name.trim()) payload.name = name.trim();
+
+    try {
+      await supabase.from("students").update(payload).in("id", candidateIds);
+      await supabase.from("students").update(payload).eq("telegram_id", cleanTgId);
+      await supabase.from("students").update(payload).eq("chat_id", cleanTgId);
+    } catch (_e) {}
+
+    try {
+      const studentPayload = {
+        id: `TG-${cleanTgId}`,
+        email: `user_${cleanTgId}@foundersacademy.et`,
+        username: `@user_${cleanTgId}`,
+        joined_date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+        ...payload
+      };
+      await supabase.from("students").upsert([studentPayload], { onConflict: "id" });
+    } catch (_e) {}
+
+    let found = false;
+    inMemoryStudents.forEach(s => {
+      const sId = String(s.id || "").trim();
+      const sTg = String(s.telegram_id || "").trim();
+      const sChat = String(s.chat_id || "").trim();
+      if (candidateIds.includes(sId) || sTg === cleanTgId || sChat === cleanTgId) {
+        Object.assign(s, payload);
+        found = true;
+      }
+    });
+
+    if (!found) {
+      inMemoryStudents.push({
+        id: `TG-${cleanTgId}`,
+        name: name || "",
+        phone: cleanPhone,
+        email: `user_${cleanTgId}@foundersacademy.et`,
+        username: `@user_${cleanTgId}`,
+        telegram_id: cleanTgId,
+        chat_id: cleanTgId,
+        joined_date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+        status: "Active"
+      });
     }
-    return { id, ...data };
+
+    return true;
   },
 
   banStudent: async (id, reason = "Violation of platform terms") => {
-    const payload = {
+    const rawId = String(id || "").trim();
+    const cleanTgId = rawId.replace(/^TG-/, "").trim();
+    const candidateIds = Array.from(new Set([rawId, `TG-${cleanTgId}`, cleanTgId].filter(Boolean)));
+
+    const dbPayload = {
+      status: "Banned",
+      ban_reason: reason
+    };
+
+    const memPayload = {
       status: "Banned",
       is_banned: true,
       ban_reason: reason,
       banned_at: new Date().toISOString()
     };
+
     try {
-      await supabase.from("students").update(payload).eq("id", id);
+      const { error } = await supabase.from("students").update(dbPayload).in("id", candidateIds);
+      if (error) console.error("[banStudent DB Error]:", error.message);
     } catch (_e) {}
 
-    const cleanTgId = String(id).replace(/^TG-/, "").trim();
     if (/^\d{6,}$/.test(cleanTgId)) {
       try {
+        const sanitizedReason = (reason || "Violation of platform terms").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         await telegramApi("sendMessage", {
           chat_id: cleanTgId,
-          text: `🚫 *ACCOUNT SUSPENDED / BANNED* 🛑\n\nYour Founders Academy student account and Telegram bot access have been suspended by an administrator.\n\n*Reason:* ${reason}\n\nIf you believe this is a mistake, please contact support:\n👉 @foundersupportt`,
-          parse_mode: "Markdown"
+          text: `🚫 <b>ACCOUNT SUSPENDED / BANNED</b> 🛑\n\nYour Founders Academy student account and Telegram bot access have been suspended by an administrator.\n\n<b>Reason:</b> ${sanitizedReason}\n\nIf you believe this is a mistake, please contact support:\n👉 @foundersupportt`,
+          parse_mode: "HTML"
         });
       } catch (_e) {}
     }
 
-    const s = inMemoryStudents.find(x => x.id === id);
-    if (s) Object.assign(s, payload);
-    return s || { id, ...payload };
+    let updatedStudent = null;
+    inMemoryStudents.forEach(s => {
+      if (s.id && candidateIds.includes(String(s.id).trim())) {
+        Object.assign(s, memPayload);
+        updatedStudent = s;
+      }
+    });
+
+    return updatedStudent || { id: rawId, ...memPayload };
   },
   unbanStudent: async (id) => {
-    const payload = {
+    const rawId = String(id || "").trim();
+    const cleanTgId = rawId.replace(/^TG-/, "").trim();
+    const candidateIds = Array.from(new Set([rawId, `TG-${cleanTgId}`, cleanTgId].filter(Boolean)));
+
+    const dbPayload = {
+      status: "Active",
+      ban_reason: null
+    };
+
+    const memPayload = {
       status: "Active",
       is_banned: false,
       ban_reason: null,
       banned_at: null
     };
+
     try {
-      await supabase.from("students").update(payload).eq("id", id);
+      const { error } = await supabase.from("students").update(dbPayload).in("id", candidateIds);
+      if (error) console.error("[unbanStudent DB Error]:", error.message);
     } catch (_e) {}
-    const s = inMemoryStudents.find(x => x.id === id);
-    if (s) Object.assign(s, payload);
-    return s || { id, ...payload };
+
+    if (/^\d{6,}$/.test(cleanTgId)) {
+      try {
+        await telegramApi("sendMessage", {
+          chat_id: cleanTgId,
+          text: `🎉 <b>ACCOUNT RESTORED / UNBANNED</b> ⚡\n\nYour Founders Academy student account and Telegram bot access have been restored by an administrator.\n\nYou can now access your courses and student services!`,
+          parse_mode: "HTML"
+        });
+      } catch (_e) {}
+    }
+
+    let updatedStudent = null;
+    inMemoryStudents.forEach(s => {
+      if (s.id && candidateIds.includes(String(s.id).trim())) {
+        Object.assign(s, memPayload);
+        updatedStudent = s;
+      }
+    });
+
+    return updatedStudent || { id: rawId, ...memPayload };
+  },
+  deleteStudent: async (id) => {
+    const rawId = String(id || "").trim();
+    if (!rawId) return { success: false, error: "Missing student ID" };
+
+    const cleanTgId = rawId.replace(/^TG-/, "").trim();
+    const candidateIds = Array.from(new Set([rawId, `TG-${cleanTgId}`, cleanTgId].filter(Boolean)));
+
+    // 1. Delete from Supabase 'students' table
+    try {
+      await supabase.from("students").delete().in("id", candidateIds);
+    } catch (_e) {}
+
+    // 2. Delete associated transactions
+    try {
+      await supabase.from("transactions").delete().in("student_id", candidateIds);
+    } catch (_e) {}
+
+    // 3. Delete 1-time invite links if any
+    try {
+      await supabase.from("enrollment_invites").delete().in("telegram_id", candidateIds);
+    } catch (_e) {}
+
+    // 4. Remove from memory store
+    inMemoryStudents = inMemoryStudents.filter(s => !candidateIds.includes(String(s.id).trim()));
+
+    return { success: true, id: rawId };
   },
   isStudentBanned: async (telegramId) => {
     if (!telegramId) return { banned: false };
     const cleanId = String(telegramId).replace(/^TG-/, "").trim();
-    const targetIds = [`TG-${cleanId}`, cleanId];
-    try {
-      const { data } = await supabase
-        .from("students")
-        .select("id, status, is_banned, ban_reason")
-        .in("id", targetIds)
-        .maybeSingle();
-      if (data && (data.status === "Banned" || data.is_banned === true)) {
-        return { banned: true, reason: data.ban_reason || "Violation of platform terms" };
-      }
-    } catch (_e) {}
-    const mem = inMemoryStudents.find(s => targetIds.includes(String(s.id)));
+    const candidateIds = Array.from(new Set([`TG-${cleanId}`, cleanId, String(telegramId).trim()].filter(Boolean)));
+
+    const mem = inMemoryStudents.find(s => s.id && candidateIds.includes(String(s.id).trim()));
     if (mem && (mem.status === "Banned" || mem.is_banned === true)) {
       return { banned: true, reason: mem.ban_reason || "Violation of platform terms" };
     }
+
+    try {
+      const { data } = await supabase
+        .from("students")
+        .select("id, status, ban_reason")
+        .in("id", candidateIds);
+      if (data && Array.isArray(data)) {
+        const bannedRow = data.find(r => r.status === "Banned");
+        if (bannedRow) {
+          return { banned: true, reason: bannedRow.ban_reason || "Violation of platform terms" };
+        }
+      }
+    } catch (_e) {}
+
     return { banned: false };
   },
 
@@ -917,11 +1189,21 @@ export const dbStore = {
       cleanUsername = cleanPhone;
     }
 
-    const phoneDigits = cleanPhone.replace(/[^0-9]/g, "");
+    let phoneDigits = cleanPhone.replace(/[^0-9]/g, "");
+    if (phoneDigits.startsWith("251")) {
+      phoneDigits = phoneDigits.substring(3);
+    } else if (phoneDigits.startsWith("0")) {
+      phoneDigits = phoneDigits.substring(1);
+    }
+
+    if (cleanPhone && phoneDigits.length !== 9 && !cleanUsername) {
+      return { success: false, error: "📱 Mandatory +251 Ethiopian phone number: Please enter a valid 9-digit number starting with +251 (e.g. +251 91 234 5678)." };
+    }
+
     const last9Phone = phoneDigits.length >= 9 ? phoneDigits.slice(-9) : phoneDigits;
 
     if (!last9Phone && !cleanUsername) {
-      return { success: false, error: "Please enter a valid phone number (e.g. 0912345678) or Telegram handle (@username)." };
+      return { success: false, error: "📱 Please enter a valid 9-digit Ethiopian phone number starting with +251 (e.g. +251 91 234 5678)." };
     }
 
     const allStudents = await dbStore.getStudents();
@@ -940,10 +1222,7 @@ export const dbStore = {
       return { success: false, error: "An account with this phone number or username already exists. Please log in." };
     }
 
-    let formattedPhone = cleanPhone;
-    if (last9Phone && last9Phone.length === 9) {
-      formattedPhone = `+251 ${last9Phone.slice(0, 2)} ${last9Phone.slice(2, 5)} ${last9Phone.slice(5)}`;
-    }
+    let formattedPhone = `+251 ${last9Phone.slice(0, 2)} ${last9Phone.slice(2, 5)} ${last9Phone.slice(5)}`;
 
     const formattedUsername = cleanUsername ? (cleanUsername.startsWith("@") ? cleanUsername : `@${cleanUsername.replace(/^@/, '')}`) : `@${last9Phone || 'student'}`;
 
@@ -985,19 +1264,23 @@ export const dbStore = {
     const last9Id = idDigits.length >= 9 ? idDigits.slice(-9) : idDigits;
     const passwordStr = String(password || "").trim();
 
-    if (!rawId || !passwordStr) {
-      return { success: false, error: "Please enter your phone number/username and password." };
+    if (!rawId) {
+      return { success: false, error: "📱 Phone number or username is required." };
+    }
+    if (!passwordStr) {
+      return { success: false, error: "🔑 Password is required." };
     }
 
     const allStudents = await dbStore.getStudents();
     const match = allStudents.find(s => {
+      if (!s.id || String(s.id).startsWith("CONFIG_") || String(s.id).startsWith("STORE_")) return false;
       const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
       const sLast9 = sDigits.length >= 9 ? sDigits.slice(-9) : sDigits;
       const sEmail = (s.email || "").toLowerCase();
       const sUsername = (s.username || sEmail).toLowerCase();
       const sId = (s.id || "").toLowerCase();
 
-      if (last9Id && last9Id.length >= 8 && sLast9 && (sLast9 === last9Id || sDigits.includes(idDigits))) return true;
+      if (last9Id && last9Id.length >= 8 && sLast9 && sLast9 === last9Id) return true;
       if (sEmail && (sEmail === cleanIdLower || sEmail === `@${cleanIdLower.replace(/^@/, '')}`)) return true;
       if (sUsername && (sUsername === cleanIdLower || sUsername === `@${cleanIdLower.replace(/^@/, '')}`)) return true;
       if (sId && sId === cleanIdLower) return true;
@@ -1005,15 +1288,27 @@ export const dbStore = {
     });
 
     if (!match) {
-      return { success: false, error: "No student account found with this phone number or username. Please check your spelling or create an account." };
+      return { 
+        success: false, 
+        error_type: "phone_not_found",
+        error: `📱 Unregistered Phone Number: No student account found for "${rawId}". Please click the "Create Account" tab above to sign up!` 
+      };
     }
 
     if (match.status === "Banned" || match.is_banned === true) {
-      return { success: false, error: `Account suspended. Reason: ${match.ban_reason || 'Violation of terms'}` };
+      return { 
+        success: false, 
+        error_type: "account_banned",
+        error: `🚫 Account Suspended: Your student account (${rawId}) has been suspended. Reason: ${match.ban_reason || 'Violation of platform terms'}` 
+      };
     }
 
     if (match.password_hash && match.password_hash !== passwordStr) {
-      return { success: false, error: "Incorrect password. Please check your credentials and try again." };
+      return { 
+        success: false, 
+        error_type: "incorrect_password",
+        error: `🔑 Incorrect Password: The password you entered for "${rawId}" is incorrect. Please check your password or click "Forgot Password?".` 
+      };
     }
 
     if (!match.password_hash) {
@@ -1349,53 +1644,131 @@ export const dbStore = {
     const allStudents = await dbStore.getStudents();
     const cleanSearch = String(studentIdOrPhone || "").trim().toLowerCase();
     const searchDigits = cleanSearch.replace(/[^0-9]/g, "");
+    const searchLast9 = searchDigits.length >= 9 ? searchDigits.slice(-9) : searchDigits;
 
     const student = allStudents.find(s => {
+      if (!s.id || String(s.id).startsWith("CONFIG_") || String(s.id).startsWith("STORE_")) return false;
       const sId = (s.id || "").toLowerCase();
       const sPhoneDigits = (s.phone || "").replace(/[^0-9]/g, "");
+      const sLast9 = sPhoneDigits.length >= 9 ? sPhoneDigits.slice(-9) : sPhoneDigits;
+      const sEmail = (s.email || "").toLowerCase();
+      const sUsername = (s.username || sEmail).toLowerCase();
+
       if (sId === cleanSearch || sId === `tg-${cleanSearch}`) return true;
-      if (searchDigits && searchDigits.length >= 8 && sPhoneDigits.includes(searchDigits)) return true;
+      if (searchLast9 && searchLast9.length >= 8 && sLast9 && sLast9 === searchLast9) return true;
+      if (sEmail && (sEmail === cleanSearch || sEmail === `@${cleanSearch.replace(/^@/, '')}`)) return true;
+      if (sUsername && (sUsername === cleanSearch || sUsername === `@${cleanSearch.replace(/^@/, '')}`)) return true;
       return false;
     });
 
     const courses = await dbStore.getCourses();
     const txns = await dbStore.getTransactions();
 
+    const studentPhoneDigits = student ? (student.phone || "").replace(/[^0-9]/g, "") : "";
+    const studentLast9 = studentPhoneDigits.length >= 9 ? studentPhoneDigits.slice(-9) : studentPhoneDigits;
+    const studentIdClean = student ? (student.id || "").toLowerCase() : cleanSearch;
+    const studentEmailClean = student ? (student.email || "").toLowerCase().trim() : cleanSearch;
+
     const matchedTxns = txns.filter(t => {
-      const tPhoneDigits = (t.studentPhone || t.phone || "").replace(/[^0-9]/g, "");
-      const tRef = (t.referenceNumber || t.id || "").toLowerCase();
-      if (searchDigits && searchDigits.length >= 8 && tPhoneDigits.includes(searchDigits)) return true;
-      if (student && tRef.includes(student.id.toLowerCase())) return true;
+      const tPhoneDigits = (t.student_phone || t.studentPhone || t.phone || "").replace(/[^0-9]/g, "");
+      const tLast9 = tPhoneDigits.length >= 9 ? tPhoneDigits.slice(-9) : tPhoneDigits;
+      const tEmail = (t.student_email || t.studentEmail || t.email || "").toLowerCase().trim();
+      const tName = (t.student_name || t.studentName || "").toLowerCase().trim();
+      const tRef = (t.reference_number || t.referenceNumber || t.id || "").toLowerCase();
+      const tStudentId = (t.student_id || t.studentId || "").toLowerCase();
+
+      // 1. Last 9 Digits Phone Match (0961147131 vs 251961147131)
+      if (searchLast9 && searchLast9.length >= 8 && tLast9 && tLast9 === searchLast9) return true;
+      if (studentLast9 && studentLast9.length >= 8 && tLast9 && tLast9 === studentLast9) return true;
+
+      // 2. Student ID Match
+      if (studentIdClean && (tStudentId === studentIdClean || tRef.includes(studentIdClean))) return true;
+
+      // 3. Email Match
+      if (studentEmailClean && tEmail && (tEmail === studentEmailClean || tEmail.includes(studentEmailClean))) return true;
+
+      // 4. Search Text & User ID Match
+      if (studentIdClean && (tName === studentIdClean || tName.includes(studentIdClean))) return true;
+      if (cleanSearch && cleanSearch.length >= 3 && (tEmail.includes(cleanSearch) || tName.includes(cleanSearch))) return true;
+
       return false;
     });
 
     const enrolledList = [];
     const addedCourseIds = new Set();
+    const allBundles = await dbStore.getCourseBundles();
 
-    matchedTxns.forEach(t => {
-      const course = courses.find(c => String(c.id) === String(t.courseId) || String(c.title) === String(t.courseTitle)) || courses[0];
-      if (course && !addedCourseIds.has(course.id)) {
-        addedCourseIds.add(course.id);
-        enrolledList.push({
-          id: course.id,
-          title: course.title,
-          category: course.category,
-          price: course.price,
-          duration: course.duration || "6 Weeks",
-          status: t.status === "Completed" || t.status === "VERIFIED" ? "Verified Active" : "Pending Verification",
-          paymentMethod: t.paymentMethod || "Bank Transfer",
-          referenceNumber: t.referenceNumber || t.id,
-          date: t.date || new Date().toLocaleDateString(),
-          tg_channel: course.tg_channel || "https://t.me/founders_smma_channel",
-          tg_group: course.tg_group || "https://t.me/founders_smma_group"
+    for (const t of matchedTxns) {
+      const targetId = String(t.course_id || t.courseId || "").trim();
+      const targetTitle = String(t.course_title || t.courseTitle || "").trim();
+
+      // Check if transaction was for a Course Bundle
+      const matchedBundle = allBundles.find(b => 
+        b.id === targetId || 
+        b.id === targetTitle ||
+        b.title.toLowerCase() === targetTitle.toLowerCase() ||
+        targetId.startsWith("bundle-")
+      );
+
+      if (matchedBundle && Array.isArray(matchedBundle.all_contained_courses)) {
+        // Unlock access for ALL contained courses (Main + all included courses, even if OFF)
+        matchedBundle.all_contained_courses.forEach(c => {
+          if (c && !addedCourseIds.has(c.id)) {
+            addedCourseIds.add(c.id);
+            enrolledList.push({
+              id: c.id,
+              title: c.title,
+              category: c.category,
+              price: c.price,
+              duration: c.duration || "6 Weeks",
+              is_from_bundle: true,
+              bundle_id: matchedBundle.id,
+              bundle_title: matchedBundle.title,
+              is_main_course: matchedBundle.main_course_id === c.id,
+              status: t.status === "Completed" || t.status === "VERIFIED" ? "Verified Active" : "Pending Verification",
+              paymentMethod: t.payment_method || t.paymentMethod || "Bank Transfer",
+              referenceNumber: t.reference_number || t.referenceNumber || t.id,
+              date: t.created_at || t.date || new Date().toLocaleDateString(),
+              tg_channel: c.tg_channel || "https://t.me/founders_academybot",
+              tg_group: c.tg_group || "https://t.me/founders_academybot"
+            });
+          }
         });
+      } else {
+        // Standard single course enrollment
+        const course = courses.find(c => String(c.id) === targetId || String(c.id) === targetTitle || String(c.title).toLowerCase() === targetTitle.toLowerCase()) || courses[0];
+        if (course && !addedCourseIds.has(course.id)) {
+          addedCourseIds.add(course.id);
+          enrolledList.push({
+            id: course.id,
+            title: course.title,
+            category: course.category,
+            price: course.price,
+            duration: course.duration || "6 Weeks",
+            status: t.status === "Completed" || t.status === "VERIFIED" ? "Verified Active" : "Pending Verification",
+            paymentMethod: t.payment_method || t.paymentMethod || "Bank Transfer",
+            referenceNumber: t.reference_number || t.referenceNumber || t.id,
+            date: t.created_at || t.date || new Date().toLocaleDateString(),
+            tg_channel: course.tg_channel || "https://t.me/founders_smma_channel",
+            tg_group: course.tg_group || "https://t.me/founders_smma_group"
+          });
+        }
       }
-    });
+    }
 
+    // Deduplicate enrolledList by course.id so each enrolled course appears ONLY ONCE
+    const uniqueEnrolledList = [];
+    const seenCourseIds = new Set();
+    for (const item of enrolledList) {
+      if (item && item.id && !seenCourseIds.has(item.id)) {
+        seenCourseIds.add(item.id);
+        uniqueEnrolledList.push(item);
+      }
+    }
 
     return {
       student: student || null,
-      courses: enrolledList
+      courses: uniqueEnrolledList
     };
   },
 
@@ -1404,30 +1777,27 @@ export const dbStore = {
     try {
       const { data, error } = await supabase.from("transactions").select("*").order("created_at", { ascending: false });
       if (!error && data) {
-        inMemoryTransactions = data;
         return data;
       }
     } catch (_e) { /* fallback */ }
+
     return inMemoryTransactions;
   },
   getTransactionById: async (id) => {
-    try {
-      const { data, error } = await supabase.from("transactions").select("*").eq("id", id).single();
-      if (!error && data) return data;
-    } catch (_e) { /* fallback */ }
-    return inMemoryTransactions.find(t => t.id === id || t.reference_number === id);
+    const list = await dbStore.getTransactions();
+    return list.find(t => t.id === id || t.reference_number === id || t.referenceNumber === id) || null;
   },
   addTransaction: async (txnData) => {
     const newTxn = {
       id: txnData.id || `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
-      student_name: txnData.student_name || "Anonymous",
-      student_phone: txnData.student_phone || "",
-      student_email: txnData.student_email || "",
-      masterclass_title: txnData.masterclass_title || "Course Enrollment",
-      course_id: txnData.course_id || "",
-      payment_method: txnData.payment_method || "telebirr",
-      reference_number: txnData.reference_number || "",
-      account_suffix: txnData.account_suffix || "",
+      student_name: txnData.student_name || txnData.studentName || "Anonymous",
+      student_phone: txnData.student_phone || txnData.studentPhone || "",
+      student_email: txnData.student_email || txnData.studentEmail || "",
+      course_title: txnData.course_title || txnData.courseTitle || "Course Enrollment",
+      course_id: txnData.course_id || txnData.courseId || "",
+      payment_method: txnData.payment_method || txnData.paymentMethod || "telebirr",
+      reference_number: txnData.reference_number || txnData.referenceNumber || "",
+      account_suffix: txnData.account_suffix || txnData.accountSuffix || "",
       amount: typeof txnData.amount === "number" ? `ETB ${txnData.amount.toLocaleString()}` : (txnData.amount || "ETB 0"),
       status: txnData.status || "Completed",
       verify_et_status: txnData.verify_et_status || "VERIFIED",
@@ -1435,8 +1805,25 @@ export const dbStore = {
       created_at: txnData.created_at || new Date().toISOString()
     };
 
+    if (newTxn.student_phone) {
+      await dbStore.addStudent({
+        name: newTxn.student_name,
+        phone: newTxn.student_phone,
+        email: newTxn.student_email
+      });
+    }
+
     try {
-      await supabase.from("transactions").insert([newTxn]);
+      const dbPayload = {
+        id: newTxn.id,
+        student_name: newTxn.student_name,
+        course_title: newTxn.course_title,
+        amount: newTxn.amount,
+        payment_method: newTxn.payment_method,
+        status: newTxn.status,
+        created_at: newTxn.created_at
+      };
+      await supabase.from("transactions").insert([dbPayload]);
     } catch (_e) { /* fallback */ }
 
     inMemoryTransactions.unshift(newTxn);
@@ -1478,8 +1865,8 @@ export const dbStore = {
       transactionId: txnId,
       accessGranted: true,
       telegramLinks: {
-        channel: course?.tg_channel || "https://t.me/founders_academy_general",
-        group: course?.tg_group || "https://t.me/founders_academy_group"
+        channel: course?.tg_channel || "https://t.me/founders_academybot",
+        group: course?.tg_group || "https://t.me/founders_academybot"
       }
     };
   },
@@ -1531,7 +1918,25 @@ export const dbStore = {
     try {
       await dbStore.getLandingConfig();
     } catch (_e) {}
-    inMemoryLandingConfig = { ...defaultLandingConfig, ...inMemoryLandingConfig, ...(config || {}) };
+
+    const base = inMemoryLandingConfig || defaultLandingConfig;
+    const incoming = config || {};
+
+    const mergedHero = incoming.hero ? { ...base.hero, ...incoming.hero } : base.hero;
+    if (incoming.hero && incoming.hero.introVideo) {
+      mergedHero.introVideo = { ...(base.hero?.introVideo || {}), ...incoming.hero.introVideo };
+    }
+
+    const mergedAnn = incoming.announcement ? { ...base.announcement, ...incoming.announcement } : base.announcement;
+
+    inMemoryLandingConfig = {
+      ...defaultLandingConfig,
+      ...base,
+      ...incoming,
+      hero: mergedHero,
+      announcement: mergedAnn
+    };
+
     try {
       await supabase.from("students").upsert([{
         id: "CONFIG_LANDING_CMS",
@@ -1806,19 +2211,15 @@ export const dbStore = {
 
   // --- Admin Security & Telegram 2FA OTP Engine (Multi-Admin Linkage Engine) ---
   getAdminSecurity: async () => {
-    try {
-      const { data } = await supabase.from("students").select("*").eq("id", "CONFIG_ADMIN_SECURITY").maybeSingle();
-      if (data && data.email) {
-        const parsed = JSON.parse(data.email);
-        inMemoryAdminSecurity = { ...inMemoryAdminSecurity, ...parsed };
-        if (!Array.isArray(inMemoryAdminSecurity.linkedAdminChats)) {
-          inMemoryAdminSecurity.linkedAdminChats = inMemoryAdminSecurity.telegramAdminChatId
-            ? [{ chatId: String(inMemoryAdminSecurity.telegramAdminChatId), username: inMemoryAdminSecurity.telegramAdminUsername || "@Admin", name: inMemoryAdminSecurity.telegramAdminName || "Super Admin", role: "Super Admin", linkedAt: inMemoryAdminSecurity.linkedAt || new Date().toISOString() }]
-            : [];
+    if (!inMemoryAdminSecurity._loadedFromDb) {
+      try {
+        const { data } = await supabase.from("students").select("*").eq("id", "CONFIG_ADMIN_SECURITY").maybeSingle();
+        if (data && data.email) {
+          const parsed = JSON.parse(data.email);
+          inMemoryAdminSecurity = { ...parsed, ...inMemoryAdminSecurity, _loadedFromDb: true };
         }
-        return inMemoryAdminSecurity;
-      }
-    } catch (_e) {}
+      } catch (_e) {}
+    }
     if (!Array.isArray(inMemoryAdminSecurity.linkedAdminChats)) {
       inMemoryAdminSecurity.linkedAdminChats = inMemoryAdminSecurity.telegramAdminChatId
         ? [{ chatId: String(inMemoryAdminSecurity.telegramAdminChatId), username: inMemoryAdminSecurity.telegramAdminUsername || "@Admin", name: inMemoryAdminSecurity.telegramAdminName || "Super Admin", role: "Super Admin", linkedAt: inMemoryAdminSecurity.linkedAt || new Date().toISOString() }]
@@ -1827,7 +2228,7 @@ export const dbStore = {
     return { ...inMemoryAdminSecurity };
   },
   updateAdminSecurity: async (updates) => {
-    inMemoryAdminSecurity = { ...inMemoryAdminSecurity, ...(updates || {}), updatedAt: new Date().toISOString() };
+    inMemoryAdminSecurity = { ...inMemoryAdminSecurity, ...(updates || {}), _loadedFromDb: true, updatedAt: new Date().toISOString() };
     if (!Array.isArray(inMemoryAdminSecurity.linkedAdminChats)) {
       inMemoryAdminSecurity.linkedAdminChats = [];
     }
@@ -1860,7 +2261,7 @@ export const dbStore = {
     };
   },
   pairTelegramAdmin: async (code, telegramUser) => {
-    const cleanInputCode = String(code || "").trim().toUpperCase().replace(/^LINK_/, "");
+    const cleanInputCode = String(code || "").trim().toUpperCase().replace(/^LINK_/, "").replace(/^ADMIN_/, "");
     const sec = await dbStore.getAdminSecurity();
     const activeCode = String(sec.activePairingCode || inMemoryAdminSecurity.activePairingCode || "").trim().toUpperCase();
 
@@ -2015,12 +2416,12 @@ export const dbStore = {
           if (row.config) {
             if (Array.isArray(row.config.linkedAdminChats)) {
               row.config.linkedAdminChats.forEach(a => {
-                if (a && a.chatId && /^\d+$/.test(String(a.chatId).trim())) {
+                if (a && a.chatId && /^-?\d+$/.test(String(a.chatId).trim())) {
                   chatIds.add(String(a.chatId).trim());
                 }
               });
             }
-            if (row.config.telegramAdminChatId && /^\d+$/.test(String(row.config.telegramAdminChatId).trim())) {
+            if (row.config.telegramAdminChatId && /^-?\d+$/.test(String(row.config.telegramAdminChatId).trim())) {
               chatIds.add(String(row.config.telegramAdminChatId).trim());
             }
           }
@@ -2032,19 +2433,19 @@ export const dbStore = {
     const sec = await dbStore.getAdminSecurity();
     if (sec && Array.isArray(sec.linkedAdminChats)) {
       sec.linkedAdminChats.forEach(a => {
-        if (a && a.chatId && /^\d+$/.test(String(a.chatId).trim())) {
+        if (a && a.chatId && /^-?\d+$/.test(String(a.chatId).trim())) {
           chatIds.add(String(a.chatId).trim());
         }
       });
     }
 
-    if (sec && sec.telegramAdminChatId && /^\d+$/.test(String(sec.telegramAdminChatId).trim())) {
+    if (sec && sec.telegramAdminChatId && /^-?\d+$/.test(String(sec.telegramAdminChatId).trim())) {
       chatIds.add(String(sec.telegramAdminChatId).trim());
     }
 
     // 3. Environment Variable Fallback
     const envAdminChatId = typeof process !== "undefined" && process.env ? process.env.ADMIN_CHAT_ID : null;
-    if (envAdminChatId && envAdminChatId !== "xxxxxxxxxx" && /^\d+$/.test(String(envAdminChatId).trim())) {
+    if (envAdminChatId && envAdminChatId !== "xxxxxxxxxx" && /^-?\d+$/.test(String(envAdminChatId).trim())) {
       chatIds.add(String(envAdminChatId).trim());
     }
 
@@ -2282,23 +2683,31 @@ export const dbStore = {
     } catch (_e) {}
     return inMemoryCoupons;
   },
-  validateCoupon: async (couponCode, courseId) => {
+  validateCoupon: async (couponCode, courseId, customPrice) => {
     const cleanCode = String(couponCode || "").trim().toUpperCase();
     if (!cleanCode) return { valid: false, error: "Missing coupon code" };
 
-    // 1. Check Course-specific coupon code
+    // 1. Find target course or bundle
     const courses = await dbStore.getCourses();
-    let course = courses.find(c => c.id === courseId || c.title === courseId);
-    if (!course && courseId) {
-      const clean = String(courseId).replace(/^course-/, "").toLowerCase();
-      course = courses.find(c => c.id.toLowerCase().includes(clean) || c.title.toLowerCase().includes(clean));
+    const bundles = await dbStore.getBundles();
+    const allItems = [...courses, ...bundles];
+
+    let item = allItems.find(c => c.id === courseId || c.title === courseId);
+    if (!item && courseId) {
+      const clean = String(courseId).replace(/^(course|bundle)-/, "").toLowerCase();
+      item = allItems.find(c => (c.id && String(c.id).toLowerCase().includes(clean)) || (c.title && String(c.title).toLowerCase().includes(clean)));
     }
 
-    const rawCoursePrice = course ? course.price : "10000";
-    const basePrice = parseFloat(String(rawCoursePrice).replace(/[^0-9.]/g, "")) || 10000;
+    let basePrice = 10000;
+    if (customPrice !== undefined && customPrice !== null && !isNaN(parseFloat(String(customPrice).replace(/[^0-9.]/g, "")))) {
+      basePrice = parseFloat(String(customPrice).replace(/[^0-9.]/g, ""));
+    } else if (item && item.price) {
+      basePrice = parseFloat(String(item.price).replace(/[^0-9.]/g, "")) || 10000;
+    }
 
-    if (course && course.coupon_code && course.coupon_code.toUpperCase() === cleanCode) {
-      const discountStr = String(course.coupon_discount || "20%").trim();
+    // 2. Check Item-specific coupon code
+    if (item && item.coupon_code && String(item.coupon_code).toUpperCase() === cleanCode) {
+      const discountStr = String(item.coupon_discount || "20%").trim();
       let discountAmount = 0;
 
       if (discountStr.includes("%")) {
@@ -2314,22 +2723,22 @@ export const dbStore = {
       return {
         valid: true,
         couponCode: cleanCode,
-        courseId: course.id,
-        courseTitle: course.title,
+        courseId: item.id,
+        courseTitle: item.title,
         discountStr,
         discountAmount,
         basePrice,
         finalPrice,
-        message: `Success! ${discountStr} discount applied to ${course.title}.`
+        message: `Success! ${discountStr} discount applied to ${item.title}.`
       };
     }
 
-    // 2. Check Global Coupons list
+    // 3. Check Global Coupons list from DB
     const globalCoupons = await dbStore.getCoupons();
     const matched = globalCoupons.find(c => c.code && c.code.toUpperCase() === cleanCode && c.status !== "inactive");
 
     if (matched) {
-      if (matched.courseId && matched.courseId !== "all" && matched.courseId !== courseId && (!course || matched.courseId !== course.id)) {
+      if (matched.courseId && matched.courseId !== "all" && matched.courseId !== courseId && (!item || matched.courseId !== item.id)) {
         return { valid: false, error: `Coupon '${cleanCode}' is only valid for a specific course.` };
       }
 
@@ -2350,8 +2759,8 @@ export const dbStore = {
       return {
         valid: true,
         couponCode: cleanCode,
-        courseId: course ? course.id : courseId,
-        courseTitle: course ? course.title : "All Courses",
+        courseId: item ? item.id : courseId,
+        courseTitle: item ? item.title : "All Courses",
         discountStr: discountLabel,
         discountAmount,
         basePrice,
@@ -2360,15 +2769,15 @@ export const dbStore = {
       };
     }
 
-    // 3. Fallback Built-in standard coupons
+    // 4. Built-in standard coupons
     if (cleanCode === "FOUNDER25" || cleanCode === "FOUNDERS" || cleanCode === "ETHIO25") {
       const discountAmount = (basePrice * 25) / 100;
-      const finalPrice = basePrice - discountAmount;
+      const finalPrice = Math.max(0, basePrice - discountAmount);
       return {
         valid: true,
         couponCode: cleanCode,
-        courseId: course ? course.id : courseId,
-        courseTitle: course ? course.title : "Course Enrollment",
+        courseId: item ? item.id : courseId,
+        courseTitle: item ? item.title : "Course Enrollment",
         discountStr: "25%",
         discountAmount,
         basePrice,
@@ -2377,14 +2786,30 @@ export const dbStore = {
       };
     }
 
-    if (cleanCode === "EARLYBIRD" || cleanCode === "WELCOME10") {
-      const discountAmount = (basePrice * 15) / 100;
-      const finalPrice = basePrice - discountAmount;
+    if (cleanCode === "VIP50" || cleanCode === "HALFPRICE" || cleanCode === "50OFF" || cleanCode === "SPECIAL50" || cleanCode === "ETHIO50") {
+      const discountAmount = (basePrice * 50) / 100;
+      const finalPrice = Math.max(0, basePrice - discountAmount);
       return {
         valid: true,
         couponCode: cleanCode,
-        courseId: course ? course.id : courseId,
-        courseTitle: course ? course.title : "Course Enrollment",
+        courseId: item ? item.id : courseId,
+        courseTitle: item ? item.title : "Course Enrollment",
+        discountStr: "50%",
+        discountAmount,
+        basePrice,
+        finalPrice,
+        message: `Success! 50% VIP discount applied to your enrollment.`
+      };
+    }
+
+    if (cleanCode === "EARLYBIRD" || cleanCode === "WELCOME10") {
+      const discountAmount = (basePrice * 15) / 100;
+      const finalPrice = Math.max(0, basePrice - discountAmount);
+      return {
+        valid: true,
+        couponCode: cleanCode,
+        courseId: item ? item.id : courseId,
+        courseTitle: item ? item.title : "Course Enrollment",
         discountStr: "15%",
         discountAmount,
         basePrice,
@@ -2397,6 +2822,134 @@ export const dbStore = {
       valid: false,
       error: `Coupon code '${cleanCode}' is invalid or expired.`
     };
+  },
+
+  DEFAULT_TELEGRAM_RESPONSES: {
+    welcome_connect: `👋 *Welcome to Founders Academy Student Verification!* 🎓\n\nHello *{first_name}*,\nTo link your Telegram account to your Founders Academy student profile, please tap the button below to share your phone number.`,
+    start_new_user: `👋 *Welcome to Founders Academy!* 🎓\n\nHello *{first_name}*,\nWelcome to Ethiopia's leading digital academy! Browse our practical agency courses and start mastering high-income skills today.`,
+    start_registered_user: `👋 *Welcome Back, {first_name}!* 🎓\n\nYour Founders Academy student account is active. Tap the button below to launch your Student Dashboard or browse your registered courses.`,
+    otp_auth: `🎉 *Founders Academy Web Authentication Successful!* 🚀\n\nHello *{first_name}*,\nYour web browser session has been authorized.\n\n🔑 *Security Code:* \`{auth_code}\`\n\n_You can now return to your browser!_`,
+    reset_password: `🔑 *Founders Academy Password Reset*\n\nHello *{first_name}*,\nTo reset your password, reply to this message with your new password or visit the reset link below:`,
+    name_requested: `✍️ *Account Registration (Step 1 of 2)*\n\nWelcome to *Founders Academy*! 🎓\nPlease reply to this message with your *Full Name* (First and Last Name) to get started:`,
+    phone_requested: `📱 *Account Registration (Step 2 of 2)*\n\nHello *{first_name}*,\nPlease tap the button below to share your *Phone Number*:`,
+    registration_completed: `🎉 *Registration Complete, {first_name}!* 🌟\n\nYour account details:\n👤 *Full Name*: {first_name}\n📱 *Phone*: \`{phone}\`\n\nTap **📚 Open Academy App** below to log in directly to your dashboard! 🚀`,
+    admin_pairing_success: `🔐 *Admin 2FA Device Successfully Linked!*\n\nHello *{first_name}* (@{username}), this Telegram chat is now officially registered as a *Founders Academy Super Admin 2FA Authenticator*.`,
+    admin_pairing_failed: `❌ *Invalid or Expired Pairing Code*\n\nThe pairing code was not recognized or has expired. Please generate a fresh code from Admin Portal > Settings > Security.`,
+    maintenance_on: `🚧 *System Maintenance in Progress*\n\nWe are tuning up the Founders Academy engine with fresh improvements. Bot interactions will resume shortly!`,
+    my_courses_reply: `📚 *My Registered Courses*\n\nHello *{first_name}*,\nTap the button below to open your Student Dashboard and access your course modules and private Telegram classroom links!`,
+    browse_courses_reply: `🎓 *Founders Academy Course Catalog*\n\nExplore our high-income skill tracks: SMMA & Agency Growth, Video Editing & VFX, Content Creation, Graphic Design. Tap below to view course syllabus and register!`,
+    support_reply: `💬 *Founders Academy Student Support*\n\nNeed assistance with enrollment, bank verification, or course access? Our support team is online 7 days a week!\n\nTelegram: @founderssupport\nPhone: +251 906 769 999`,
+    giveaway_reply: `🎟️ *Redeem Scholarship & Giveaway Code*\n\nTo redeem your giveaway code or VIP scholarship coupon, reply to this chat with your code (e.g., FOUNDER25 or VIP50).`,
+    payment_channels_reply: `💳 *Official Payment Channels*\n\nWe accept instant automated payments via:\n• CBE Birr / Commercial Bank of Ethiopia\n• Telebirr Merchant Direct\n• Bank of Abyssinia & Awash Bank`,
+    forgot_password_reply: `🔑 *Account Password Assistance*\n\nIf you forgot your student password, send your registered phone number to receive an instant 1-tap login link.`,
+    unknown_command: `🤖 *Founders Academy Bot Assistant*\n\nHello *{first_name}*,\nI didn't quite catch that. Please use the menu buttons below or type /start to view available options.`
+  },
+
+  async getTelegramResponses() {
+    try {
+      const { data, error } = await supabase
+        .from("students")
+        .select("*")
+        .eq("id", "CONFIG_TELEGRAM_RESPONSES")
+        .maybeSingle();
+
+      if (!error && data && data.email) {
+        const parsed = JSON.parse(data.email);
+        return { ...this.DEFAULT_TELEGRAM_RESPONSES, ...parsed };
+      }
+    } catch (_e) {}
+
+    if (globalThis._inMemoryTelegramResponses) {
+      return { ...this.DEFAULT_TELEGRAM_RESPONSES, ...globalThis._inMemoryTelegramResponses };
+    }
+
+    return { ...this.DEFAULT_TELEGRAM_RESPONSES };
+  },
+
+  async updateTelegramResponses(updates = {}) {
+    const current = await this.getTelegramResponses();
+    const merged = { ...current, ...updates, updatedAt: new Date().toISOString() };
+    globalThis._inMemoryTelegramResponses = merged;
+
+    try {
+      await supabase.from("students").upsert({
+        id: "CONFIG_TELEGRAM_RESPONSES",
+        name: "Telegram Responses Configuration",
+        email: JSON.stringify(merged),
+        phone: "+251000000000",
+        created_at: new Date().toISOString()
+      });
+    } catch (_e) {}
+
+    return merged;
+  },
+
+  async resetTelegramResponses() {
+    delete globalThis._inMemoryTelegramResponses;
+    try {
+      await supabase.from("students").delete().eq("id", "CONFIG_TELEGRAM_RESPONSES");
+    } catch (_e) {}
+    return { ...this.DEFAULT_TELEGRAM_RESPONSES };
+  },
+
+  async getLandingConfig() {
+    try {
+      const { data, error } = await supabase
+        .from("students")
+        .select("*")
+        .eq("id", "CONFIG_LANDING_PAGE")
+        .maybeSingle();
+
+      if (!error && data && data.email) {
+        const parsed = JSON.parse(data.email);
+        return { ...defaultLandingConfig, ...parsed };
+      }
+    } catch (_e) {}
+
+    return inMemoryLandingConfig || defaultLandingConfig;
+  },
+
+  async updateLandingConfig(updates = {}) {
+    const current = await this.getLandingConfig();
+    const merged = { ...current, ...updates };
+
+    if (updates.instructors) {
+      merged.instructors = { ...(current.instructors || {}), ...updates.instructors };
+    }
+    if (updates.hero) {
+      merged.hero = { ...(current.hero || {}), ...updates.hero };
+    }
+    if (updates.announcement) {
+      merged.announcement = { ...(current.announcement || {}), ...updates.announcement };
+    }
+    if (updates.whatYouGet) {
+      merged.whatYouGet = { ...(current.whatYouGet || {}), ...updates.whatYouGet };
+    }
+    if (updates.supportFooter) {
+      merged.supportFooter = { ...(current.supportFooter || {}), ...updates.supportFooter };
+    }
+
+    inMemoryLandingConfig = merged;
+
+    try {
+      await supabase.from("students").upsert({
+        id: "CONFIG_LANDING_PAGE",
+        name: "Landing Page Configuration",
+        email: JSON.stringify(merged),
+        phone: "+251000000000",
+        created_at: new Date().toISOString()
+      });
+    } catch (_e) {}
+
+    return merged;
+  },
+
+  async resetLandingConfig() {
+    inMemoryLandingConfig = JSON.parse(JSON.stringify(defaultLandingConfig));
+    try {
+      await supabase.from("students").delete().eq("id", "CONFIG_LANDING_PAGE");
+    } catch (_e) {}
+    return inMemoryLandingConfig;
   }
 };
 
@@ -2449,12 +3002,20 @@ const defaultLandingConfig = {
     badge: "#1 Digital Agency Incubator in Ethiopia",
     title: "Master High-Income Skills & Launch Your",
     highlightText: "6-Figure Agency",
-    subtitle: "Step-by-step masterclasses in Social Media Marketing (SMMA), Video Editing, Content Creation, and Graphic Design. Mentored by top digital entrepreneurs.",
+    subtitle: "Step-by-step courses in Social Media Marketing (SMMA), Video Editing, Content Creation, and Graphic Design. Mentored by top digital entrepreneurs.",
     primaryCtaText: "Explore & Join Courses",
     primaryCtaLink: "courses.html",
     secondaryCtaText: "Watch Intro Video",
+    trustStatus: "active",
     trustStudentsCount: "4,850+",
     trustSubtitle: "Ethiopian youth trained & launching clients",
+    trustRatingStars: 5,
+    trustAvatars: [
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
+    ],
     introVideo: {
       title: "Founders Academy Video Overview",
       durationBadge: "2:15 MIN TOUR",
@@ -2556,7 +3117,7 @@ const defaultLandingConfig = {
         icon: "layers",
         pill: "Core Program",
         title: "Comprehensive Video Modules",
-        desc: "Over 80+ hours of step-by-step masterclasses covering client outreach, sales psychology, video editing, and graphic design.",
+        desc: "Over 80+ hours of step-by-step courses covering client outreach, sales psychology, video editing, and graphic design.",
         bullets: ["Lifetime access to all modules", "Updated every quarter", "HD streaming on all devices"]
       },
       {
@@ -2674,7 +3235,7 @@ const defaultLandingConfig = {
       name: "Abebe Bikila",
       role: "SMMA Agency Founder",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-      quote: "Khilx Academy gave me the exact outreach scripts and proposal frameworks to close 3 international retainers. Life-changing experience!",
+      quote: "Founders Academy gave me the exact outreach scripts and proposal frameworks to close 3 international retainers. Life-changing experience!",
       earnings: "+125,000 ETB / Month",
       rating: 5,
       status: "active"
@@ -2734,7 +3295,7 @@ const defaultLandingConfig = {
     {
       id: "faq-1",
       question: "Are these courses suitable for complete beginners with zero experience?",
-      answer: "Yes, 100%! All Founders Academy masterclasses are engineered to take you from total novice to job-ready agency practitioner. We start with foundational principles before advancing into real client projects.",
+      answer: "Yes, 100%! All Founders Academy courses are engineered to take you from total novice to job-ready agency practitioner. We start with foundational principles before advancing into real client projects.",
       status: "active"
     },
     {
@@ -2751,7 +3312,7 @@ const defaultLandingConfig = {
     },
     {
       id: "faq-4",
-      question: "Do I receive a certificate after completing the masterclass?",
+      question: "Do I receive a certificate after completing the course?",
       answer: "Yes. Upon completing the course and submitting your final practical capstone project, you will be issued a verified Founders Academy Certificate of Mastery with a unique verification ID.",
       status: "active"
     },
@@ -2774,8 +3335,14 @@ const defaultLandingConfig = {
     supportTelegramHandle: "@founderssupport",
     supportTelegramLink: "https://t.me/founderssupport",
     supportPhone: "+251 906 769 999",
-    footerTagline: "Empowering the next generation of Ethiopian entrepreneurs with world-class digital skills and agency masterclasses.",
-    footerCopyright: "© 2026 Founders Academy. All rights reserved. | Developed by Digital Dynamics"
+    footerTagline: "Empowering the next generation of Ethiopian entrepreneurs with world-class digital skills and agency courses.",
+    footerCopyright: "© 2026 Founders Academy. All rights reserved. | Developed by Digital Dynamics",
+    socialLinks: [
+      { id: "link-1", platform: "telegram", label: "Telegram Support", url: "https://t.me/founderssupport", status: "active" },
+      { id: "link-2", platform: "youtube", label: "YouTube Channel", url: "https://youtube.com/@yonasmoh", status: "active" },
+      { id: "link-3", platform: "instagram", label: "Instagram Page", url: "https://instagram.com/yonasmoh", status: "active" },
+      { id: "link-4", platform: "linkedin", label: "LinkedIn Company", url: "#", status: "active" }
+    ]
   }
 };
 

@@ -132,6 +132,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn active">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -205,6 +208,14 @@
             <i data-lucide="message-circle" style="color: var(--primary-gold);"></i> 24/7 Student Support Contact Details
           </div>
 
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label" for="footer-status">Support Section Display Status (ON/OFF)</label>
+            <select id="footer-status" class="form-input" style="height: 48px;">
+              <option value="active">Active (ON - Visible on index.html & navbar link shown)</option>
+              <option value="inactive">Hidden / Inactive (OFF - Hide Support Section & Hide Navbar Link)</option>
+            </select>
+          </div>
+
           <div class="grid-2">
             <div class="form-group">
               <label class="form-label" for="supp-title">Support Box Title</label>
@@ -230,6 +241,21 @@
               <input type="text" id="supp-phone" class="form-input" placeholder="+251 906 769 999">
             </div>
           </div>
+        </div>
+
+        <!-- Footer Social & Community Links Manager -->
+        <div class="cms-card">
+          <div class="cms-card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span><i data-lucide="share-2" style="color: #ec4899;"></i> Footer Social & Community Links</span>
+            <button type="button" class="btn-dash-action btn-dash-primary" id="btn-add-social-link" style="padding: 8px 16px; font-size: 0.85rem;">
+              <i data-lucide="plus"></i> Add New Link
+            </button>
+          </div>
+          <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 16px;">
+            Manage social media channels displayed in the website footer. Toggle links ON/OFF (active/hidden), edit target URLs, or remove links.
+          </p>
+
+          <div id="social-links-list-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </div>
 
         <!-- Footer Branding & Copyright -->
@@ -259,8 +285,138 @@
     document.addEventListener("DOMContentLoaded", async () => {
       renderCmsNavTabs("footer");
 
+      let currentSocialLinks = [
+        { id: "link-1", platform: "telegram", label: "Telegram Support", url: "https://t.me/founderssupport", status: "active" },
+        { id: "link-2", platform: "youtube", label: "YouTube Channel", url: "https://youtube.com/@yonasmoh", status: "active" },
+        { id: "link-3", platform: "instagram", label: "Instagram Page", url: "https://instagram.com/yonasmoh", status: "active" },
+        { id: "link-4", platform: "linkedin", label: "LinkedIn Company", url: "#", status: "active" }
+      ];
+
+      function renderSocialLinksEditor() {
+        const container = document.getElementById("social-links-list-container");
+        if (!container) return;
+
+        if (!currentSocialLinks || currentSocialLinks.length === 0) {
+          container.innerHTML = `
+            <div style="padding: 20px; text-align: center; background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: var(--radius-sm); color: var(--text-dim); font-size: 0.85rem;">
+              No social links configured yet. Click <strong>"+ Add New Link"</strong> above to add one.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = currentSocialLinks.map((link, idx) => `
+          <div class="glass-box" style="padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 240px;">
+                <select class="form-input social-platform-select" data-index="${idx}" style="height: 40px; width: 140px; font-weight: 600;">
+                  <option value="telegram" ${link.platform === 'telegram' ? 'selected' : ''}>Telegram</option>
+                  <option value="youtube" ${link.platform === 'youtube' ? 'selected' : ''}>YouTube</option>
+                  <option value="instagram" ${link.platform === 'instagram' ? 'selected' : ''}>Instagram</option>
+                  <option value="linkedin" ${link.platform === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
+                  <option value="tiktok" ${link.platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
+                  <option value="twitter" ${link.platform === 'twitter' ? 'selected' : ''}>Twitter / X</option>
+                  <option value="website" ${link.platform === 'website' ? 'selected' : ''}>Website / Blog</option>
+                  <option value="custom" ${link.platform === 'custom' ? 'selected' : ''}>Custom Icon</option>
+                </select>
+                <input type="text" class="form-input social-label-input" data-index="${idx}" value="${link.label || ''}" placeholder="Link Title (e.g. Discord Community)" style="height: 40px; flex: 1;">
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <select class="form-input social-status-select" data-index="${idx}" style="height: 40px; width: 130px; font-size: 0.82rem; font-weight: 600; background: ${link.status === 'active' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${link.status === 'active' ? '#10b981' : '#ef4444'};">
+                  <option value="active" ${link.status === 'active' ? 'selected' : ''}>ON (Active)</option>
+                  <option value="inactive" ${link.status === 'inactive' ? 'selected' : ''}>OFF (Hidden)</option>
+                </select>
+                <button type="button" class="btn-dash-action btn-dash-danger delete-social-btn" data-index="${idx}" title="Delete Link" style="height: 40px; width: 40px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                  <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 0; gap: 10px;">
+              <div>
+                <label style="font-size: 0.76rem; color: var(--text-dim); margin-bottom: 4px; display: block;">Target Destination URL:</label>
+                <input type="text" class="form-input social-url-input" data-index="${idx}" value="${link.url || ''}" placeholder="Target URL (https://...)" style="height: 38px; font-size: 0.85rem;">
+              </div>
+              <div>
+                <label style="font-size: 0.76rem; color: var(--text-dim); margin-bottom: 4px; display: block;">Custom Icon Image URL (Optional):</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input type="text" class="form-input social-iconurl-input" data-index="${idx}" value="${link.iconUrl || ''}" placeholder="Icon URL (https://.../icon.png)" style="height: 38px; font-size: 0.85rem; flex: 1;">
+                  ${link.iconUrl ? `<img src="${link.iconUrl}" alt="Preview" style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05);" onerror="this.style.display='none'">` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join("");
+
+        if (window.lucide) window.lucide.createIcons();
+
+        // Bind input events
+        container.querySelectorAll(".social-platform-select").forEach(sel => {
+          sel.onchange = (e) => {
+            const idx = parseInt(e.target.getAttribute("data-index"), 10);
+            if (currentSocialLinks[idx]) currentSocialLinks[idx].platform = e.target.value;
+          };
+        });
+
+        container.querySelectorAll(".social-label-input").forEach(inp => {
+          inp.oninput = (e) => {
+            const idx = parseInt(e.target.getAttribute("data-index"), 10);
+            if (currentSocialLinks[idx]) currentSocialLinks[idx].label = e.target.value;
+          };
+        });
+
+        container.querySelectorAll(".social-url-input").forEach(inp => {
+          inp.oninput = (e) => {
+            const idx = parseInt(e.target.getAttribute("data-index"), 10);
+            if (currentSocialLinks[idx]) currentSocialLinks[idx].url = e.target.value;
+          };
+        });
+
+        container.querySelectorAll(".social-iconurl-input").forEach(inp => {
+          inp.oninput = (e) => {
+            const idx = parseInt(e.target.getAttribute("data-index"), 10);
+            if (currentSocialLinks[idx]) currentSocialLinks[idx].iconUrl = e.target.value;
+          };
+        });
+
+        container.querySelectorAll(".social-status-select").forEach(sel => {
+          sel.onchange = (e) => {
+            const idx = parseInt(e.target.getAttribute("data-index"), 10);
+            if (currentSocialLinks[idx]) {
+              currentSocialLinks[idx].status = e.target.value;
+              renderSocialLinksEditor();
+            }
+          };
+        });
+
+        container.querySelectorAll(".delete-social-btn").forEach(btn => {
+          btn.onclick = (e) => {
+            const idx = parseInt(btn.getAttribute("data-index"), 10);
+            currentSocialLinks.splice(idx, 1);
+            renderSocialLinksEditor();
+            showToast("Social link removed from list", "info");
+          };
+        });
+      }
+
+      document.getElementById("btn-add-social-link")?.addEventListener("click", () => {
+        currentSocialLinks.push({
+          id: "link-" + Date.now(),
+          platform: "telegram",
+          label: "Telegram Community",
+          url: "https://t.me/founderssupport",
+          status: "active"
+        });
+        renderSocialLinksEditor();
+        showToast("New social link added. Fill details & click Save.", "success");
+      });
+
       const config = await getLandingConfig();
       if (config && config.supportFooter) {
+        if (document.getElementById("footer-status")) {
+          document.getElementById("footer-status").value = config.supportFooter.status === "inactive" ? "inactive" : "active";
+        }
         document.getElementById("supp-title").value = config.supportFooter.supportTitle || "";
         document.getElementById("supp-subtitle").value = config.supportFooter.supportSubtitle || "";
         document.getElementById("supp-tg-handle").value = config.supportFooter.supportTelegramHandle || "";
@@ -268,18 +424,26 @@
         document.getElementById("supp-phone").value = config.supportFooter.supportPhone || "";
         document.getElementById("footer-tagline").value = config.supportFooter.footerTagline || "";
         document.getElementById("footer-copyright").value = config.supportFooter.footerCopyright || "";
+
+        if (Array.isArray(config.supportFooter.socialLinks) && config.supportFooter.socialLinks.length > 0) {
+          currentSocialLinks = JSON.parse(JSON.stringify(config.supportFooter.socialLinks));
+        }
       }
+
+      renderSocialLinksEditor();
 
       document.getElementById("btn-save-section")?.addEventListener("click", () => {
         const payload = {
           supportFooter: {
+            status: document.getElementById("footer-status")?.value || "active",
             supportTitle: document.getElementById("supp-title").value.trim(),
             supportSubtitle: document.getElementById("supp-subtitle").value.trim(),
             supportTelegramHandle: document.getElementById("supp-tg-handle").value.trim(),
             supportTelegramLink: document.getElementById("supp-tg-link").value.trim(),
             supportPhone: document.getElementById("supp-phone").value.trim(),
             footerTagline: document.getElementById("footer-tagline").value.trim(),
-            footerCopyright: document.getElementById("footer-copyright").value.trim()
+            footerCopyright: document.getElementById("footer-copyright").value.trim(),
+            socialLinks: currentSocialLinks
           }
         };
 
@@ -287,6 +451,5 @@
       });
     });
   </script>
-  <script src="js/admin.js"></script>
 </body>
 </html>

@@ -131,6 +131,9 @@
         <a href="admin-broadcast.html" class="nav-item-btn">
           <i data-lucide="send"></i> Telegram Bot Broadcast
         </a>
+        <a href="admin-telegram-responses.html" class="nav-item-btn">
+          <i data-lucide="bot"></i> Telegram Bot Responses
+        </a>
         <a href="admin-landing-customizer.html" class="nav-item-btn active">
           <i data-lucide="sliders"></i> Landing Page Customizer
         </a>
@@ -200,7 +203,15 @@
       <form id="form-metrics-cms">
         <div class="cms-card">
           <div class="cms-card-title">
-            <i data-lucide="bar-chart-2" style="color: var(--primary-gold);"></i> 4 Proof Counter Statistics
+            <i data-lucide="bar-chart-2" style="color: var(--primary-gold);"></i> 4 Proof Counter Statistics & Section Status
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label" for="metrics-status">Metrics Section Display Status (ON/OFF)</label>
+            <select id="metrics-status" class="form-input" style="height: 48px;">
+              <option value="active">Active (ON - Visible on index.html)</option>
+              <option value="inactive">Hidden / Inactive (OFF - Hide Metrics Bar)</option>
+            </select>
           </div>
 
           <!-- Counter 1 -->
@@ -290,26 +301,32 @@
       renderCmsNavTabs("metrics");
 
       const config = await getLandingConfig();
-      if (config && Array.isArray(config.metrics) && config.metrics.length >= 4) {
-        document.getElementById("m1-target").value = config.metrics[0].target || 5200;
-        document.getElementById("m1-suffix").value = config.metrics[0].suffix || "+";
-        document.getElementById("m1-label").value = config.metrics[0].label || "Students Enrolled";
+      if (config) {
+        if (document.getElementById("metrics-status")) {
+          document.getElementById("metrics-status").value = (config.metrics?.status || config.metricsStatus) === "inactive" ? "inactive" : "active";
+        }
+        if (Array.isArray(config.metrics) && config.metrics.length >= 4) {
+          document.getElementById("m1-target").value = config.metrics[0].target || 5200;
+          document.getElementById("m1-suffix").value = config.metrics[0].suffix || "+";
+          document.getElementById("m1-label").value = config.metrics[0].label || "Students Enrolled";
 
-        document.getElementById("m2-target").value = config.metrics[1].target || 96;
-        document.getElementById("m2-suffix").value = config.metrics[1].suffix || "%";
-        document.getElementById("m2-label").value = config.metrics[1].label || "Success Rate";
+          document.getElementById("m2-target").value = config.metrics[1].target || 96;
+          document.getElementById("m2-suffix").value = config.metrics[1].suffix || "%";
+          document.getElementById("m2-label").value = config.metrics[1].label || "Success Rate";
 
-        document.getElementById("m3-target").value = config.metrics[2].target || 1200;
-        document.getElementById("m3-suffix").value = config.metrics[2].suffix || "+";
-        document.getElementById("m3-label").value = config.metrics[2].label || "Community Members";
+          document.getElementById("m3-target").value = config.metrics[2].target || 1200;
+          document.getElementById("m3-suffix").value = config.metrics[2].suffix || "+";
+          document.getElementById("m3-label").value = config.metrics[2].label || "Community Members";
 
-        document.getElementById("m4-target").value = config.metrics[3].target || 450;
-        document.getElementById("m4-suffix").value = config.metrics[3].suffix || "+";
-        document.getElementById("m4-label").value = config.metrics[3].label || "Partner Agencies";
+          document.getElementById("m4-target").value = config.metrics[3].target || 450;
+          document.getElementById("m4-suffix").value = config.metrics[3].suffix || "+";
+          document.getElementById("m4-label").value = config.metrics[3].label || "Partner Agencies";
+        }
       }
 
       document.getElementById("btn-save-section")?.addEventListener("click", () => {
         const payload = {
+          metricsStatus: document.getElementById("metrics-status")?.value || "active",
           metrics: [
             { id: "m1", target: parseInt(document.getElementById("m1-target").value, 10) || 5200, suffix: document.getElementById("m1-suffix").value, label: document.getElementById("m1-label").value },
             { id: "m2", target: parseInt(document.getElementById("m2-target").value, 10) || 96, suffix: document.getElementById("m2-suffix").value, label: document.getElementById("m2-label").value },
